@@ -1,0 +1,6 @@
+{
+  "name": "ORYQEN STUDY AI",
+  "description": "Intelligent AI learning companion for students and exam candidates featuring multi-provider tutoring, photo question solving, document analysis, exam paper generation, mock tests, and smart spaced-repetition revision.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
