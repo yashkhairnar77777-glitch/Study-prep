@@ -5,6 +5,10 @@ import {
   MockTestAttempt,
   UserProfile,
   StudyTask,
+  PomodoroSession,
+  StudyActivity,
+  StudyStreak,
+  GeneratedStudyPack,
 } from '../types';
 
 const STORAGE_KEYS = {
@@ -16,6 +20,10 @@ const STORAGE_KEYS = {
   ACTIVE_CONVO_ID: 'oryqen_active_convo_id',
   AUTH_SESSION: 'oryqen_auth_session_v1',
   STUDY_TASKS: 'oryqen_study_tasks_v1',
+  FOCUS_SESSIONS: 'oryqen_focus_sessions_v1',
+  STUDY_ACTIVITIES: 'oryqen_study_activities_v1',
+  STUDY_STREAK: 'oryqen_study_streak_v1',
+  GENERATED_PACKS: 'oryqen_generated_packs_v1',
 };
 
 export const DEFAULT_PROFILE: UserProfile = {
@@ -108,6 +116,56 @@ const DEFAULT_TASKS: StudyTask[] = [
     completed: false,
     priority: 'high',
     createdAt: Date.now() - 14400000,
+  },
+];
+
+export const getTodayDateStr = (): string => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+export const getYesterdayDateStr = (): string => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+const DEFAULT_ACTIVITIES: StudyActivity[] = [
+  {
+    id: 'act-1',
+    type: 'focus_session',
+    title: 'Completed 25m Focus Session in Mathematics: Calculus Problem Solving',
+    subject: 'Mathematics',
+    durationMinutes: 25,
+    timestamp: Date.now() - 3600000,
+  },
+  {
+    id: 'act-2',
+    type: 'flashcard_review',
+    title: 'Reviewed 4 Flashcards in Physics',
+    subject: 'Physics',
+    durationMinutes: 10,
+    timestamp: Date.now() - 18000000,
+  },
+  {
+    id: 'act-3',
+    type: 'chat_question',
+    title: 'Solved concept inquiry with AI Tutor: Fractions & Prime Factors',
+    subject: 'Mathematics',
+    durationMinutes: 5,
+    timestamp: Date.now() - 86400000,
+  },
+];
+
+const DEFAULT_FOCUS_SESSIONS: PomodoroSession[] = [
+  {
+    id: 'session-default-1',
+    durationMinutes: 25,
+    mode: 'focus',
+    subject: 'Mathematics',
+    topic: 'Calculus Derivatives & Problem Solving',
+    completedAt: Date.now() - 3600000,
+    completed: true,
   },
 ];
 
@@ -280,6 +338,138 @@ export const storage = {
     }
   },
 
+  getFocusSessions(): PomodoroSession[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.FOCUS_SESSIONS);
+      if (data) return JSON.parse(data);
+      localStorage.setItem(STORAGE_KEYS.FOCUS_SESSIONS, JSON.stringify(DEFAULT_FOCUS_SESSIONS));
+      return DEFAULT_FOCUS_SESSIONS;
+    } catch {
+      return DEFAULT_FOCUS_SESSIONS;
+    }
+  },
+
+  saveFocusSession(session: PomodoroSession): void {
+    try {
+      const sessions = this.getFocusSessions();
+      const updated = [session, ...sessions];
+      localStorage.setItem(STORAGE_KEYS.FOCUS_SESSIONS, JSON.stringify(updated.slice(0, 100)));
+
+      // Automatically log as study activity if session has duration
+      if (session.durationMinutes > 0 && session.mode === 'focus') {
+        this.addStudyActivity({
+          type: 'focus_session',
+          title: `Completed ${session.durationMinutes}m Focus Session in ${session.subject}${session.topic ? `: ${session.topic}` : ''}`,
+          subject: session.subject,
+          durationMinutes: session.durationMinutes,
+          meta: { sessionId: session.id, mode: session.mode },
+        });
+        this.recordStudyEngagement(session.durationMinutes);
+      }
+    } catch (e) {
+      console.warn('Storage saveFocusSession failed', e);
+    }
+  },
+
+  getStudyActivities(): StudyActivity[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.STUDY_ACTIVITIES);
+      if (data) return JSON.parse(data);
+      localStorage.setItem(STORAGE_KEYS.STUDY_ACTIVITIES, JSON.stringify(DEFAULT_ACTIVITIES));
+      return DEFAULT_ACTIVITIES;
+    } catch {
+      return DEFAULT_ACTIVITIES;
+    }
+  },
+
+  addStudyActivity(activity: Omit<StudyActivity, 'id' | 'timestamp'> & { timestamp?: number }): StudyActivity {
+    try {
+      const activities = this.getStudyActivities();
+      const newAct: StudyActivity = {
+        ...activity,
+        id: `act-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        timestamp: activity.timestamp || Date.now(),
+      };
+      const updated = [newAct, ...activities].slice(0, 50);
+      localStorage.setItem(STORAGE_KEYS.STUDY_ACTIVITIES, JSON.stringify(updated));
+      return newAct;
+    } catch (e) {
+      console.warn('Storage addStudyActivity failed', e);
+      return {
+        ...activity,
+        id: `act-${Date.now()}`,
+        timestamp: Date.now(),
+      };
+    }
+  },
+
+  getStudyStreak(): StudyStreak {
+    const today = getTodayDateStr();
+    const yesterday = getYesterdayDateStr();
+    const defaultStreak: StudyStreak = {
+      currentStreak: 3,
+      longestStreak: 5,
+      lastActiveDate: today,
+      todayMinutes: 25,
+      todayGoalMinutes: 30,
+      history: {
+        [today]: 25,
+        [yesterday]: 45,
+      },
+    };
+
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.STUDY_STREAK);
+      if (!data) {
+        localStorage.setItem(STORAGE_KEYS.STUDY_STREAK, JSON.stringify(defaultStreak));
+        return defaultStreak;
+      }
+      const streak: StudyStreak = JSON.parse(data);
+      if (!streak.history) streak.history = {};
+      
+      // Verify if streak is broken (last active date earlier than yesterday)
+      if (streak.lastActiveDate && streak.lastActiveDate !== today && streak.lastActiveDate !== yesterday) {
+        streak.currentStreak = 0;
+        streak.todayMinutes = 0;
+      } else if (streak.lastActiveDate !== today) {
+        streak.todayMinutes = 0;
+      }
+      return streak;
+    } catch {
+      return defaultStreak;
+    }
+  },
+
+  recordStudyEngagement(minutes: number = 0): StudyStreak {
+    const today = getTodayDateStr();
+    const yesterday = getYesterdayDateStr();
+    const streak = this.getStudyStreak();
+
+    if (streak.lastActiveDate === today) {
+      streak.todayMinutes = (streak.todayMinutes || 0) + minutes;
+      streak.history[today] = (streak.history[today] || 0) + minutes;
+    } else if (streak.lastActiveDate === yesterday) {
+      streak.currentStreak = (streak.currentStreak || 0) + 1;
+      streak.longestStreak = Math.max(streak.longestStreak || 1, streak.currentStreak);
+      streak.lastActiveDate = today;
+      streak.todayMinutes = minutes;
+      streak.history[today] = minutes;
+    } else {
+      streak.currentStreak = 1;
+      streak.longestStreak = Math.max(streak.longestStreak || 1, 1);
+      streak.lastActiveDate = today;
+      streak.todayMinutes = minutes;
+      streak.history[today] = minutes;
+    }
+
+    try {
+      localStorage.setItem(STORAGE_KEYS.STUDY_STREAK, JSON.stringify(streak));
+    } catch (e) {
+      console.warn('Storage recordStudyEngagement failed', e);
+    }
+    return streak;
+  },
+
   exportAllData(): string {
     const backup = {
       profile: this.getProfile(),
@@ -288,6 +478,9 @@ export const storage = {
       notes: this.getNotes(),
       mockTests: this.getMockTests(),
       tasks: this.getTasks(),
+      focusSessions: this.getFocusSessions(),
+      studyActivities: this.getStudyActivities(),
+      streak: this.getStudyStreak(),
       exportedAt: new Date().toISOString(),
     };
     return JSON.stringify(backup, null, 2);
@@ -301,6 +494,15 @@ export const storage = {
       if (Array.isArray(parsed.flashcards)) this.saveFlashcards(parsed.flashcards);
       if (Array.isArray(parsed.notes)) this.saveNotes(parsed.notes);
       if (Array.isArray(parsed.tasks)) this.saveTasks(parsed.tasks);
+      if (Array.isArray(parsed.focusSessions)) {
+        localStorage.setItem(STORAGE_KEYS.FOCUS_SESSIONS, JSON.stringify(parsed.focusSessions));
+      }
+      if (Array.isArray(parsed.studyActivities)) {
+        localStorage.setItem(STORAGE_KEYS.STUDY_ACTIVITIES, JSON.stringify(parsed.studyActivities));
+      }
+      if (parsed.streak) {
+        localStorage.setItem(STORAGE_KEYS.STUDY_STREAK, JSON.stringify(parsed.streak));
+      }
       if (Array.isArray(parsed.mockTests)) {
         localStorage.setItem(STORAGE_KEYS.MOCK_TESTS, JSON.stringify(parsed.mockTests));
       }
@@ -315,6 +517,59 @@ export const storage = {
     const profile = this.getProfile();
     profile.isOnboarded = false;
     this.saveProfile(profile);
+  },
+
+  getGeneratedStudyPacks(): GeneratedStudyPack[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.GENERATED_PACKS);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  saveGeneratedStudyPack(pack: GeneratedStudyPack): void {
+    try {
+      const packs = this.getGeneratedStudyPacks();
+      const existingIdx = packs.findIndex(p => p.id === pack.id);
+      if (existingIdx !== -1) {
+        packs[existingIdx] = pack;
+      } else {
+        packs.unshift(pack);
+      }
+      localStorage.setItem(STORAGE_KEYS.GENERATED_PACKS, JSON.stringify(packs));
+    } catch (e) {
+      console.warn('Storage saveGeneratedStudyPack failed', e);
+    }
+  },
+
+  deleteGeneratedStudyPack(id: string): void {
+    try {
+      const packs = this.getGeneratedStudyPacks().filter(p => p.id !== id);
+      localStorage.setItem(STORAGE_KEYS.GENERATED_PACKS, JSON.stringify(packs));
+    } catch (e) {
+      console.warn('Storage deleteGeneratedStudyPack failed', e);
+    }
+  },
+
+  appendFlashcards(newCards: Flashcard[]): void {
+    try {
+      const current = this.getFlashcards();
+      const updated = [...newCards, ...current];
+      this.saveFlashcards(updated);
+    } catch (e) {
+      console.warn('Storage appendFlashcards failed', e);
+    }
+  },
+
+  appendNote(newNote: SavedNote): void {
+    try {
+      const current = this.getNotes();
+      const updated = [newNote, ...current];
+      this.saveNotes(updated);
+    } catch (e) {
+      console.warn('Storage appendNote failed', e);
+    }
   },
 
   clearAllData(): void {

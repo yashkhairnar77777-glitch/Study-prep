@@ -185,6 +185,55 @@ app.post('/api/analyze-doc', async (req: Request, res: Response) => {
   }
 });
 
+app.post('/api/study-generator/generate', async (req: Request, res: Response) => {
+  try {
+    const payload = req.body;
+    if (!payload || !payload.sourceMode) {
+      res.status(400).json({ success: false, error: 'Valid study generator payload is required.' });
+      return;
+    }
+
+    const studyPack = await studyService.generateStudyPack(payload);
+    res.json({ success: true, data: studyPack });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Study Pack generation failed';
+    console.error('[API /api/study-generator/generate error]:', message);
+    res.status(500).json({ success: false, error: message });
+  }
+});
+
+app.post('/api/study-generator/ocr', async (req: Request, res: Response) => {
+  try {
+    const { imageBase64, mimeType, pageNumber } = req.body;
+    if (!imageBase64) {
+      res.status(400).json({ success: false, error: 'Image data is required for OCR.' });
+      return;
+    }
+
+    const prompt = `You are ORYQEN STUDY AI's High-Precision Document OCR Engine.
+Transcribe all readable text, formulas, headings, bullet points, and diagram labels from this study document or handwritten notes page.
+${pageNumber ? `Target: Page ${pageNumber}` : ''}
+
+RULES:
+1. Output the exact transcribed text cleanly formatted in Markdown.
+2. For mathematical or chemical formulas, transcribe into LaTeX notation (e.g. $E=mc^2$).
+3. Maintain structure: preserve headings, lists, tables, and notes.
+4. Do not include commentary, meta-chatter, or preambles. Output only the transcribed content.`;
+
+    const ocrResponse = await orchestrator.executeVision(
+      prompt,
+      imageBase64,
+      mimeType || 'image/jpeg'
+    );
+
+    res.json({ success: true, text: ocrResponse.content, providerUsed: ocrResponse.providerUsed });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Document OCR extraction failed';
+    console.error('[API /api/study-generator/ocr error]:', message);
+    res.status(500).json({ success: false, error: message });
+  }
+});
+
 // START SERVER / VITE MIDDLEWARE
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';

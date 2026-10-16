@@ -155,6 +155,7 @@ export interface StudyTask {
 export type AppView =
   | 'landing'
   | 'dashboard'
+  | 'generator'
   | 'chat'
   | 'photo'
   | 'doc'
@@ -186,4 +187,147 @@ export interface ProviderStatus {
   primary: 'groq' | 'openrouter' | 'gemini' | 'none';
   secondary: 'openrouter' | 'gemini' | 'none';
 }
+
+export type PomodoroMode = 'focus' | 'short_break' | 'long_break';
+
+export interface PomodoroSession {
+  id: string;
+  durationMinutes: number;
+  mode: PomodoroMode;
+  subject: SubjectCategory;
+  topic?: string;
+  completedAt: number;
+  completed: boolean;
+}
+
+export interface StudyActivity {
+  id: string;
+  type: 'focus_session' | 'chat_question' | 'mock_test' | 'flashcard_review' | 'task_completed';
+  title: string;
+  subject?: SubjectCategory;
+  durationMinutes?: number;
+  timestamp: number;
+  meta?: Record<string, any>;
+}
+
+export interface StudyStreak {
+  currentStreak: number;
+  longestStreak: number;
+  lastActiveDate: string; // YYYY-MM-DD
+  todayMinutes: number;
+  todayGoalMinutes: number;
+  history: Record<string, number>; // dateStr -> minutes
+}
+
+export type EducationBoard =
+  | 'CBSE'
+  | 'ICSE'
+  | 'MSBSHSE'
+  | 'Cambridge'
+  | 'IB'
+  | 'Custom';
+
+export type StudyGeneratorOutputType =
+  | 'flashcards'
+  | 'notes'
+  | 'mcq_quiz'
+  | 'short_test'
+  | 'practice_exam'
+  | 'important_questions';
+
+export interface GeneratedFlashcardItem {
+  front: string;
+  back: string;
+  topic: string;
+}
+
+export interface GeneratedChapterNotes {
+  title: string;
+  summary: string;
+  markdownContent: string;
+  keyFormulas?: string[];
+  keyTakeaways?: string[];
+}
+
+export interface GeneratedMCQItem {
+  id: string;
+  question: string;
+  options: string[];
+  correctOptionIndex: number;
+  explanation: string;
+  topic?: string;
+}
+
+export interface GeneratedShortTestItem {
+  id: string;
+  question: string;
+  maxMarks: number;
+  modelAnswer: string;
+  keyPoints: string[];
+}
+
+export interface GeneratedImportantItem {
+  type: 'definition' | 'high_yield_question';
+  termOrQuestion: string;
+  explanationOrAnswer: string;
+  importance: 'Essential' | 'Frequent Exam Topic' | 'Advanced';
+}
+
+export interface GeneratedStudyPack {
+  id: string;
+  title: string;
+  sourceMode: 'syllabus' | 'upload';
+  sourceMetadata: {
+    board?: string;
+    curriculum?: string;
+    grade?: string;
+    subject?: string;
+    chapter?: string;
+    academicYear?: string;
+    documentTitle?: string;
+    pageCount?: number;
+    groundingSummary: string;
+  };
+  createdAt: number;
+  outputs: {
+    flashcards?: GeneratedFlashcardItem[];
+    notes?: GeneratedChapterNotes;
+    mcqQuiz?: GeneratedMCQItem[];
+    shortTest?: GeneratedShortTestItem[];
+    practiceExam?: ExamPaper;
+    importantQuestions?: GeneratedImportantItem[];
+  };
+  providerUsed?: string;
+  modelUsed?: string;
+}
+
+export interface StudyGeneratorPayload {
+  sourceMode: 'syllabus' | 'upload';
+  board?: string;
+  curriculum?: string;
+  grade?: string;
+  subject?: string;
+  academicYear?: string;
+  chapter?: string;
+  syllabusTopics?: string[];
+  customTopicsOrNotes?: string;
+  documentTitle?: string;
+  documentContent?: string;
+  pageContextSummary?: string;
+  selectedOutputs: StudyGeneratorOutputType[];
+  examConfig?: {
+    durationMinutes: number;
+    difficulty: 'Easy' | 'Medium' | 'Hard' | 'Competitive';
+    totalMarks?: number;
+  };
+  studentProfile?: {
+    name?: string;
+    grade?: string;
+    language?: string;
+    style?: string;
+  };
+  preferredProvider?: 'auto' | 'groq' | 'openrouter' | 'gemini';
+}
+
+
 

@@ -29,6 +29,29 @@ export class GeminiProvider {
     return clean;
   }
 
+  private getCandidateModels(): string[] {
+    const raw = (process.env.GEMINI_MODEL || '').trim().replace(/^["']|["']$/g, '');
+    const clean = raw.replace(/^models\//, '');
+
+    // If user provided a specific custom model other than known high-demand models
+    if (
+      clean &&
+      clean !== 'gemini-3.8-flash' &&
+      !clean.startsWith('gemini-1.') &&
+      !clean.startsWith('gemini-2.')
+    ) {
+      return [clean, 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest'];
+    }
+
+    // High availability production order (active without 503 high demand errors)
+    return [
+      'gemini-3.5-flash',
+      'gemini-3.1-flash-lite',
+      'gemini-flash-lite-latest',
+      'gemini-3.8-flash',
+    ];
+  }
+
   public isConfigured(): boolean {
     const key = this.getApiKey();
     return Boolean(key && key.length > 5);
@@ -51,7 +74,6 @@ export class GeminiProvider {
       throw new Error('GEMINI_API_KEY is not configured in the environment.');
     }
 
-    const model = this.getModel();
     const ai = new GoogleGenAI({
       apiKey,
       httpOptions: {
@@ -102,43 +124,50 @@ export class GeminiProvider {
       normalizedContents.unshift({ role: 'user', parts: [{ text: 'Begin tutoring session.' }] });
     }
 
-    try {
-      const response = await ai.models.generateContent({
-        model,
-        contents: normalizedContents,
-        config: {
-          systemInstruction,
-          temperature: options?.temperature ?? 0.4,
-          maxOutputTokens: options?.maxTokens ?? 3500,
-        },
-      });
+    const candidateModels = this.getCandidateModels();
+    let lastError: Error | null = null;
 
-      const text =
-        response.text ||
-        response.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') ||
-        '';
+    for (const model of candidateModels) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: normalizedContents,
+          config: {
+            systemInstruction,
+            temperature: options?.temperature ?? 0.4,
+            maxOutputTokens: options?.maxTokens ?? 3500,
+          },
+        });
 
-      return {
-        content: text,
-        providerUsed: 'gemini',
-        modelUsed: model,
-      };
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        let msg = err.message;
-        try {
-          const parsed = JSON.parse(msg);
-          if (parsed.error?.message) {
-            msg = parsed.error.message;
-          }
-        } catch {}
-        if (msg.includes('503') || msg.toLowerCase().includes('high demand')) {
-          msg = 'Gemini model is currently experiencing temporary high demand (503).';
+        const text =
+          response.text ||
+          response.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') ||
+          '';
+
+        if (text) {
+          return {
+            content: text,
+            providerUsed: 'gemini',
+            modelUsed: model,
+          };
         }
-        throw new Error(`Gemini provider error: ${msg}`);
+      } catch (err: unknown) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        console.warn(`[GeminiProvider] Model ${model} failed (${lastError.message}). Attempting next candidate...`);
       }
-      throw new Error('Unknown Gemini execution failure');
     }
+
+    let msg = lastError?.message || 'Unknown Gemini execution failure';
+    try {
+      const parsed = JSON.parse(msg);
+      if (parsed.error?.message) {
+        msg = parsed.error.message;
+      }
+    } catch {}
+    if (msg.includes('503') || msg.toLowerCase().includes('high demand')) {
+      msg = 'Gemini model is currently experiencing temporary high demand (503).';
+    }
+    throw new Error(`Gemini provider error: ${msg}`);
   }
 
   public async generateVision(
@@ -148,10 +177,9 @@ export class GeminiProvider {
   ): Promise<ProviderResponse> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
-      throw new Error('GEMINI_API_KEY is not configured.');
+      throw new Error('GEMINI_API_KEY is not configured in the environment.');
     }
 
-    const model = this.getModel();
     const ai = new GoogleGenAI({
       apiKey,
       httpOptions: {
@@ -161,44 +189,51 @@ export class GeminiProvider {
       },
     });
 
-    try {
-      const cleanBase64 = imageBase64.replace(/^data:[^;]+;base64,/, '');
-      const response = await ai.models.generateContent({
-        model,
-        contents: {
-          parts: [
-            {
-              inlineData: {
-                data: cleanBase64,
-                mimeType: mimeType || 'image/jpeg',
+    const cleanBase64 = imageBase64.replace(/^data:[^;]+;base64,/, '');
+    const candidateModels = this.getCandidateModels();
+    let lastError: Error | null = null;
+
+    for (const model of candidateModels) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: {
+            parts: [
+              {
+                inlineData: {
+                  data: cleanBase64,
+                  mimeType: mimeType || 'image/jpeg',
+                },
               },
-            },
-            {
-              text: prompt,
-            },
-          ],
-        },
-        config: {
-          temperature: 0.2,
-          maxOutputTokens: 3500,
-        },
-      });
+              {
+                text: prompt,
+              },
+            ],
+          },
+          config: {
+            temperature: 0.2,
+            maxOutputTokens: 3500,
+          },
+        });
 
-      const text =
-        response.text ||
-        response.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') ||
-        '';
+        const text =
+          response.text ||
+          response.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') ||
+          '';
 
-      return {
-        content: text,
-        providerUsed: 'gemini',
-        modelUsed: model,
-      };
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        throw new Error(`Gemini Vision error: ${err.message}`);
+        if (text) {
+          return {
+            content: text,
+            providerUsed: 'gemini',
+            modelUsed: model,
+          };
+        }
+      } catch (err: unknown) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        console.warn(`[GeminiProvider Vision] Model ${model} failed (${lastError.message}). Attempting next candidate...`);
       }
-      throw new Error('Unknown Gemini vision failure');
     }
+
+    throw new Error(`Gemini Vision error: ${lastError?.message || 'Failed to analyze image'}`);
   }
 }

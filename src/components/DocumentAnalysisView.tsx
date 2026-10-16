@@ -7,10 +7,11 @@ import {
   Sparkles,
   BookOpen,
   Info,
-  CheckCircle,
+  CheckCircle2,
   AlertCircle,
   FileCheck,
   Search,
+  HelpCircle,
 } from 'lucide-react';
 import { GradeLevel, SubjectCategory, UserProfile } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
@@ -28,18 +29,14 @@ export const DocumentAnalysisView: React.FC<DocumentAnalysisViewProps> = ({ prof
   const [parseError, setParseError] = useState<string | null>(null);
   const [questionInput, setQuestionInput] = useState('');
   const [isAsking, setIsAsking] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [chatHistory, setChatHistory] = useState<
     { question: string; answer: ChatResponseData; timestamp: number }[]
   >([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Parse text or PDF document
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFile = e.target.files?.[0];
-    if (!uploadedFile) return;
-
-    // Validate size (max 8MB)
+  const processFile = async (uploadedFile: File) => {
     if (uploadedFile.size > 8 * 1024 * 1024) {
       setParseError('Document exceeds 8MB size limit.');
       return;
@@ -69,9 +66,7 @@ export const DocumentAnalysisView: React.FC<DocumentAnalysisViewProps> = ({ prof
         uploadedFile.type === 'application/pdf' ||
         uploadedFile.name.endsWith('.pdf')
       ) {
-        // Parse PDF using pdfjs-dist
         const pdfjs = await import('pdfjs-dist');
-        // Set worker source to CDN or reliable build
         if (!pdfjs.GlobalWorkerOptions.workerSrc) {
           pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
         }
@@ -82,7 +77,7 @@ export const DocumentAnalysisView: React.FC<DocumentAnalysisViewProps> = ({ prof
 
         setPageCount(pdf.numPages);
         let fullText = '';
-        const maxPagesToExtract = Math.min(pdf.numPages, 30); // reasonable cap
+        const maxPagesToExtract = Math.min(pdf.numPages, 30);
 
         for (let i = 1; i <= maxPagesToExtract; i++) {
           const page = await pdf.getPage(i);
@@ -97,7 +92,7 @@ export const DocumentAnalysisView: React.FC<DocumentAnalysisViewProps> = ({ prof
 
         if (!fullText.trim()) {
           throw new Error(
-            'This PDF appears to be a scanned image without embedded digital text. Please use our Photo Question Solver to snapshot individual pages for visual OCR analysis.'
+            'This PDF appears to be a scanned image without embedded digital text. Please use our Photo Question Solver to snapshot individual pages for OCR analysis.'
           );
         }
 
@@ -114,6 +109,18 @@ export const DocumentAnalysisView: React.FC<DocumentAnalysisViewProps> = ({ prof
     } finally {
       setIsParsing(false);
     }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = e.target.files?.[0];
+    if (uploadedFile) processFile(uploadedFile);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile) processFile(droppedFile);
   };
 
   const handleClearDoc = () => {
@@ -157,59 +164,67 @@ export const DocumentAnalysisView: React.FC<DocumentAnalysisViewProps> = ({ prof
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-transparent text-slate-800 dark:text-slate-100 p-4 sm:p-6 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-6 pb-12">
+    <div className="h-full overflow-y-auto p-4 sm:p-6 md:p-8 transition-colors">
+      <div className="max-w-4xl mx-auto space-y-6 pb-16">
         {/* Title */}
-        <div className="border-b border-slate-200/60 dark:border-white/10 pb-4">
-          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 mb-1">
-            <FileText className="h-5 w-5" />
-            <span className="text-xs font-bold uppercase tracking-wider">
-              Document Grounding
-            </span>
+        <div className="border-b border-slate-200/80 dark:border-white/10 pb-4">
+          <div className="flex items-center gap-2 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-1">
+            <FileText className="h-4 w-4" />
+            <span>Document Grounding & Extraction</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-            PDF & Study Material Analysis
+            PDF & Document Analysis
           </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Upload course syllabi, lecture notes, textbook chapters, or research papers.
-            Ask targeted questions grounded strictly in the supplied text with page references.
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Upload textbook chapters, syllabi, lecture notes, or research papers.
+            Ask targeted questions grounded strictly in the document text with page references.
           </p>
         </div>
 
         {/* Upload Card */}
-        <div className="clay-card p-6 rounded-3xl">
+        <div className="clay-card p-6 rounded-3xl space-y-4">
           {!file ? (
             <div
+              onDragOver={e => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-700 bg-slate-850 p-8 text-center cursor-pointer hover:border-indigo-500 hover:bg-slate-800 transition-all"
+              className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer transition-all ${
+                isDragging
+                  ? 'border-violet-500 bg-violet-50/50 dark:bg-violet-950/30'
+                  : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 hover:border-violet-400 hover:bg-slate-100/50'
+              }`}
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600/20 text-indigo-400 mb-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 dark:bg-violet-950/80 text-violet-600 dark:text-violet-400 mb-3 shadow-xs">
                 <Upload className="h-6 w-6" />
               </div>
-              <p className="text-sm font-semibold text-slate-200">
-                Choose PDF or text document to analyze
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                Drag & drop or browse study document
               </p>
-              <p className="text-xs text-slate-500 mt-1">
-                Supports PDF, TXT, MD up to 8MB (digital text extraction)
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Supports PDF (.pdf), Markdown (.md), and plain text (.txt) up to 8MB
               </p>
             </div>
           ) : (
-            <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-700 bg-slate-800/80 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900/60 p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600/20 text-indigo-400">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-400 shrink-0">
                   <FileCheck className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-100 truncate max-w-sm">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-sm">
                     {file.name}
                   </h3>
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     <span>{(file.size / 1024).toFixed(1)} KB</span>
-                    <span>·</span>
+                    <span aria-hidden="true">·</span>
                     <span>{pageCount} {pageCount === 1 ? 'page' : 'pages'}</span>
-                    <span>·</span>
-                    <span className="text-emerald-400">
-                      {extractedText.length.toLocaleString()} chars parsed
+                    <span aria-hidden="true">·</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                      {extractedText.length.toLocaleString()} characters indexed
                     </span>
                   </div>
                 </div>
@@ -219,14 +234,14 @@ export const DocumentAnalysisView: React.FC<DocumentAnalysisViewProps> = ({ prof
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white"
+                  className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                 >
                   Change File
                 </button>
                 <button
                   type="button"
                   onClick={handleClearDoc}
-                  className="rounded-lg bg-rose-900/60 p-1.5 text-rose-300 hover:bg-rose-800"
+                  className="rounded-xl bg-rose-50 dark:bg-rose-950/60 p-2 text-rose-600 dark:text-rose-300 hover:bg-rose-100 transition-colors"
                   title="Remove file"
                 >
                   <X className="h-4 w-4" />
@@ -242,95 +257,93 @@ export const DocumentAnalysisView: React.FC<DocumentAnalysisViewProps> = ({ prof
             onChange={handleFileUpload}
             className="hidden"
           />
+
+          {/* Loading Parsing State */}
+          {isParsing && (
+            <div className="flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 font-medium">
+              <Sparkles className="w-4 h-4 animate-spin" />
+              <span>Extracting and indexing text from document pages...</span>
+            </div>
+          )}
+
+          {/* Error Banner */}
+          {parseError && (
+            <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs font-medium text-rose-700 dark:text-rose-300 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{parseError}</span>
+            </div>
+          )}
         </div>
 
-        {/* Parsing Progress / Warning */}
-        {isParsing && (
-          <div className="rounded-xl border border-indigo-800/60 bg-indigo-950/40 p-4 flex items-center gap-3 text-xs text-indigo-300">
-            <div className="h-4 w-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-            <span>Extracting document text and organizing sections...</span>
-          </div>
-        )}
-
-        {parseError && (
-          <div className="rounded-xl border border-rose-800 bg-rose-950/60 p-4 flex items-start gap-3 text-xs text-rose-200">
-            <AlertCircle className="h-4 w-4 shrink-0 text-rose-400 mt-0.5" />
-            <div>
-              <p className="font-semibold text-rose-100">Document Processing Notice:</p>
-              <p className="mt-1">{parseError}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Q&A Workspace when document is ready */}
+        {/* Q&A Section when text is extracted */}
         {extractedText && (
-          <div className="space-y-6">
-            {/* Quick Preview snippet */}
-            <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-3.5 text-xs text-slate-400">
-              <span className="font-semibold text-slate-300 uppercase tracking-wider block mb-1">
-                Document Excerpt Preview:
-              </span>
-              <p className="line-clamp-3 font-mono leading-relaxed">
-                {extractedText.slice(0, 350)}...
-              </p>
-            </div>
-
-            {/* Q&A Feed */}
-            {chatHistory.length > 0 && (
-              <div className="space-y-4">
-                {chatHistory.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-2xl border border-slate-700/80 bg-slate-800/60 p-5 space-y-3"
-                  >
-                    <div className="flex items-center gap-2 text-indigo-300 font-semibold text-sm">
-                      <Search className="h-4 w-4" />
-                      <span>{item.question}</span>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-700/50 text-sm leading-relaxed text-slate-200">
-                      <MarkdownRenderer content={item.answer.content} />
-                    </div>
-
-                    <div className="text-[11px] text-slate-500 pt-1">
-                      Grounded via {item.answer.providerUsed} ({item.answer.modelUsed})
-                    </div>
-                  </div>
-                ))}
+          <div className="space-y-6 animate-in fade-in">
+            {/* Ask Question Composer */}
+            <div className="clay-card p-5 rounded-3xl space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <Search className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                <span>Ask a question about this document</span>
               </div>
-            )}
 
-            {/* Question Composer */}
-            <div className="rounded-2xl border border-slate-700 bg-slate-800/80 p-3 shadow-inner">
-              <div className="flex items-end gap-2">
-                <textarea
+              <div className="flex gap-2">
+                <input
+                  type="text"
                   value={questionInput}
                   onChange={e => setQuestionInput(e.target.value)}
                   onKeyDown={e => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleAskQuestion();
-                    }
+                    if (e.key === 'Enter') handleAskQuestion();
                   }}
-                  placeholder="Ask any question grounded in this document (e.g. 'Summarize Section 3' or 'What formulas are introduced?')..."
-                  rows={2}
-                  className="flex-1 resize-none bg-transparent px-2 py-1 text-sm text-slate-100 placeholder:text-slate-500 outline-none"
+                  placeholder="e.g. Summarize Section 3.2 or What are the primary formulas listed on page 4?"
+                  className="flex-1 px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
                 />
 
                 <button
                   type="button"
                   onClick={handleAskQuestion}
                   disabled={isAsking || !questionInput.trim()}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 transition-all active:scale-95"
+                  className="clay-btn-primary px-5 py-2.5 text-xs font-bold flex items-center gap-2 disabled:opacity-40 shadow-sm"
                 >
-                  {isAsking ? (
-                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Ask</span>
                 </button>
               </div>
+
+              {/* Starter questions */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {[
+                  'Summarize the core takeaways in 3 bullet points.',
+                  'List all key formulas and definitions.',
+                  'Generate 3 practice exam questions from this document.',
+                ].map((s, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setQuestionInput(s);
+                    }}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-300 transition-colors"
+                  >
+                    + {s}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* Q&A History */}
+            {chatHistory.length > 0 && (
+              <div className="space-y-4">
+                {chatHistory.map((item, idx) => (
+                  <div key={idx} className="clay-card p-6 rounded-3xl space-y-3">
+                    <div className="text-xs font-bold text-violet-600 dark:text-violet-400">
+                      Q: {item.question}
+                    </div>
+                    <div className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed border-t border-slate-100 dark:border-white/5 pt-3">
+                      <MarkdownRenderer content={item.answer.content} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

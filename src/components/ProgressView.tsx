@@ -10,6 +10,9 @@ import {
   Zap,
   Target,
   Brain,
+  AlertTriangle,
+  Flame,
+  Calendar,
 } from 'lucide-react';
 import {
   UserProfile,
@@ -17,7 +20,9 @@ import {
   Flashcard,
   Conversation,
   StudyTask,
+  StudyStreak,
 } from '../types';
+import { storage } from '../lib/storage';
 
 interface ProgressViewProps {
   profile: UserProfile;
@@ -34,6 +39,8 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   conversations,
   tasks,
 }) => {
+  const streak: StudyStreak = storage.getStudyStreak();
+
   const totalQuestions = conversations.reduce(
     (acc, c) => acc + c.messages.filter(m => m.role === 'user').length,
     0
@@ -62,20 +69,25 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
     }
   });
 
+  // Real weak-topic analysis from incorrect test results
+  const incorrectQuestions = mockTests.flatMap(t =>
+    t.questionResults.filter(q => !q.isCorrect)
+  );
+
   return (
-    <div className="h-full overflow-y-auto p-4 sm:p-6 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-8 pb-12">
+    <div className="h-full overflow-y-auto p-4 sm:p-6 md:p-8 transition-colors">
+      <div className="max-w-6xl mx-auto space-y-8 pb-16">
         {/* Header */}
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-1">
             <BarChart3 className="w-4 h-4" />
             <span>Academic Performance & Retention</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-            Your Learning Analytics
+            Learning Diagnostics
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Real data compiled from your practice tests, flashcard reviews, and problem-solving sessions.
+            Real data compiled from your practice tests, flashcard recall, and focus sprints.
           </p>
         </div>
 
@@ -83,7 +95,18 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="clay-card p-5 rounded-2xl space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500">Test Accuracy</span>
+              <span className="text-xs font-bold text-slate-400">Study Streak</span>
+              <Flame className="w-4 h-4 text-amber-500 fill-amber-500" />
+            </div>
+            <div className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">
+              {streak.currentStreak} Days
+            </div>
+            <div className="text-[11px] text-slate-400">Longest streak: {streak.longestStreak} days</div>
+          </div>
+
+          <div className="clay-card p-5 rounded-2xl space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-400">Exam Accuracy</span>
               <Award className="w-4 h-4 text-amber-500" />
             </div>
             <div className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">
@@ -94,7 +117,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
           <div className="clay-card p-5 rounded-2xl space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500">Flashcards Mastered</span>
+              <span className="text-xs font-bold text-slate-400">Mastered Cards</span>
               <Layers className="w-4 h-4 text-violet-500" />
             </div>
             <div className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">
@@ -105,24 +128,13 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 
           <div className="clay-card p-5 rounded-2xl space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500">Problems Solved</span>
-              <MessageSquare className="w-4 h-4 text-indigo-500" />
+              <span className="text-xs font-bold text-slate-400">Focus Time Today</span>
+              <Clock className="w-4 h-4 text-emerald-500" />
             </div>
             <div className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">
-              {totalQuestions}
+              {streak.todayMinutes}m
             </div>
-            <div className="text-[11px] text-slate-400">With step-by-step reasoning</div>
-          </div>
-
-          <div className="clay-card p-5 rounded-2xl space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500">Task Completion</span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            </div>
-            <div className="font-display text-3xl font-extrabold text-slate-900 dark:text-white">
-              {tasks.length > 0 ? `${Math.round((completedTasks / tasks.length) * 100)}%` : '0%'}
-            </div>
-            <div className="text-[11px] text-slate-400">{completedTasks} of {tasks.length} tasks finished</div>
+            <div className="text-[11px] text-slate-400">Daily goal: {profile.dailyStudyTargetMinutes || 30}m</div>
           </div>
         </div>
 
@@ -137,87 +149,120 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
                 Flashcards move into higher boxes as you recall them successfully, extending interval spacing.
               </p>
             </div>
-            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950 px-2.5 py-1 rounded-full border border-indigo-200/60 dark:border-indigo-800/60">
+            <span className="text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950 px-2.5 py-1 rounded-full border border-violet-200/60 dark:border-violet-800/60">
               {flashcards.length} Total Cards
             </span>
           </div>
 
-          <div className="grid grid-cols-5 gap-3 sm:gap-4 pt-2">
+          <div className="grid grid-cols-5 gap-3">
             {[
-              { num: 1, label: 'Daily', color: 'bg-rose-500', count: boxCounts[0] },
-              { num: 2, label: '3 Days', color: 'bg-amber-500', count: boxCounts[1] },
-              { num: 3, label: '1 Week', color: 'bg-indigo-500', count: boxCounts[2] },
-              { num: 4, label: '2 Weeks', color: 'bg-violet-500', count: boxCounts[3] },
-              { num: 5, label: '1 Month', color: 'bg-emerald-500', count: boxCounts[4] },
-            ].map(box => (
-              <div key={box.num} className="clay-card-flat p-4 rounded-2xl text-center space-y-2">
-                <div className="text-[11px] font-bold text-slate-500">Box {box.num}</div>
-                <div className="font-display text-2xl font-extrabold text-slate-900 dark:text-white">
-                  {box.count}
+              { box: 1, label: 'Box 1', interval: '1 Day', color: 'bg-rose-500' },
+              { box: 2, label: 'Box 2', interval: '3 Days', color: 'bg-amber-500' },
+              { box: 3, label: 'Box 3', interval: '7 Days', color: 'bg-indigo-500' },
+              { box: 4, label: 'Box 4', interval: '14 Days', color: 'bg-violet-500' },
+              { box: 5, label: 'Box 5', interval: '30 Days', color: 'bg-emerald-500' },
+            ].map(b => {
+              const count = boxCounts[b.box - 1];
+              const pct = flashcards.length > 0 ? Math.round((count / flashcards.length) * 100) : 0;
+              return (
+                <div key={b.box} className="space-y-2 text-center">
+                  <div className="h-28 rounded-2xl bg-slate-100 dark:bg-slate-800/60 p-2 flex flex-col justify-end items-center overflow-hidden">
+                    <div
+                      className={`w-full ${b.color} rounded-xl transition-all duration-500 min-h-[4px]`}
+                      style={{ height: `${Math.max(4, pct)}%` }}
+                    />
+                  </div>
+                  <div>
+                    <div className="font-display font-bold text-slate-900 dark:text-white text-sm">
+                      {count}
+                    </div>
+                    <div className="text-[11px] text-slate-400 font-medium">{b.label}</div>
+                    <div className="text-[10px] text-slate-400">{b.interval}</div>
+                  </div>
                 </div>
-                <div className="text-[10px] text-slate-400">{box.label}</div>
-                <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
-                  <div
-                    className={`h-full ${box.color}`}
-                    style={{
-                      width: flashcards.length > 0 ? `${(box.count / flashcards.length) * 100}%` : '0%',
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Mock Test Score History */}
-        <div className="clay-card p-6 sm:p-8 rounded-3xl space-y-5">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
-              Mock Test Performance History
-            </h2>
-            <span className="text-xs text-slate-500">
-              {mockTests.length} {mockTests.length === 1 ? 'Exam' : 'Exams'} Completed
-            </span>
+        {/* Two-Column Grid: Weak-Topic Analysis & Recent Exam Scores */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Weak-Topic & Diagnostic Focus */}
+          <div className="clay-card p-6 sm:p-7 rounded-3xl space-y-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-500" />
+              <h3 className="font-display font-bold text-base text-slate-900 dark:text-white">
+                Weak-Topic Diagnostic
+              </h3>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Identified from questions missed during mock examination attempts.
+            </p>
+
+            {incorrectQuestions.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-900/40 rounded-2xl">
+                <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                <span className="font-bold text-slate-800 dark:text-slate-200 block">No Critical Weaknesses Flagged</span>
+                <span>You answered all questions correctly or haven't attempted a mock test yet.</span>
+              </div>
+            ) : (
+              <div className="space-y-2.5 max-h-64 overflow-y-auto">
+                {incorrectQuestions.slice(0, 5).map((q, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3.5 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-900/30 text-xs space-y-1"
+                  >
+                    <div className="font-bold text-rose-900 dark:text-rose-200 line-clamp-1">
+                      {q.question}
+                    </div>
+                    <div className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2">
+                      Review Solution: {q.explanation}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {mockTests.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-400">
-              You haven't attempted any mock tests yet. Generate your first timed exam to track scores!
+          {/* Test Performance Trajectory */}
+          <div className="clay-card p-6 sm:p-7 rounded-3xl space-y-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-violet-500" />
+              <h3 className="font-display font-bold text-base text-slate-900 dark:text-white">
+                Mock Test Score Trajectory
+              </h3>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {mockTests.map(attempt => (
-                <div
-                  key={attempt.id}
-                  className="p-4 rounded-2xl clay-card-flat flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
-                >
-                  <div>
-                    <div className="font-bold text-sm text-slate-900 dark:text-white">
-                      {attempt.examTitle}
-                    </div>
-                    <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-3">
-                      <span>{attempt.subject}</span>
-                      <span>·</span>
-                      <span>{new Date(attempt.completedAt).toLocaleDateString()}</span>
-                      <span>·</span>
-                      <span>{Math.round(attempt.timeSpentSeconds / 60)} mins</span>
-                    </div>
-                  </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Recent timed exam attempts and accuracy scores.
+            </p>
 
-                  <div className="flex items-center gap-4 self-end sm:self-center">
-                    <div className="text-right">
-                      <div className="font-display text-lg font-extrabold text-emerald-600 dark:text-emerald-400">
-                        {attempt.accuracyPercentage}%
+            {mockTests.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-900/40 rounded-2xl">
+                No mock test attempts recorded yet.
+              </div>
+            ) : (
+              <div className="space-y-2.5 max-h-64 overflow-y-auto">
+                {mockTests.slice(0, 5).map(test => (
+                  <div
+                    key={test.id}
+                    className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-white/5 flex items-center justify-between text-xs"
+                  >
+                    <div className="truncate pr-2">
+                      <div className="font-bold text-slate-800 dark:text-slate-100 truncate">
+                        {test.examTitle}
                       </div>
                       <div className="text-[11px] text-slate-400">
-                        {attempt.obtainedMarks} / {attempt.totalMarks} marks
+                        {new Date(test.completedAt).toLocaleDateString()} · {test.obtainedMarks}/{test.totalMarks} marks
                       </div>
                     </div>
+                    <div className="font-display font-black text-sm text-emerald-600 dark:text-emerald-400 shrink-0">
+                      {test.accuracyPercentage}%
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

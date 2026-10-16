@@ -105,3 +105,105 @@ export interface ProviderStatusInfo {
   primary: 'groq' | 'openrouter' | 'gemini' | 'none';
   secondary: 'openrouter' | 'gemini' | 'none';
 }
+
+export type StudyGeneratorOutputType =
+  | 'flashcards'
+  | 'notes'
+  | 'mcq_quiz'
+  | 'short_test'
+  | 'practice_exam'
+  | 'important_questions';
+
+export interface StudyGeneratorRequestPayload {
+  sourceMode: 'syllabus' | 'upload';
+  board?: string;
+  curriculum?: string;
+  grade?: string;
+  subject?: string;
+  academicYear?: string;
+  chapter?: string;
+  syllabusTopics?: string[];
+  customTopicsOrNotes?: string;
+  documentTitle?: string;
+  documentContent?: string;
+  pageContextSummary?: string;
+  selectedOutputs: StudyGeneratorOutputType[];
+  examConfig?: {
+    durationMinutes: number;
+    difficulty: 'Easy' | 'Medium' | 'Hard' | 'Competitive';
+    totalMarks?: number;
+  };
+  studentProfile?: {
+    name?: string;
+    grade?: string;
+    language?: string;
+    style?: string;
+  };
+  preferredProvider?: 'auto' | 'groq' | 'openrouter' | 'gemini';
+}
+
+export interface GeneratedFlashcardItem {
+  front: string;
+  back: string;
+  topic: string;
+}
+
+export interface GeneratedChapterNotes {
+  title: string;
+  summary: string;
+  markdownContent: string;
+  keyFormulas?: string[];
+  keyTakeaways?: string[];
+}
+
+export interface GeneratedMCQItem {
+  id: string;
+  question: string;
+  options: string[];
+  correctOptionIndex: number;
+  explanation: string;
+  topic?: string;
+}
+
+export interface GeneratedShortTestItem {
+  id: string;
+  question: string;
+  maxMarks: number;
+  modelAnswer: string;
+  keyPoints: string[];
+}
+
+export interface GeneratedImportantItem {
+  type: 'definition' | 'high_yield_question';
+  termOrQuestion: string;
+  explanationOrAnswer: string;
+  importance: 'Essential' | 'Frequent Exam Topic' | 'Advanced';
+}
+
+export interface StudyGeneratorResponsePayload {
+  id: string;
+  title: string;
+  sourceMode: 'syllabus' | 'upload';
+  sourceMetadata: {
+    board?: string;
+    curriculum?: string;
+    grade?: string;
+    subject?: string;
+    chapter?: string;
+    documentTitle?: string;
+    pageCount?: number;
+    groundingSummary: string;
+  };
+  createdAt: number;
+  outputs: {
+    flashcards?: GeneratedFlashcardItem[];
+    notes?: GeneratedChapterNotes;
+    mcqQuiz?: GeneratedMCQItem[];
+    shortTest?: GeneratedShortTestItem[];
+    practiceExam?: ExamPaperGenerated;
+    importantQuestions?: GeneratedImportantItem[];
+  };
+  providerUsed?: string;
+  modelUsed?: string;
+}
+

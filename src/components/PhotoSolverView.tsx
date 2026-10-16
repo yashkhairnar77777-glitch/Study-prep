@@ -4,7 +4,7 @@ import {
   Upload,
   X,
   Sparkles,
-  CheckCircle,
+  CheckCircle2,
   AlertTriangle,
   RotateCcw,
   Copy,
@@ -53,15 +53,13 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate type
     if (!['image/jpeg', 'image/png', 'image/webp', 'image/heic'].includes(file.type)) {
       setErrorMessage('Please upload a valid image file (JPEG, PNG, or WebP).');
       return;
     }
 
-    // Validate size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setErrorMessage('Image size exceeds 10MB limit. Please compress or crop the photo.');
+      setErrorMessage('Image size exceeds 10MB limit. Please crop or compress the photo.');
       return;
     }
 
@@ -119,58 +117,53 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-transparent text-slate-800 dark:text-slate-100 p-4 sm:p-6 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-6 pb-12">
-        {/* Header Title */}
-        <div className="border-b border-slate-200/60 dark:border-white/10 pb-4">
-          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 mb-1">
-            <Camera className="h-5 w-5" />
-            <span className="text-xs font-bold uppercase tracking-wider">
-              Multimodal Vision Solver
-            </span>
+    <div className="h-full overflow-y-auto p-4 sm:p-6 md:p-8 transition-colors">
+      <div className="max-w-4xl mx-auto space-y-6 pb-16">
+        {/* Title */}
+        <div className="border-b border-slate-200/80 dark:border-white/10 pb-4">
+          <div className="flex items-center gap-2 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-1">
+            <Camera className="h-4 w-4" />
+            <span>Multimodal Vision Reasoning</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
             Photo Question Solver
           </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Snap or upload a photo of textbook problems, handwritten formulas, or diagram questions.
-            The AI transcribes readable text, verifies the method, and writes a step-by-step solution.
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Take a photo or upload an image of any textbook diagram, math equation, physics circuit, or organic chemistry structure.
           </p>
         </div>
 
-        {/* Floating Notification */}
         {notice && (
-          <div className="fixed top-16 right-4 z-50 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-lg">
+          <div className="fixed top-18 right-4 z-50 rounded-xl bg-violet-600 px-3.5 py-2 text-xs font-semibold text-white shadow-lg animate-in fade-in">
             {notice}
           </div>
         )}
 
-        {/* Grid Setup: Left image upload, Right parameters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Upload Area */}
           <div className="space-y-4">
-            <div className="clay-card p-6 rounded-3xl">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                1. Upload Textbook or Handwritten Problem
+            <div className="clay-card p-6 rounded-3xl space-y-3">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                1. Upload Question Photo
               </label>
 
               {!previewUrl ? (
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-indigo-200 dark:border-indigo-800/80 clay-card-flat p-8 text-center cursor-pointer hover:scale-101 transition-all"
+                  className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 p-8 text-center cursor-pointer hover:border-violet-400 transition-all"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600/20 text-indigo-400 mb-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-400 mb-3 shadow-xs">
                     <Upload className="h-6 w-6" />
                   </div>
-                  <p className="text-sm font-semibold text-slate-200">
+                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
                     Click to select photo or drag & drop
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                     PNG, JPG, or WebP up to 10MB
                   </p>
                 </div>
               ) : (
-                <div className="relative rounded-xl overflow-hidden border border-slate-700 bg-slate-950">
+                <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-950">
                   <img
                     src={previewUrl}
                     alt="Problem to solve"
@@ -180,14 +173,14 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="rounded-lg bg-slate-900/80 backdrop-blur-xs px-2.5 py-1 text-xs font-medium text-white hover:bg-slate-800"
+                      className="rounded-xl bg-slate-900/80 backdrop-blur-xs px-2.5 py-1 text-xs font-semibold text-white hover:bg-slate-800"
                     >
                       Replace
                     </button>
                     <button
                       type="button"
                       onClick={handleClearImage}
-                      className="rounded-lg bg-rose-900/80 backdrop-blur-xs p-1 text-white hover:bg-rose-800"
+                      className="rounded-xl bg-rose-900/80 backdrop-blur-xs p-1 text-white hover:bg-rose-800"
                       title="Remove image"
                     >
                       <X className="h-4 w-4" />
@@ -211,17 +204,19 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
 
           {/* Configuration & Action Card */}
           <div className="space-y-4">
-            <div className="rounded-2xl border border-slate-700/80 bg-slate-800/40 p-4 space-y-4">
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+            <div className="clay-card p-6 rounded-3xl space-y-4">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 2. Academic Context
               </label>
 
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Education Level</label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Education Level
+                </label>
                 <select
                   value={selectedGrade}
                   onChange={e => setSelectedGrade(e.target.value as GradeLevel)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200 outline-none focus:border-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none"
                 >
                   <option value="Class 1-5 (Primary)">Class 1-5 (Primary)</option>
                   <option value="Class 6-8 (Middle School)">Class 6-8 (Middle School)</option>
@@ -236,11 +231,13 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Subject Domain</label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Subject Domain
+                </label>
                 <select
                   value={selectedSubject}
                   onChange={e => setSelectedSubject(e.target.value as SubjectCategory)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200 outline-none focus:border-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none"
                 >
                   <option value="Mathematics">Mathematics</option>
                   <option value="Physics">Physics</option>
@@ -252,15 +249,15 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs text-slate-400 mb-1">
-                  Optional Question or Specific Sub-part
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Specific Sub-part (Optional)
                 </label>
                 <input
                   type="text"
                   value={studentPrompt}
                   onChange={e => setStudentPrompt(e.target.value)}
-                  placeholder="e.g. Solve part (b) only, or explain step 3"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-200 outline-none focus:border-indigo-500 placeholder:text-slate-500"
+                  placeholder="e.g. Solve sub-part (b) only or explain step 2"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none"
                 />
               </div>
 
@@ -268,16 +265,16 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
                 type="button"
                 onClick={handleSubmit}
                 disabled={!base64Data || isLoading}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-40 disabled:hover:bg-indigo-600 transition-all active:scale-[0.98]"
+                className="w-full clay-btn-primary py-3 font-bold text-xs flex items-center justify-center gap-2 shadow-sm disabled:opacity-40"
               >
                 {isLoading ? (
                   <>
-                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Analyzing & Transcribing Image...</span>
+                    <Sparkles className="w-4 h-4 animate-spin" />
+                    <span>Analyzing & Solving Question...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-4 w-4" />
+                    <Sparkles className="w-4 h-4" />
                     <span>Analyze & Solve Question</span>
                   </>
                 )}
@@ -288,10 +285,10 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
 
         {/* Error Callout */}
         {errorMessage && (
-          <div className="rounded-xl border border-rose-800 bg-rose-950/60 p-4 text-xs text-rose-200 flex items-start gap-3">
-            <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400 mt-0.5" />
+          <div className="rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 p-4 text-xs text-rose-700 dark:text-rose-300 flex items-start gap-3">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-rose-500 mt-0.5" />
             <div className="flex-1">
-              <p className="font-semibold text-rose-100">Solver Encountered an Issue:</p>
+              <p className="font-bold">Solver Issue:</p>
               <p className="mt-1 whitespace-pre-wrap">{errorMessage}</p>
             </div>
           </div>
@@ -299,15 +296,15 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
 
         {/* Solution Output Card */}
         {solutionResult && (
-          <div className="rounded-2xl border border-slate-700/80 bg-slate-800/60 p-6 space-y-4 shadow-sm animate-fade-in">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/60 pb-3">
+          <div className="clay-card p-6 sm:p-8 rounded-3xl space-y-4 animate-in fade-in">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-white/5 pb-3">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-emerald-400" />
-                <span className="font-display font-bold text-base text-white">
+                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                <span className="font-display font-bold text-base text-slate-900 dark:text-white">
                   Step-by-Step Verified Solution
                 </span>
                 <span className="text-xs text-slate-400">
-                  via {solutionResult.providerUsed} ({solutionResult.modelUsed})
+                  via {solutionResult.modelUsed || 'ORYQEN AI'}
                 </span>
               </div>
 
@@ -315,10 +312,10 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-300 hover:text-white"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-white/10 px-2.5 py-1 text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                 >
                   {copied ? (
-                    <Check className="h-3.5 w-3.5 text-emerald-400" />
+                    <Check className="h-3.5 w-3.5 text-emerald-500" />
                   ) : (
                     <Copy className="h-3.5 w-3.5" />
                   )}
@@ -335,7 +332,7 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
                     );
                     showNotification('Saved to Notes!');
                   }}
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-300 hover:text-white"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-white/10 px-2.5 py-1 text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                 >
                   <BookmarkPlus className="h-3.5 w-3.5" />
                   <span>Save Note</span>
@@ -351,7 +348,7 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
                     );
                     showNotification('Added to Flashcard review queue!');
                   }}
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-300 hover:text-white"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-white/10 px-2.5 py-1 text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                 >
                   <Layers className="h-3.5 w-3.5" />
                   <span>Flashcard</span>
@@ -360,7 +357,7 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
             </div>
 
             {/* Rendered Math and Solution Markdown */}
-            <div className="prose-slate text-sm leading-relaxed text-slate-200">
+            <div className="text-sm leading-relaxed text-slate-800 dark:text-slate-200">
               <MarkdownRenderer content={solutionResult.content} />
             </div>
           </div>

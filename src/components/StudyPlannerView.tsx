@@ -75,7 +75,7 @@ export const StudyPlannerView: React.FC<StudyPlannerViewProps> = ({
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">
+            <div className="flex items-center gap-2 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-1">
               <Calendar className="w-4 h-4" />
               <span>Study Planner & Checklist</span>
             </div>

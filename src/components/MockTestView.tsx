@@ -174,6 +174,14 @@ export const MockTestView: React.FC<MockTestViewProps> = ({
 
     setTestResult(attempt);
     storage.saveMockTest(attempt);
+    storage.recordStudyEngagement(Math.max(5, Math.round(paper.durationMinutes)));
+    storage.addStudyActivity({
+      type: 'mock_test',
+      title: `Completed Mock Test: ${paper.title} (${accuracy}% accuracy)`,
+      subject: paper.subject as any,
+      durationMinutes: Math.round(paper.durationMinutes),
+      meta: { testId: attempt.id, accuracy },
+    });
     onSavedAttempt(attempt);
 
     // Trigger celebratory confetti if passed (>50%)

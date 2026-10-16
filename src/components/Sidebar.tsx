@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   Plus,
+  Sparkles,
   MessageSquare,
   Camera,
   FileText,
@@ -10,7 +11,6 @@ import {
   Calendar,
   BookMarked,
   BarChart3,
-  Sparkles,
   Trash2,
   Edit2,
   Check,
@@ -19,12 +19,11 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
-  Sun,
-  Moon,
   ExternalLink,
+  Search,
 } from 'lucide-react';
 import { Conversation, UserProfile, AppView } from '../types';
-import { IMAGES } from '../assets/images';
+import { OryqenLogo } from './OryqenLogo';
 
 interface SidebarProps {
   conversations: Conversation[];
@@ -60,12 +59,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenProfile,
   onExportData,
   isDark,
-  onToggleTheme,
   onOpenLanding,
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [isCollapsedDesktop, setIsCollapsedDesktop] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const startRename = (c: Conversation, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -87,19 +86,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const mainNav = [
-    { id: 'dashboard' as const, label: 'Home', icon: LayoutDashboard },
-    { id: 'chat' as const, label: 'AI Chat', icon: MessageSquare },
+    { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'generator' as const, label: 'Study Generator', icon: Sparkles },
+    { id: 'chat' as const, label: 'AI Tutor', icon: MessageSquare },
     { id: 'photo' as const, label: 'Photo Solver', icon: Camera },
     { id: 'doc' as const, label: 'PDF Analysis', icon: FileText },
   ];
 
   const toolsNav = [
-    { id: 'exam' as const, label: 'Mock Tests', icon: Award },
+    { id: 'exam' as const, label: 'Mock Tests & Exams', icon: Award },
     { id: 'revision' as const, label: 'Flashcards', icon: Layers },
     { id: 'planner' as const, label: 'Study Planner', icon: Calendar },
-    { id: 'notes' as const, label: 'Notes', icon: BookMarked },
-    { id: 'progress' as const, label: 'Progress', icon: BarChart3 },
+    { id: 'notes' as const, label: 'Study Notes', icon: BookMarked },
+    { id: 'progress' as const, label: 'Learning Diagnostics', icon: BarChart3 },
   ];
+
+  const filteredConversations = conversations.filter(c =>
+    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <>
@@ -113,42 +117,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r transition-all duration-300 md:static ${
-          isDark
-            ? 'bg-[#0e1526] border-white/10 text-slate-200'
-            : 'bg-white/90 border-slate-200/80 text-slate-800'
-        } ${isOpenMobile ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0'} ${
-          isCollapsedDesktop ? 'md:w-18' : 'md:w-68'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-[#19233d] bg-[#0b101f] text-slate-200 transition-all duration-300 md:static ${
+          isOpenMobile ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0'
+        } ${isCollapsedDesktop ? 'md:w-18' : 'md:w-68'}`}
       >
         {/* Brand & Collapse Header */}
-        <div className="p-3.5 border-b border-slate-200/60 dark:border-white/10 flex items-center justify-between">
+        <div className="p-3.5 border-b border-[#19233d] flex items-center justify-between">
           {!isCollapsedDesktop ? (
             <div
               onClick={onOpenLanding}
-              className="flex items-center gap-2.5 cursor-pointer group"
-              title="View Public Landing Page"
+              className="cursor-pointer group select-none"
+              title="ORYQEN STUDY AI Overview"
             >
-              <div className="w-8 h-8 rounded-xl overflow-hidden shadow-sm flex items-center justify-center bg-indigo-600">
-                <img
-                  src={IMAGES.CLAY_MASCOT}
-                  alt="Mascot"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <span className="font-display font-bold text-sm tracking-tight text-slate-900 dark:text-white flex items-center gap-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                  ORYQEN <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-extrabold px-1.5 py-0.2 rounded-md bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-200/50">AI</span>
-                </span>
-                <p className="text-[10px] text-slate-400 dark:text-slate-400">Clay Study Platform</p>
-              </div>
+              <OryqenLogo size="md" showWordmark={true} />
             </div>
           ) : (
             <div
               onClick={onOpenLanding}
-              className="mx-auto w-8 h-8 rounded-xl overflow-hidden cursor-pointer"
+              className="mx-auto cursor-pointer"
+              title="ORYQEN STUDY AI"
             >
-              <img src={IMAGES.CLAY_MASCOT} alt="Mascot" className="w-full h-full object-cover" />
+              <OryqenLogo size="sm" showWordmark={false} />
             </div>
           )}
 
@@ -156,7 +145,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={() => setIsCollapsedDesktop(!isCollapsedDesktop)}
-              className="hidden md:flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="hidden md:flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
               title={isCollapsedDesktop ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {isCollapsedDesktop ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -165,15 +154,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onCloseMobile}
-              className="md:hidden flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white"
+              className="md:hidden flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-white"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        {/* Primary Action: New Chat */}
-        <div className="p-3 border-b border-slate-200/60 dark:border-white/10">
+        {/* Primary Action: New AI Chat */}
+        <div className="p-3 border-b border-[#19233d]">
           <button
             type="button"
             onClick={() => {
@@ -181,22 +170,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
               setCurrentView('chat');
               onCloseMobile();
             }}
-            className={`w-full flex items-center justify-center gap-2 rounded-xl clay-btn-primary px-3 py-2.5 text-xs font-bold text-white shadow-md active:scale-98 transition-all ${
+            className={`w-full flex items-center justify-center gap-2 rounded-xl clay-btn-primary px-3 py-2.5 text-xs font-bold text-white shadow-sm transition-all ${
               isCollapsedDesktop ? 'p-2.5' : ''
             }`}
-            title="Start New Chat"
+            title="Start New Chat Session"
           >
             <Plus className="h-4 w-4 shrink-0 stroke-[2.5]" />
-            {!isCollapsedDesktop && <span>New AI Chat</span>}
+            {!isCollapsedDesktop && <span>New AI Session</span>}
           </button>
         </div>
 
-        {/* Main Navigation */}
+        {/* Scrollable Navigation Body */}
         <div className="p-2.5 space-y-4 flex-1 overflow-y-auto">
-          {/* Section: Main Tools */}
+          {/* Main Workspace Navigation */}
           <div>
             {!isCollapsedDesktop && (
-              <p className="px-2.5 mb-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              <p className="px-2.5 mb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Workspace
               </p>
             )}
@@ -214,8 +203,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     }}
                     className={`w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-semibold transition-all ${
                       isActive
-                        ? 'clay-btn-secondary text-indigo-600 dark:text-indigo-400 shadow-sm border border-indigo-200/60 dark:border-indigo-800/60'
-                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-indigo-600 dark:hover:text-white'
+                        ? 'bg-violet-600 text-white font-bold shadow-sm shadow-violet-900/40 border border-violet-400/30'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
                     }`}
                     title={item.label}
                   >
@@ -227,11 +216,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </nav>
           </div>
 
-          {/* Section: Study Tools */}
+          {/* Practice & Retention Tools */}
           <div>
             {!isCollapsedDesktop && (
-              <p className="px-2.5 mb-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                Study Tools
+              <p className="px-2.5 mb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Practice & Retention
               </p>
             )}
             <nav className="space-y-1">
@@ -250,8 +239,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     }}
                     className={`w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-semibold transition-all ${
                       isActive
-                        ? 'clay-btn-secondary text-indigo-600 dark:text-indigo-400 shadow-sm border border-indigo-200/60 dark:border-indigo-800/60'
-                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-indigo-600 dark:hover:text-white'
+                        ? 'bg-violet-600 text-white font-bold shadow-sm shadow-violet-900/40 border border-violet-400/30'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
                     }`}
                     title={item.label}
                   >
@@ -263,40 +252,52 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </nav>
           </div>
 
-          {/* Conversations History */}
+          {/* Recent AI Chat History (when not collapsed) */}
           {!isCollapsedDesktop && (
-            <div className="pt-2 border-t border-slate-200/60 dark:border-white/10">
+            <div className="pt-2 border-t border-[#19233d]">
               <div className="flex items-center justify-between px-2.5 mb-1.5">
-                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                  Recent Chats
-                </span>
-                <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold tabular-nums">
-                  {conversations.length}
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Recent Sessions ({conversations.length})
                 </span>
               </div>
 
-              {conversations.length === 0 ? (
-                <div className="px-3 py-4 text-center text-xs text-slate-600 dark:text-slate-400">
-                  No saved conversations yet.
+              {conversations.length > 5 && (
+                <div className="px-2 mb-2">
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Search topics..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      className="w-full text-xs pl-8 pr-2 py-1.5 rounded-lg bg-[#070b14] border border-[#1e2a47] focus:outline-none focus:ring-1 focus:ring-violet-500 text-slate-200 placeholder:text-slate-400"
+                    />
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
-                  {conversations.slice(0, 10).map(convo => {
-                    const isSelected = convo.id === activeConvoId && currentView === 'chat';
-                    const isEditing = editingId === convo.id;
+              )}
+
+              <div className="space-y-1 max-h-48 overflow-y-auto">
+                {filteredConversations.length === 0 ? (
+                  <p className="text-[11px] text-slate-400 px-2.5 py-1">
+                    No matching conversations.
+                  </p>
+                ) : (
+                  filteredConversations.map(c => {
+                    const isSelected = activeConvoId === c.id && currentView === 'chat';
+                    const isEditing = editingId === c.id;
 
                     return (
                       <div
-                        key={convo.id}
+                        key={c.id}
                         onClick={() => {
-                          onSelectConversation(convo.id);
+                          onSelectConversation(c.id);
                           setCurrentView('chat');
                           onCloseMobile();
                         }}
-                        className={`group relative flex items-center justify-between rounded-xl px-2.5 py-2 text-xs transition-colors cursor-pointer ${
+                        className={`group relative flex items-center justify-between rounded-xl px-2.5 py-1.5 text-xs transition-colors cursor-pointer ${
                           isSelected
-                            ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200/60 dark:border-indigo-800/60'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 hover:text-slate-900 dark:hover:text-slate-200'
+                            ? 'bg-violet-600/25 text-violet-300 font-semibold border border-violet-500/30'
+                            : 'text-slate-300 hover:bg-white/5 hover:text-white'
                         }`}
                       >
                         {isEditing ? (
@@ -305,40 +306,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
                               type="text"
                               value={editTitle}
                               onChange={e => setEditTitle(e.target.value)}
-                              className="w-full rounded-md px-1.5 py-0.5 text-xs bg-white dark:bg-slate-900 border border-indigo-400 outline-none text-slate-800 dark:text-slate-100"
+                              className="w-full rounded bg-[#070b14] px-1.5 py-0.5 text-xs border border-violet-500 text-white focus:outline-none"
                               autoFocus
-                              onKeyDown={e => {
-                                if (e.key === 'Enter') saveRename(convo.id, e as unknown as React.MouseEvent);
-                                if (e.key === 'Escape') cancelRename(e as unknown as React.MouseEvent);
-                              }}
                             />
                             <button
                               type="button"
-                              onClick={e => saveRename(convo.id, e)}
-                              className="text-emerald-500 hover:text-emerald-600 p-0.5"
+                              onClick={e => saveRename(c.id, e)}
+                              className="p-1 hover:text-emerald-400"
                             >
-                              <Check className="h-3.5 w-3.5" />
+                              <Check className="h-3 w-3" />
                             </button>
                             <button
                               type="button"
                               onClick={cancelRename}
-                              className="text-slate-400 hover:text-slate-600 p-0.5"
+                              className="p-1 hover:text-rose-400"
                             >
-                              <X className="h-3.5 w-3.5" />
+                              <X className="h-3 w-3" />
                             </button>
                           </div>
                         ) : (
                           <>
-                            <div className="flex items-center gap-2 truncate">
-                              <MessageSquare className="h-3 w-3 shrink-0 opacity-60" />
-                              <span className="truncate">{convo.title}</span>
+                            <div className="flex items-center gap-2 truncate pr-2">
+                              <MessageSquare className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                              <span className="truncate">{c.title}</span>
                             </div>
 
-                            <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity">
+                            <div className="hidden group-hover:flex items-center gap-1 shrink-0">
                               <button
                                 type="button"
-                                onClick={e => startRename(convo, e)}
-                                className="p-1 hover:text-indigo-600 rounded"
+                                onClick={e => startRename(c, e)}
+                                className="p-1 text-slate-400 hover:text-white rounded"
                                 title="Rename"
                               >
                                 <Edit2 className="h-3 w-3" />
@@ -347,9 +344,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                                 type="button"
                                 onClick={e => {
                                   e.stopPropagation();
-                                  onDeleteConversation(convo.id);
+                                  onDeleteConversation(c.id);
                                 }}
-                                className="p-1 hover:text-rose-600 rounded"
+                                className="p-1 text-slate-400 hover:text-rose-400 rounded"
                                 title="Delete"
                               >
                                 <Trash2 className="h-3 w-3" />
@@ -359,69 +356,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         )}
                       </div>
                     );
-                  })}
-                </div>
-              )}
+                  })
+                )}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Bottom Actions & User Profile */}
-        <div className="p-2.5 border-t border-slate-200/60 dark:border-white/10 space-y-2">
-          {/* Upgrade to Pro Card */}
+        {/* Footer Actions: Settings, Backup, Overview */}
+        <div className="p-3 border-t border-[#19233d] space-y-1">
+          <button
+            type="button"
+            onClick={onOpenProfile}
+            className={`w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-300 hover:bg-white/5 hover:text-white transition-colors ${
+              isCollapsedDesktop ? 'justify-center' : ''
+            }`}
+            title="Profile & Preferences"
+          >
+            <Settings className="h-4 w-4 shrink-0" />
+            {!isCollapsedDesktop && <span>Settings & Profile</span>}
+          </button>
+
+          <button
+            type="button"
+            onClick={onExportData}
+            className={`w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-300 hover:bg-white/5 hover:text-white transition-colors ${
+              isCollapsedDesktop ? 'justify-center' : ''
+            }`}
+            title="Export Study Data (JSON)"
+          >
+            <Download className="h-4 w-4 shrink-0" />
+            {!isCollapsedDesktop && <span>Backup Study Data</span>}
+          </button>
+
           {!isCollapsedDesktop && (
-            <div
-              onClick={() => {
-                setCurrentView('pricing');
-                onCloseMobile();
-              }}
-              className="p-3 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-300/40 dark:border-indigo-500/20 cursor-pointer hover:border-indigo-400 transition-colors flex items-center justify-between"
+            <button
+              type="button"
+              onClick={onOpenLanding}
+              className="w-full flex items-center justify-between rounded-xl px-2.5 py-1.5 text-[11px] font-semibold text-slate-400 hover:text-violet-400 transition-colors"
             >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                <div>
-                  <div className="text-xs font-bold text-slate-900 dark:text-white">Scholar Pro</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400">Unlimited exams & vision</div>
-                </div>
-              </div>
-              <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">Upgrade</span>
-            </div>
+              <span>Platform Overview</span>
+              <ExternalLink className="h-3 w-3" />
+            </button>
           )}
-
-          {/* Theme & Profile Bar */}
-          <div className="flex items-center justify-between gap-1">
-            <button
-              type="button"
-              onClick={onOpenProfile}
-              className={`flex-1 flex items-center gap-2 rounded-xl p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${
-                isCollapsedDesktop ? 'justify-center' : ''
-              }`}
-              title="Profile and Settings"
-            >
-              <div className="h-7 w-7 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm">
-                {profile.name ? profile.name[0].toUpperCase() : 'S'}
-              </div>
-              {!isCollapsedDesktop && (
-                <div className="text-left truncate">
-                  <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                    {profile.name || 'Student'}
-                  </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
-                    {profile.selectedClass || profile.grade}
-                  </div>
-                </div>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={onToggleTheme}
-              className="p-2 rounded-xl text-slate-500 hover:text-indigo-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-            >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
-            </button>
-          </div>
         </div>
       </aside>
     </>

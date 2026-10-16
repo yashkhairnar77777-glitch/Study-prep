@@ -12,6 +12,7 @@ import { DocumentAnalysisView } from './components/DocumentAnalysisView';
 import { ExamGeneratorView } from './components/ExamGeneratorView';
 import { MockTestView } from './components/MockTestView';
 import { SmartRevisionView } from './components/SmartRevisionView';
+import { StudyGeneratorView } from './components/StudyGeneratorView';
 import { DashboardView } from './components/DashboardView';
 import { StudyPlannerView } from './components/StudyPlannerView';
 import { NotesView } from './components/NotesView';
@@ -20,6 +21,9 @@ import { PricingView } from './components/PricingView';
 import { LandingPage } from './components/LandingPage';
 import { ProfileModal } from './components/ProfileModal';
 import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
+import { PomodoroProvider } from './contexts/PomodoroContext';
+import { PomodoroGlobalModal } from './components/PomodoroGlobalModal';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { storage } from './lib/storage';
 import { api } from './lib/api';
 import {
@@ -280,11 +284,12 @@ What question, topic, or problem would you like to explore today?`;
   }
 
   return (
-    <div
-      className={`flex h-screen w-screen overflow-hidden font-sans transition-colors duration-200 ${
-        isDark ? 'bg-[#0a0f1d] text-slate-100' : 'bg-[#f0f3fa] text-slate-800'
-      }`}
-    >
+    <PomodoroProvider profile={profile} onActivityLogged={handleReloadAllData}>
+      <div
+        className={`flex h-screen w-screen overflow-hidden font-sans transition-colors duration-200 ${
+          isDark ? 'bg-[#090d16] text-slate-100' : 'bg-[#f8fafc] text-slate-800'
+        }`}
+      >
       {/* Sidebar (Desktop Collapsible & Mobile Slide-out) */}
       <Sidebar
         conversations={conversations}
@@ -331,6 +336,20 @@ What question, topic, or problem would you like to explore today?`;
         />
 
         <main className="flex-1 overflow-hidden relative">
+          {currentView === 'generator' && (
+            <StudyGeneratorView
+              profile={profile}
+              onStartMockTest={handleStartMockTest}
+              onSaveAsNote={handleSaveAsNote}
+              onCreateFlashcard={handleCreateFlashcard}
+              onUpdateFlashcards={cards => {
+                setFlashcards(cards);
+                storage.saveFlashcards(cards);
+              }}
+              onUpdateNotes={handleUpdateNotes}
+            />
+          )}
+
           {currentView === 'chat' && (
             <ChatView
               conversation={activeConversation}
@@ -435,7 +454,16 @@ What question, topic, or problem would you like to explore today?`;
             />
           )}
         </main>
+
+        {/* Mobile Bottom Navigation */}
+        <MobileBottomNav
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+        />
       </div>
+
+      {/* Global Focus Timer Modal & Notification Toast */}
+      <PomodoroGlobalModal profile={profile} />
 
       {/* Profile & Settings Modal */}
       {isOpenProfileModal && (
@@ -453,5 +481,6 @@ What question, topic, or problem would you like to explore today?`;
         />
       )}
     </div>
+    </PomodoroProvider>
   );
 }

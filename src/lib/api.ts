@@ -5,6 +5,8 @@ import {
   ExplanationStyle,
   ExamPaper,
   ProviderStatus,
+  StudyGeneratorPayload,
+  GeneratedStudyPack,
 } from '../types';
 
 export interface ChatResponseData {
@@ -149,4 +151,39 @@ export const api = {
 
     return json.data;
   },
+
+  async generateStudyPack(params: StudyGeneratorPayload): Promise<GeneratedStudyPack> {
+    const res = await fetch('/api/study-generator/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      throw new Error(json.error || 'Failed to generate study pack.');
+    }
+
+    return json.data;
+  },
+
+  async ocrDocumentImage(params: {
+    imageBase64: string;
+    mimeType?: string;
+    pageNumber?: number;
+  }): Promise<{ text: string; providerUsed: string }> {
+    const res = await fetch('/api/study-generator/ocr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      throw new Error(json.error || 'OCR image processing failed.');
+    }
+
+    return { text: json.text, providerUsed: json.providerUsed };
+  },
 };
+
