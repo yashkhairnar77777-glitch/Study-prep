@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Calendar, Plus, Check, Trash2, Clock, Filter, AlertCircle } from 'lucide-react';
+import { Calendar, Plus, Check, Trash2, Clock, Filter, AlertCircle, Bell, BellRing, BellOff } from 'lucide-react';
 import { StudyTask, SubjectCategory, UserProfile } from '../types';
+import { useNotifications } from '../contexts/NotificationContext';
 
 interface StudyPlannerViewProps {
   tasks: StudyTask[];
@@ -13,16 +14,32 @@ export const StudyPlannerView: React.FC<StudyPlannerViewProps> = ({
   onUpdateTasks,
   profile,
 }) => {
+  const { permission, requestPermission, setIsOpenModal: setIsOpenNotificationModal } = useNotifications();
   const [filterSubject, setFilterSubject] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'completed'>('all');
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newSubject, setNewSubject] = useState<SubjectCategory>(profile.primarySubject);
-  const [newDueDate, setNewDueDate] = useState('Tomorrow');
+  const [newDueDate, setNewDueDate] = useState('Today');
   const [newPriority, setNewPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [newReminderEnabled, setNewReminderEnabled] = useState(true);
 
   const handleToggle = (id: string) => {
     const updated = tasks.map(t => (t.id === id ? { ...t, completed: !t.completed } : t));
+    onUpdateTasks(updated);
+  };
+
+  const handleToggleReminder = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (permission !== 'granted') {
+      const granted = await requestPermission();
+      if (!granted) {
+        setIsOpenNotificationModal(true);
+      }
+    }
+    const updated = tasks.map(t =>
+      t.id === id ? { ...t, reminderEnabled: t.reminderEnabled === false ? true : !t.reminderEnabled } : t
+    );
     onUpdateTasks(updated);
   };
 
@@ -43,6 +60,7 @@ export const StudyPlannerView: React.FC<StudyPlannerViewProps> = ({
       completed: false,
       priority: newPriority,
       createdAt: Date.now(),
+      reminderEnabled: newReminderEnabled,
     };
 
     onUpdateTasks([newTask, ...tasks]);
@@ -164,6 +182,33 @@ export const StudyPlannerView: React.FC<StudyPlannerViewProps> = ({
                   </select>
                 </div>
               </div>
+
+              {/* Browser Notification Reminder Toggle */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-violet-50/60 dark:bg-violet-950/20 border border-violet-200/80 dark:border-violet-900/30">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-violet-600 text-white flex items-center justify-center shrink-0">
+                    <Bell className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                      Browser Deadline Reminder
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                      Send a browser notification when this task is due today
+                    </div>
+                  </div>
+                </div>
+
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newReminderEnabled}
+                    onChange={e => setNewReminderEnabled(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-violet-600"></div>
+                </label>
+              </div>
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2">
@@ -271,17 +316,46 @@ export const StudyPlannerView: React.FC<StudyPlannerViewProps> = ({
                           High Priority
                         </span>
                       )}
+                      {task.reminderEnabled !== false && (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center gap-1">
+                          <Bell className="w-2.5 h-2.5" />
+                          <span>Alert on</span>
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handleDelete(task.id)}
-                  className="p-2 text-slate-400 hover:text-rose-600 rounded-xl transition-colors"
-                  title="Delete Task"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={e => handleToggleReminder(task.id, e)}
+                    className={`p-2 rounded-xl transition-colors ${
+                      task.reminderEnabled !== false
+                        ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60 hover:bg-violet-100 dark:hover:bg-violet-900/40'
+                        : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                    title={
+                      task.reminderEnabled !== false
+                        ? 'Browser reminder active (click to mute)'
+                        : 'Click to enable browser reminder'
+                    }
+                  >
+                    {task.reminderEnabled !== false ? (
+                      <BellRing className="w-4 h-4" />
+                    ) : (
+                      <BellOff className="w-4 h-4" />
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(task.id)}
+                    className="p-2 text-slate-400 hover:text-rose-600 rounded-xl transition-colors"
+                    title="Delete Task"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             ))
           )}

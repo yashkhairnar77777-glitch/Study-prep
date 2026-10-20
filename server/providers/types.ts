@@ -112,6 +112,8 @@ export type StudyGeneratorOutputType =
   | 'mcq_quiz'
   | 'short_test'
   | 'practice_exam'
+  | 'oral_test'
+  | 'formula_sheet'
   | 'important_questions';
 
 export interface StudyGeneratorRequestPayload {
@@ -122,6 +124,7 @@ export interface StudyGeneratorRequestPayload {
   subject?: string;
   academicYear?: string;
   chapter?: string;
+  chaptersSelected?: string[];
   syllabusTopics?: string[];
   customTopicsOrNotes?: string;
   documentTitle?: string;
@@ -173,6 +176,37 @@ export interface GeneratedShortTestItem {
   keyPoints: string[];
 }
 
+export interface OralTestItem {
+  id: string;
+  question: string;
+  expectedKeywords: string[];
+  modelAnswer: string;
+  rubricHint: string;
+  difficulty: 'Basic' | 'Moderate' | 'Advanced';
+}
+
+export interface OralTestEvaluation {
+  scoreOutOf5: number;
+  accuracyScore: number;
+  terminologyUsed: string[];
+  missedKeywords: string[];
+  verbalFeedback: string;
+  exemplarPhrasing: string;
+}
+
+export interface FormulaSheetItem {
+  formula: string;
+  name: string;
+  variables: string;
+  examTip: string;
+}
+
+export interface GeneratedFormulaSheet {
+  title: string;
+  summary: string;
+  formulas: FormulaSheetItem[];
+}
+
 export interface GeneratedImportantItem {
   type: 'definition' | 'high_yield_question';
   termOrQuestion: string;
@@ -190,9 +224,12 @@ export interface StudyGeneratorResponsePayload {
     grade?: string;
     subject?: string;
     chapter?: string;
+    chaptersSelected?: string[];
+    academicYear?: string;
     documentTitle?: string;
     pageCount?: number;
     groundingSummary: string;
+    isNcertVerified?: boolean;
   };
   createdAt: number;
   outputs: {
@@ -201,6 +238,8 @@ export interface StudyGeneratorResponsePayload {
     mcqQuiz?: GeneratedMCQItem[];
     shortTest?: GeneratedShortTestItem[];
     practiceExam?: ExamPaperGenerated;
+    oralTest?: OralTestItem[];
+    formulaSheet?: GeneratedFormulaSheet;
     importantQuestions?: GeneratedImportantItem[];
   };
   providerUsed?: string;

@@ -150,6 +150,30 @@ export interface StudyTask {
   completed: boolean;
   priority: 'low' | 'medium' | 'high';
   createdAt: number;
+  reminderEnabled?: boolean;
+  reminderTime?: string; // e.g. "17:00" or ISO string
+  notified?: boolean;
+}
+
+export interface NotificationPreferences {
+  enabled: boolean;
+  flashcardReminders: boolean;
+  taskReminders: boolean;
+  reminderTime: string; // e.g. "09:00"
+  frequencyMinutes: number; // e.g. 60
+  sound: boolean;
+}
+
+export interface AppNotification {
+  id: string;
+  type: 'flashcard_due' | 'task_reminder' | 'study_streak' | 'system';
+  title: string;
+  body: string;
+  targetView: AppView;
+  timestamp: number;
+  read: boolean;
+  actionLabel?: string;
+  meta?: Record<string, any>;
 }
 
 export type AppView =
@@ -233,6 +257,8 @@ export type StudyGeneratorOutputType =
   | 'mcq_quiz'
   | 'short_test'
   | 'practice_exam'
+  | 'oral_test'
+  | 'formula_sheet'
   | 'important_questions';
 
 export interface GeneratedFlashcardItem {
@@ -266,6 +292,37 @@ export interface GeneratedShortTestItem {
   keyPoints: string[];
 }
 
+export interface OralTestItem {
+  id: string;
+  question: string;
+  expectedKeywords: string[];
+  modelAnswer: string;
+  rubricHint: string;
+  difficulty: 'Basic' | 'Moderate' | 'Advanced';
+}
+
+export interface OralTestEvaluation {
+  scoreOutOf5: number;
+  accuracyScore: number; // 0-100%
+  terminologyUsed: string[];
+  missedKeywords: string[];
+  verbalFeedback: string;
+  exemplarPhrasing: string;
+}
+
+export interface FormulaSheetItem {
+  formula: string;
+  name: string;
+  variables: string;
+  examTip: string;
+}
+
+export interface GeneratedFormulaSheet {
+  title: string;
+  summary: string;
+  formulas: FormulaSheetItem[];
+}
+
 export interface GeneratedImportantItem {
   type: 'definition' | 'high_yield_question';
   termOrQuestion: string;
@@ -283,10 +340,12 @@ export interface GeneratedStudyPack {
     grade?: string;
     subject?: string;
     chapter?: string;
+    chaptersSelected?: string[];
     academicYear?: string;
     documentTitle?: string;
     pageCount?: number;
     groundingSummary: string;
+    isNcertVerified?: boolean;
   };
   createdAt: number;
   outputs: {
@@ -295,6 +354,8 @@ export interface GeneratedStudyPack {
     mcqQuiz?: GeneratedMCQItem[];
     shortTest?: GeneratedShortTestItem[];
     practiceExam?: ExamPaper;
+    oralTest?: OralTestItem[];
+    formulaSheet?: GeneratedFormulaSheet;
     importantQuestions?: GeneratedImportantItem[];
   };
   providerUsed?: string;
@@ -309,6 +370,7 @@ export interface StudyGeneratorPayload {
   subject?: string;
   academicYear?: string;
   chapter?: string;
+  chaptersSelected?: string[];
   syllabusTopics?: string[];
   customTopicsOrNotes?: string;
   documentTitle?: string;

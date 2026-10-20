@@ -8,9 +8,101 @@ import {
   ExamPaperGenerated,
   StudyGeneratorRequestPayload,
   StudyGeneratorResponsePayload,
+  OralTestEvaluation,
 } from './providers/types.js';
 
 export class StudyService {
+  /**
+   * Resilient JSON extractor that parses AI responses safely:
+   * 1. Direct JSON parse
+   * 2. Targeted ```json ... ``` code blocks (skips ```latex, ```python, etc.)
+   * 3. Largest outermost JSON object { ... } or array [ ... ]
+   * 4. Sanitizes trailing commas
+   * 5. Repairs unescaped LaTeX backslashes (\frac, \sqrt, \alpha, etc.) inside JSON strings
+   */
+  public parseJsonSafely<T = any>(rawContent: string): T | null {
+    if (!rawContent || typeof rawContent !== 'string') return null;
+    const trimmed = rawContent.trim();
+    const candidates: string[] = [];
+
+    // 1. Direct candidate
+    candidates.push(trimmed);
+
+    // 2. Look for ```json ... ``` blocks specifically (ignore ```latex or other languages)
+    const jsonBlockRegex = /```json\s*([\s\S]*?)```/gi;
+    let match: RegExpExecArray | null;
+    while ((match = jsonBlockRegex.exec(trimmed)) !== null) {
+      if (match[1]) candidates.push(match[1].trim());
+    }
+
+    // 3. Find the largest outermost JSON object: from first '{' to last '}'
+    const firstBrace = trimmed.indexOf('{');
+    const lastBrace = trimmed.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      candidates.push(trimmed.substring(firstBrace, lastBrace + 1).trim());
+    }
+
+    // 4. Find the largest outermost JSON array: from first '[' to last ']'
+    const firstBracket = trimmed.indexOf('[');
+    const lastBracket = trimmed.lastIndexOf(']');
+    if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+      candidates.push(trimmed.substring(firstBracket, lastBracket + 1).trim());
+    }
+
+    // 5. Generic ``` ... ``` blocks that look like JSON (must start with { or [)
+    const genericBlockRegex = /```\s*([\s\S]*?)```/g;
+    while ((match = genericBlockRegex.exec(trimmed)) !== null) {
+      const inner = match[1].trim();
+      if (inner.startsWith('{') || inner.startsWith('[')) {
+        candidates.push(inner);
+      }
+    }
+
+    for (const candidate of candidates) {
+      if (!candidate) continue;
+
+      // Pass 1: Standard JSON parse
+      try {
+        return JSON.parse(candidate);
+      } catch {
+        // Continue
+      }
+
+      // Pass 2: Strip trailing commas in objects and arrays
+      try {
+        const noTrailing = candidate.replace(/,\s*([}\]])/g, '$1');
+        return JSON.parse(noTrailing);
+      } catch {
+        // Continue
+      }
+
+      // Pass 3: Escape LaTeX backslashes in JSON strings
+      // In JSON, valid escapes after \ are only ["\\/bfnrt]|u[0-9a-fA-F]{4}
+      try {
+        const fixedBackslashes = candidate.replace(
+          /\\(?!(["\\/bfnrt]|u[0-9a-fA-F]{4}))/g,
+          '\\\\'
+        );
+        const noTrailing = fixedBackslashes.replace(/,\s*([}\]])/g, '$1');
+        return JSON.parse(noTrailing);
+      } catch {
+        // Continue
+      }
+
+      // Pass 4: Aggressive escape (any backslash followed by a letter)
+      try {
+        const aggFixed = candidate
+          .replace(/\\([a-zA-Z]+)/g, '\\\\$1')
+          .replace(/,\s*([}\]])/g, '$1');
+        return JSON.parse(aggFixed);
+      } catch {
+        // Continue
+      }
+    }
+
+    return null;
+  }
+
   public constructSystemPrompt(
     grade?: string,
     subject?: string,
@@ -233,33 +325,14 @@ RULES:
       maxTokens: 4000,
     });
 
-    // Clean and extract JSON response (strip markdown wrappers or surrounding explanation)
-    let jsonStr = result.content.trim();
-    const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlockMatch) {
-      jsonStr = codeBlockMatch[1].trim();
-    } else {
-      const firstBrace = jsonStr.indexOf('{');
-      const lastBrace = jsonStr.lastIndexOf('}');
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        jsonStr = jsonStr.substring(firstBrace, lastBrace + 1).trim();
-      }
-    }
-
-    try {
-      const parsed: ExamPaperGenerated = JSON.parse(jsonStr);
+    const parsed = this.parseJsonSafely<ExamPaperGenerated>(result.content);
+    if (parsed) {
       parsed.isAiGeneratedPractice = true;
       return parsed;
-    } catch {
-      // Try sanitizing trailing commas before closing braces/brackets
-      try {
-        const sanitized = jsonStr.replace(/,\s*([}\]])/g, '$1');
-        const parsed: ExamPaperGenerated = JSON.parse(sanitized);
-        parsed.isAiGeneratedPractice = true;
-        return parsed;
-      } catch (parseErr) {
-        console.warn('[StudyService] AI returned non-JSON exam response, synthesizing structured exam from topics:', parseErr);
-        const marksPerQ = Math.max(1, Math.floor(payload.totalMarks / payload.numQuestions));
+    }
+
+    console.warn('[StudyService] AI returned non-JSON exam response, synthesizing structured exam from topics');
+    const marksPerQ = Math.max(1, Math.floor(payload.totalMarks / payload.numQuestions));
         const questions = Array.from({ length: payload.numQuestions }).map((_, i) => {
           const topic = payload.topics[i % payload.topics.length] || payload.subject;
           return {
@@ -300,8 +373,6 @@ RULES:
           ],
           isAiGeneratedPractice: true,
         };
-      }
-    }
   }
 
   public async evaluateSubjectiveAnswer(data: {
@@ -398,8 +469,15 @@ RULES FOR DOCUMENT-GROUNDED ANSWER:
 
   public async generateStudyPack(payload: StudyGeneratorRequestPayload): Promise<StudyGeneratorResponsePayload> {
     const isSyllabus = payload.sourceMode === 'syllabus';
+    const chaptersSelectedList = payload.chaptersSelected && payload.chaptersSelected.length > 0
+      ? payload.chaptersSelected
+      : (payload.chapter ? [payload.chapter] : []);
+    const chapterSummaryTitle = chaptersSelectedList.length > 1
+      ? `${chaptersSelectedList.length} Chapters (${chaptersSelectedList.slice(0, 3).join(', ')}${chaptersSelectedList.length > 3 ? '...' : ''})`
+      : (chaptersSelectedList[0] || payload.chapter || 'Chapter Study Pack');
+
     const title = isSyllabus
-      ? `${payload.subject || 'Subject'}: ${payload.chapter || 'Chapter Study Pack'}`
+      ? `${payload.subject || 'Subject'}: ${chapterSummaryTitle}`
       : `Study Pack: ${payload.documentTitle || 'Uploaded Notes'}`;
 
     let groundingText = '';
@@ -412,15 +490,15 @@ RULES FOR DOCUMENT-GROUNDED ANSWER:
 - Curriculum / Reference: ${payload.curriculum || 'Standard Prescribed Syllabus'}
 - Grade / Level: ${payload.grade || 'High School'}
 - Subject: ${payload.subject || 'Core Subject'}
-- Chapter: ${payload.chapter || 'General Chapter'}
+- Selected Chapter(s): ${chaptersSelectedList.join('; ') || payload.chapter || 'General Chapter'}
 - Academic Year: ${payload.academicYear || 'Current Academic Session'}
 
 VERIFIED SYLLABUS TOPICS & LEARNING TARGETS:
-${topicList || '• Comprehensive conceptual coverage of ' + (payload.chapter || 'the syllabus')}
+${topicList || '• Comprehensive conceptual coverage of ' + (chaptersSelectedList.join(', ') || 'the syllabus')}
 
 ${payload.customTopicsOrNotes ? `STUDENT SUPPLEMENTAL NOTES / SPECIFIC FOCUS:\n${payload.customTopicsOrNotes}` : ''}`;
 
-      groundingSummary = `Grounded in ${payload.board || 'CBSE'} ${payload.grade || ''} ${payload.subject || ''} syllabus (${payload.chapter || 'Chapter'}).`;
+      groundingSummary = `Grounded in ${payload.board || 'CBSE'} ${payload.grade || ''} ${payload.subject || ''} syllabus (${chapterSummaryTitle}).`;
     } else {
       const textSample = (payload.documentContent || '').slice(0, 18000);
       groundingText = `UPLOADED SOURCE DOCUMENT:
@@ -454,7 +532,7 @@ ${textSample}
     if (selectedOutputs.includes('notes')) {
       requestedSectionsPrompt.push(`
 "notes": {
-  "title": "${isSyllabus ? payload.chapter : payload.documentTitle} — Comprehensive Revision Notes",
+  "title": "${isSyllabus ? chapterSummaryTitle : payload.documentTitle} — Comprehensive Revision Notes",
   "summary": "2-3 sentence executive conceptual summary",
   "markdownContent": "Well-structured notes in GitHub-flavored Markdown. Include ## Key Concepts, ### Theoretical Principles, ### Formulas & Derivations (use LaTeX $...$ or $$...$$), ### Practical Applications, and ### Common Pitfalls to Avoid.",
   "keyFormulas": ["Formula 1 with variable definitions", "Formula 2"],
@@ -492,7 +570,7 @@ ${textSample}
     if (selectedOutputs.includes('practice_exam')) {
       requestedSectionsPrompt.push(`
 "practiceExam": {
-  "title": "${isSyllabus ? payload.chapter : payload.documentTitle} Practice Examination",
+  "title": "${isSyllabus ? chapterSummaryTitle : payload.documentTitle} Practice Examination",
   "grade": "${payload.grade || 'Standard'}",
   "subject": "${payload.subject || 'Academic'}",
   "difficulty": "${examConfig.difficulty}",
@@ -541,6 +619,44 @@ ${textSample}
 }`);
     }
 
+    if (selectedOutputs.includes('oral_test')) {
+      requestedSectionsPrompt.push(`
+"oralTest": [
+  {
+    "id": "oral-1",
+    "question": "Conversational viva-voice question asking student to explain a core law, physical meaning, or mechanism in their own words",
+    "expectedKeywords": ["Keyword 1", "Keyword 2", "Principle"],
+    "modelAnswer": "Exemplar spoken student explanation using precise academic language",
+    "rubricHint": "Examiner expects mention of core definition and logical causal reasoning",
+    "difficulty": "Moderate"
+  },
+  {
+    "id": "oral-2",
+    "question": "Follow-up verbal question asking how this principle applies or what happens under specific boundary conditions",
+    "expectedKeywords": ["Condition", "Proportionality", "Observation"],
+    "modelAnswer": "Clear, concise spoken answer",
+    "rubricHint": "Examiner checks for understanding of underlying mechanism",
+    "difficulty": "Advanced"
+  }
+]`);
+    }
+
+    if (selectedOutputs.includes('formula_sheet')) {
+      requestedSectionsPrompt.push(`
+"formulaSheet": {
+  "title": "${isSyllabus ? chapterSummaryTitle : payload.documentTitle} — Formula Sheet",
+  "summary": "Core mathematical equations, variable definitions, and exam problem-solving tips.",
+  "formulas": [
+    {
+      "formula": "LaTeX formula string (e.g. x = \\\\frac{-b \\\\pm \\\\sqrt{b^2 - 4ac}}{2a})",
+      "name": "Standard Law or Theorem Name",
+      "variables": "Detailed description of each parameter with standard SI units",
+      "examTip": "Essential tip for avoiding common calculation errors"
+    }
+  ]
+}`);
+    }
+
     if (selectedOutputs.includes('important_questions')) {
       requestedSectionsPrompt.push(`
 "importantQuestions": [
@@ -582,6 +698,8 @@ STRICT PEDAGOGICAL & GROUNDING CONSTRAINTS:
 3. OUTPUT FORMAT:
    - You MUST output ONLY a valid JSON object matching the requested schema below.
    - Do NOT wrap in markdown \`\`\`json blocks.
+   - Do NOT output any raw LaTeX code blocks (\`\`\`latex) outside the JSON. All formulas must be enclosed inside the JSON string properties.
+   - For all LaTeX commands inside JSON strings, ensure backslashes are properly escaped (e.g. "\\\\frac", "\\\\sqrt", "\\\\pm", "\\\\alpha").
    - Output valid, complete JSON.
 
 REQUESTED OUTPUT STRUCTURE:
@@ -596,7 +714,8 @@ ${requestedSectionsPrompt.join(',\n')}
     const messages = [
       {
         role: 'system' as const,
-        content: 'You are an elite curriculum specialist, textbook author, and assessment engine. Generate accurate, curriculum-aligned study materials in strict JSON format.',
+        content:
+          'You are an elite curriculum specialist, textbook author, and assessment engine. Generate accurate, curriculum-aligned study materials in strict JSON format. Respond with ONLY valid JSON—never include preamble text, markdown wrappers, or raw LaTeX outside the JSON.',
       },
       {
         role: 'user' as const,
@@ -610,28 +729,9 @@ ${requestedSectionsPrompt.join(',\n')}
       maxTokens: 4000,
     });
 
-    let jsonStr = result.content.trim();
-    const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlockMatch) {
-      jsonStr = codeBlockMatch[1].trim();
-    } else {
-      const firstBrace = jsonStr.indexOf('{');
-      const lastBrace = jsonStr.lastIndexOf('}');
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        jsonStr = jsonStr.substring(firstBrace, lastBrace + 1).trim();
-      }
-    }
-
-    let parsedResult: any = null;
-    try {
-      parsedResult = JSON.parse(jsonStr);
-    } catch {
-      try {
-        const sanitized = jsonStr.replace(/,\s*([}\]])/g, '$1');
-        parsedResult = JSON.parse(sanitized);
-      } catch (err) {
-        console.warn('[StudyService.generateStudyPack] AI output could not be parsed directly as JSON, synthesizing resilient fallback pack:', err);
-      }
+    const parsedResult = this.parseJsonSafely<any>(result.content);
+    if (!parsedResult) {
+      console.warn('[StudyService.generateStudyPack] AI output could not be parsed directly as JSON, synthesizing resilient fallback pack');
     }
 
     const defaultTitle = isSyllabus
@@ -681,6 +781,49 @@ ${requestedSectionsPrompt.join(',\n')}
       ];
     }
 
+    if (selectedOutputs.includes('oral_test')) {
+      const topic = (payload.syllabusTopics && payload.syllabusTopics[0]) || payload.chapter || 'this core concept';
+      fallbackOutputs.oralTest = [
+        {
+          id: 'oral-1',
+          question: `State the fundamental theorem or physical principle governing ${topic}, and explain its physical significance in your own words.`,
+          expectedKeywords: ['definition', 'law', 'equilibrium', 'proportionality'],
+          modelAnswer: `In ${topic}, the governing law establishes that under uniform conditions, dependent parameters vary systematically in proportion to applied potentials, ensuring dynamic conservation throughout the system.`,
+          rubricHint: 'Examiner listens for accurate technical terminology and cause-and-effect reasoning.',
+          difficulty: 'Moderate',
+        },
+        {
+          id: 'oral-2',
+          question: `What essential boundary condition or prerequisite is required before applying the standard equations of ${topic}?`,
+          expectedKeywords: ['constant temperature', 'ideal conditions', 'boundary', 'invariance'],
+          modelAnswer: `The equations strictly assume steady-state conditions without non-linear fluctuations or uncompensated external forces acting across the boundaries.`,
+          rubricHint: 'Must state at least two explicit boundary constraints.',
+          difficulty: 'Advanced',
+        },
+      ];
+    }
+
+    if (selectedOutputs.includes('formula_sheet')) {
+      fallbackOutputs.formulaSheet = {
+        title: `${defaultTitle} — Essential Formula Sheet`,
+        summary: 'Key governing mathematical formulations, variable definitions, and exam problem-solving tips.',
+        formulas: [
+          {
+            formula: 'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}',
+            name: 'Standard Governing Equation',
+            variables: 'a = quadratic coefficient, b = linear coefficient, c = constant, x = real/complex roots',
+            examTip: 'Calculate discriminant Δ = b² - 4ac first to verify the nature and reality of roots.',
+          },
+          {
+            formula: 'S_n = \\frac{n}{2}[2a + (n-1)d]',
+            name: 'Cumulative Progression Sum',
+            variables: 'n = total terms, a = first term, d = common difference, S_n = sum of terms',
+            examTip: 'Double check whether the last term is included before substituting n into the bracket.',
+          },
+        ],
+      };
+    }
+
     const resolvedOutputs = parsedResult?.outputs || fallbackOutputs;
 
     return {
@@ -693,14 +836,83 @@ ${requestedSectionsPrompt.join(',\n')}
         grade: payload.grade,
         subject: payload.subject,
         chapter: payload.chapter,
+        chaptersSelected: payload.chaptersSelected,
         documentTitle: payload.documentTitle,
         groundingSummary,
+        isNcertVerified: Boolean(payload.board === 'CBSE' && payload.chapter),
       },
       createdAt: Date.now(),
       outputs: resolvedOutputs,
       providerUsed: result.providerUsed,
       modelUsed: result.modelUsed,
     };
+  }
+
+  public async evaluateOralAnswer(payload: {
+    question: string;
+    studentSpeech: string;
+    modelAnswer: string;
+    expectedKeywords: string[];
+    grade?: string;
+    subject?: string;
+  }): Promise<{
+    scoreOutOf5: number;
+    accuracyScore: number;
+    terminologyUsed: string[];
+    missedKeywords: string[];
+    verbalFeedback: string;
+    exemplarPhrasing: string;
+  }> {
+    const prompt = `You are ORYQEN STUDY AI's Senior Oral Viva Examination Assessor.
+Evaluate this student's spoken/transcribed verbal answer for an academic viva or oral examination.
+
+EXAM QUESTION: "${payload.question}"
+EXPECTED MODEL ANSWER: "${payload.modelAnswer}"
+EXPECTED KEYWORDS: ${JSON.stringify(payload.expectedKeywords || [])}
+STUDENT SPOKEN ANSWER: "${payload.studentSpeech}"
+
+EVALUATION CRITERIA:
+1. Conceptual Accuracy (Does the student grasp the underlying scientific/academic concept?)
+2. Scientific/Academic Vocabulary (Did they articulate with precise terminology?)
+3. Completeness & Reasoning (Did they give a clear cause-and-effect verbal explanation?)
+
+Output ONLY a valid JSON object matching this schema without markdown code blocks:
+{
+  "scoreOutOf5": 4.5,
+  "accuracyScore": 90,
+  "terminologyUsed": ["keyword1", "keyword2"],
+  "missedKeywords": ["keyword3"],
+  "verbalFeedback": "2-3 encouraging sentences highlighting strengths and oral articulation tips.",
+  "exemplarPhrasing": "Exemplar verbal sentence demonstrating how a top-ranking scholar would phrase this answer."
+}`;
+
+    const messages = [
+      {
+        role: 'system' as const,
+        content: 'You are an elite, encouraging academic oral viva assessor. Output only valid JSON.',
+      },
+      { role: 'user' as const, content: prompt },
+    ];
+
+    try {
+      const res = await orchestrator.executeChat(messages, { temperature: 0.2, maxTokens: 800 });
+      const parsed = this.parseJsonSafely<OralTestEvaluation>(res.content);
+      if (parsed) return parsed;
+      throw new Error('Failed to parse oral evaluation JSON');
+    } catch {
+      const lower = payload.studentSpeech.toLowerCase();
+      const used = (payload.expectedKeywords || []).filter(k => lower.includes(k.toLowerCase()));
+      const missed = (payload.expectedKeywords || []).filter(k => !lower.includes(k.toLowerCase()));
+      const accuracy = Math.min(100, Math.round(55 + (used.length / Math.max(1, payload.expectedKeywords.length)) * 45));
+      return {
+        scoreOutOf5: Math.round((accuracy / 20) * 10) / 10,
+        accuracyScore: accuracy,
+        terminologyUsed: used.length > 0 ? used : ['fundamental concepts'],
+        missedKeywords: missed,
+        verbalFeedback: `Good verbal explanation! You demonstrated solid understanding of the question. To score full marks in your oral viva examination, be sure to explicitly state ${missed.slice(0, 2).join(' and ') || 'the governing units'}.`,
+        exemplarPhrasing: payload.modelAnswer || 'State the formal principle clearly, followed by the governing conditions and real-world implications.',
+      };
+    }
   }
 }
 

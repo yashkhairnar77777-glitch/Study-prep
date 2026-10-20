@@ -444,58 +444,81 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               {/* Subject Cards */}
               <div className="space-y-3">
-                {[
-                  {
-                    name: profile.primarySubject,
-                    topics: 'Primary Focus',
-                    progress: 78,
-                    color: 'bg-violet-600',
-                  },
-                  {
-                    name: 'Physics',
-                    topics: 'Mechanics & Dynamics',
-                    progress: 65,
-                    color: 'bg-indigo-600',
-                  },
-                  {
-                    name: 'Chemistry',
-                    topics: 'Equilibrium & Kinetics',
-                    progress: 52,
-                    color: 'bg-amber-600',
-                  },
-                  {
-                    name: 'Biology',
-                    topics: 'Genetics & Cellular Biology',
-                    progress: 40,
-                    color: 'bg-emerald-600',
-                  },
-                ].map(sub => (
-                  <div
-                    key={sub.name}
-                    className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-white/5 space-y-2"
-                  >
-                    <div className="flex items-center justify-between text-xs">
-                      <div>
-                        <span className="font-bold text-slate-800 dark:text-slate-100">
-                          {sub.name}
-                        </span>
-                        <span className="text-slate-400 text-[11px] ml-2">
-                          · {sub.topics}
+                {(() => {
+                  const candidateSubjects = [
+                    {
+                      name: profile.primarySubject,
+                      topics: 'Primary Focus',
+                      progress: 78,
+                      color: 'bg-violet-600',
+                    },
+                    {
+                      name: 'Physics',
+                      topics: 'Mechanics & Dynamics',
+                      progress: 65,
+                      color: 'bg-indigo-600',
+                    },
+                    {
+                      name: 'Chemistry',
+                      topics: 'Equilibrium & Kinetics',
+                      progress: 52,
+                      color: 'bg-amber-600',
+                    },
+                    {
+                      name: 'Biology',
+                      topics: 'Genetics & Cellular Biology',
+                      progress: 40,
+                      color: 'bg-emerald-600',
+                    },
+                    {
+                      name: 'Mathematics',
+                      topics: 'Calculus & Vectors',
+                      progress: 74,
+                      color: 'bg-blue-600',
+                    },
+                    {
+                      name: 'Computer Science',
+                      topics: 'Algorithms & Structures',
+                      progress: 68,
+                      color: 'bg-cyan-600',
+                    },
+                  ];
+
+                  const seenNames = new Set<string>();
+                  const uniqueSubjects = candidateSubjects.filter(sub => {
+                    if (seenNames.has(sub.name)) return false;
+                    seenNames.add(sub.name);
+                    return true;
+                  }).slice(0, 4);
+
+                  return uniqueSubjects.map(sub => (
+                    <div
+                      key={`dashboard-subject-${sub.name}`}
+                      className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-white/5 space-y-2"
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <div>
+                          <span className="font-bold text-slate-800 dark:text-slate-100">
+                            {sub.name}
+                          </span>
+                          <span className="text-slate-400 text-[11px] ml-2">
+                            · {sub.topics}
+                          </span>
+                        </div>
+                        <span className="font-bold text-slate-700 dark:text-slate-300">
+                          {sub.progress}%
                         </span>
                       </div>
-                      <span className="font-bold text-slate-700 dark:text-slate-300">
-                        {sub.progress}%
-                      </span>
-                    </div>
 
-                    <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-                      <div
-                        className={`h-full ${sub.color} rounded-full`}
-                        style={{ width: `${sub.progress}%` }}
-                      />
+                      <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                        <div
+                          className={`h-full ${sub.color} rounded-full`}
+                          style={{ width: `${sub.progress}%` }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
             </div>
 

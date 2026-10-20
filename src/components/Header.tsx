@@ -9,9 +9,11 @@ import {
   Pause,
   Flame,
   Search,
+  Bell,
 } from 'lucide-react';
 import { UserProfile, AppView } from '../types';
 import { usePomodoro } from '../contexts/PomodoroContext';
+import { useNotifications } from '../contexts/NotificationContext';
 import { OryqenLogo } from './OryqenLogo';
 
 interface HeaderProps {
@@ -45,6 +47,15 @@ export const Header: React.FC<HeaderProps> = ({
     pauseTimer,
     setIsOpenModal,
   } = usePomodoro();
+
+  const {
+    setIsOpenModal: setIsOpenNotificationModal,
+    unreadCount,
+    dueFlashcardCount,
+    pendingTasksCount,
+  } = useNotifications();
+
+  const totalAlerts = unreadCount > 0 ? unreadCount : dueFlashcardCount + pendingTasksCount;
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -179,6 +190,23 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </button>
           </div>
+
+          {/* Notification Bell Button */}
+          <button
+            type="button"
+            onClick={() => setIsOpenNotificationModal(true)}
+            aria-label="Open Notifications"
+            className="relative p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title={`Study Alerts (${dueFlashcardCount} reviews due, ${pendingTasksCount} tasks pending)`}
+          >
+            <Bell className="w-4 h-4" />
+            {totalAlerts > 0 && (
+              <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-600 dark:bg-violet-400" />
+              </span>
+            )}
+          </button>
 
           {/* Theme Toggle Button */}
           <button

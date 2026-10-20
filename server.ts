@@ -162,6 +162,30 @@ app.post('/api/evaluate-answer', async (req: Request, res: Response) => {
   }
 });
 
+app.post('/api/evaluate-oral-answer', async (req: Request, res: Response) => {
+  try {
+    const { question, studentSpeech, modelAnswer, expectedKeywords, grade, subject } = req.body;
+    if (!question || !studentSpeech) {
+      res.status(400).json({ success: false, error: 'Question and spoken/transcribed answer are required.' });
+      return;
+    }
+
+    const evaluation = await studyService.evaluateOralAnswer({
+      question,
+      studentSpeech,
+      modelAnswer: modelAnswer || '',
+      expectedKeywords: Array.isArray(expectedKeywords) ? expectedKeywords : [],
+      grade,
+      subject,
+    });
+
+    res.json({ success: true, data: evaluation });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Oral evaluation failed';
+    res.status(500).json({ success: false, error: message });
+  }
+});
+
 app.post('/api/analyze-doc', async (req: Request, res: Response) => {
   try {
     const { documentTitle, documentContent, question, grade, subject } = req.body;

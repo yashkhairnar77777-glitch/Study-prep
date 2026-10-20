@@ -23,6 +23,9 @@ import { ProfileModal } from './components/ProfileModal';
 import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
 import { PomodoroProvider } from './contexts/PomodoroContext';
 import { PomodoroGlobalModal } from './components/PomodoroGlobalModal';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { NotificationModal } from './components/NotificationModal';
+import { NotificationToast } from './components/NotificationToast';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { storage } from './lib/storage';
 import { api } from './lib/api';
@@ -285,11 +288,12 @@ What question, topic, or problem would you like to explore today?`;
 
   return (
     <PomodoroProvider profile={profile} onActivityLogged={handleReloadAllData}>
-      <div
-        className={`flex h-screen w-screen overflow-hidden font-sans transition-colors duration-200 ${
-          isDark ? 'bg-[#090d16] text-slate-100' : 'bg-[#f8fafc] text-slate-800'
-        }`}
-      >
+      <NotificationProvider onNavigate={setCurrentView} flashcards={flashcards} tasks={tasks}>
+        <div
+          className={`flex h-screen w-screen overflow-hidden font-sans transition-colors duration-200 ${
+            isDark ? 'bg-[#090d16] text-slate-100' : 'bg-[#f8fafc] text-slate-800'
+          }`}
+        >
       {/* Sidebar (Desktop Collapsible & Mobile Slide-out) */}
       <Sidebar
         conversations={conversations}
@@ -376,6 +380,7 @@ What question, topic, or problem would you like to explore today?`;
             <ExamGeneratorView
               profile={profile}
               onStartMockTest={handleStartMockTest}
+              onNavigateToStudyGenerator={() => setCurrentView('generator')}
             />
           )}
 
@@ -462,8 +467,12 @@ What question, topic, or problem would you like to explore today?`;
         />
       </div>
 
-      {/* Global Focus Timer Modal & Notification Toast */}
+      {/* Global Focus Timer Modal */}
       <PomodoroGlobalModal profile={profile} />
+
+      {/* Study Notification Modal & Floating Toast */}
+      <NotificationModal />
+      <NotificationToast />
 
       {/* Profile & Settings Modal */}
       {isOpenProfileModal && (
@@ -481,6 +490,7 @@ What question, topic, or problem would you like to explore today?`;
         />
       )}
     </div>
+    </NotificationProvider>
     </PomodoroProvider>
   );
 }

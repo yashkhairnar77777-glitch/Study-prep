@@ -7,6 +7,7 @@ import {
   ProviderStatus,
   StudyGeneratorPayload,
   GeneratedStudyPack,
+  OralTestEvaluation,
 } from '../types';
 
 export interface ChatResponseData {
@@ -162,6 +163,28 @@ export const api = {
     const json = await res.json();
     if (!res.ok || !json.success) {
       throw new Error(json.error || 'Failed to generate study pack.');
+    }
+
+    return json.data;
+  },
+
+  async evaluateOralAnswer(params: {
+    question: string;
+    studentSpeech: string;
+    modelAnswer: string;
+    expectedKeywords: string[];
+    grade?: string;
+    subject?: string;
+  }): Promise<OralTestEvaluation> {
+    const res = await fetch('/api/evaluate-oral-answer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      throw new Error(json.error || 'Oral assessment failed.');
     }
 
     return json.data;

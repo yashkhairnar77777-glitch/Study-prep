@@ -24,11 +24,13 @@ import { api } from '../lib/api';
 interface ExamGeneratorViewProps {
   profile: UserProfile;
   onStartMockTest: (paper: ExamPaper) => void;
+  onNavigateToStudyGenerator?: () => void;
 }
 
 export const ExamGeneratorView: React.FC<ExamGeneratorViewProps> = ({
   profile,
   onStartMockTest,
+  onNavigateToStudyGenerator,
 }) => {
   const [grade, setGrade] = useState<GradeLevel>(profile.grade);
   const [subject, setSubject] = useState<SubjectCategory>(profile.primarySubject);
@@ -100,6 +102,33 @@ export const ExamGeneratorView: React.FC<ExamGeneratorViewProps> = ({
   return (
     <div className="h-full overflow-y-auto p-4 sm:p-6 md:p-8 transition-colors">
       <div className="max-w-4xl mx-auto space-y-6 pb-16">
+        {/* Guided Flow Promotion Banner */}
+        {onNavigateToStudyGenerator && (
+          <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-violet-600/15 via-indigo-600/10 to-transparent border border-violet-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-violet-600 text-white flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-sm text-slate-900 dark:text-white">
+                  Looking for Guided Exam Prep with NCERT Chapter Multi-Select & Oral Viva?
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Generate flashcards, chapter summaries, formula sheets, quizzes, and voice viva tests in one coordinated flow.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={onNavigateToStudyGenerator}
+              className="clay-btn-primary px-4 py-2 text-xs font-bold shrink-0 self-start sm:self-auto"
+            >
+              Open Guided Flow
+            </button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="border-b border-slate-200/80 dark:border-white/10 pb-4">
           <div className="flex items-center gap-2 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider mb-1">
