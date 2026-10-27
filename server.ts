@@ -8,7 +8,8 @@ import { orchestrator } from './server/providers/orchestrator.js';
 dotenv.config();
 
 const app = express();
-const PORT = parseInt(process.env.PORT || '3000', 10);
+// Runtime Environment requires dev server to run strictly on port 3000
+const PORT = 3000;
 
 // Request body parser with 25MB limit for high-res photo uploads
 app.use(express.json({ limit: '25mb' }));
@@ -265,7 +266,10 @@ async function startServer() {
   if (!isProd) {
     // Development mode with Vite middleware
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: false,
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);

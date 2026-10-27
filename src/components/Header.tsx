@@ -226,9 +226,17 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center gap-2 rounded-xl p-1 sm:px-2 sm:py-1 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs font-semibold text-slate-800 dark:text-slate-100"
             title="Account & Study Settings"
           >
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
-              {profile.name ? profile.name[0].toUpperCase() : 'S'}
-            </div>
+            {profile.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name || 'User'}
+                className="w-7 h-7 rounded-lg object-cover shadow-xs border border-violet-400/40"
+              />
+            ) : (
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
+                {profile.name ? profile.name[0].toUpperCase() : 'S'}
+              </div>
+            )}
             <span className="hidden sm:inline font-bold truncate max-w-28 text-left">
               {profile.name || 'Student'}
             </span>

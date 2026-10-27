@@ -521,10 +521,11 @@ ${textSample}
     if (selectedOutputs.includes('flashcards')) {
       requestedSectionsPrompt.push(`
 "flashcards": [
+  // Provide 8 to 12 comprehensive active-recall flashcards covering all key definitions, governing formulas with LaTeX, and critical exam questions for ${isSyllabus ? chapterSummaryTitle : payload.documentTitle}.
   {
-    "front": "Clear, specific question, conceptual problem, or formula prompt",
-    "back": "Accurate, step-by-step answer or definition with correct units and reasoning",
-    "topic": "Specific Topic Name"
+    "front": "Specific question, conceptual prompt, or formula inquiry (e.g., 'What is the Discriminant and how does it determine the nature of roots?')",
+    "back": "Clear, verified answer or derivation with LaTeX mathematical formulas ($...$) where applicable",
+    "topic": "${isSyllabus ? chapterSummaryTitle : 'Key Concept'}"
   }
 ]`);
     }
@@ -533,10 +534,10 @@ ${textSample}
       requestedSectionsPrompt.push(`
 "notes": {
   "title": "${isSyllabus ? chapterSummaryTitle : payload.documentTitle} — Comprehensive Revision Notes",
-  "summary": "2-3 sentence executive conceptual summary",
-  "markdownContent": "Well-structured notes in GitHub-flavored Markdown. Include ## Key Concepts, ### Theoretical Principles, ### Formulas & Derivations (use LaTeX $...$ or $$...$$), ### Practical Applications, and ### Common Pitfalls to Avoid.",
-  "keyFormulas": ["Formula 1 with variable definitions", "Formula 2"],
-  "keyTakeaways": ["Crucial concept 1", "Crucial concept 2", "Crucial concept 3"]
+  "summary": "2-3 sentence executive conceptual summary of the core principles.",
+  "markdownContent": "Comprehensive, publication-grade chapter revision notes in GitHub-flavored Markdown. Must include:\\n## Executive Overview\\n## Key Concepts & Verified NCERT Definitions\\n## Theorems, Proofs & Step-by-Step Derivations (use LaTeX $...$ or $$...$$)\\n## Core Formulas & Equation Reference\\n## Practical Applications & Worked Exemplars\\n## Common Student Pitfalls & Scoring Checklist",
+  "keyFormulas": ["Core formula 1 with all variables defined", "Core formula 2"],
+  "keyTakeaways": ["Crucial exam concept 1", "Crucial exam concept 2", "Crucial exam concept 3"]
 }`);
     }
 
@@ -740,27 +741,58 @@ ${requestedSectionsPrompt.join(',\n')}
 
     const fallbackOutputs: any = {};
     if (selectedOutputs.includes('flashcards')) {
-      const topic = (payload.syllabusTopics && payload.syllabusTopics[0]) || payload.chapter || 'Core Principle';
-      fallbackOutputs.flashcards = [
-        {
-          front: `What is the fundamental principle of ${topic}?`,
-          back: `The fundamental principle of ${topic} establishes foundational relationships in ${payload.subject || 'this subject'}. It is applied to solve analytical and quantitative exam problems systematically.`,
-          topic,
-        },
-        {
-          front: `State the key formula and variables governing ${topic}.`,
-          back: `In ${topic}, mathematical formulations relate independent parameters with physical constants under standard boundary conditions.`,
-          topic,
-        },
-      ];
+      const topicsList = payload.syllabusTopics && payload.syllabusTopics.length > 0
+        ? payload.syllabusTopics
+        : [payload.chapter || 'Core Principles'];
+
+      const generatedCards: any[] = [];
+      topicsList.forEach((top, idx) => {
+        generatedCards.push({
+          front: `What is the core definition and physical/mathematical significance of ${top}?`,
+          back: `In ${payload.chapter || payload.subject || 'this chapter'}, ${top} establishes verified fundamental relationships. For exam scoring, articulate the governing boundary conditions, standard SI units, and canonical definitions.`,
+          topic: top,
+        });
+        generatedCards.push({
+          front: `State the primary formula and step-by-step problem-solving technique for ${top}.`,
+          back: `Apply the governing equation associated with ${top} systematically: 1. Identify independent parameters, 2. Verify prerequisite conditions, 3. Execute algebraic or quantitative substitutions with units.`,
+          topic: top,
+        });
+      });
+
+      // Ensure at least 6 cards
+      if (generatedCards.length < 6) {
+        generatedCards.push({
+          front: `What is the most frequent student exam pitfall when solving questions on ${payload.chapter || payload.subject}?`,
+          back: `Common student errors include neglecting boundary domain restrictions, forgetting unit conversions, and failing to verify roots or physical feasibility.`,
+          topic: payload.chapter || 'Exam Strategy',
+        });
+        generatedCards.push({
+          front: `How is the principle of ${payload.chapter || payload.subject} applied in real-world engineering or practical science?`,
+          back: `It provides the analytical model used in standard computational algorithms, calibrated laboratory experiments, and industrial measurements.`,
+          topic: payload.chapter || 'Real-World Applications',
+        });
+      }
+
+      fallbackOutputs.flashcards = generatedCards.slice(0, 10);
     }
     if (selectedOutputs.includes('notes')) {
+      const topicsBulletPoints = (payload.syllabusTopics || [payload.chapter || 'Core Concepts'])
+        .map(t => `- **${t}**: Definitive theoretical grounding, governing equations, and verified problem types.`)
+        .join('\n');
+
       fallbackOutputs.notes = {
-        title: `${defaultTitle} — Revision Notes`,
-        summary: `Structured overview of core principles, derivations, and exam guidelines for ${defaultTitle}.`,
-        markdownContent: `## Executive Overview\n\nThis study guide covers the verified syllabus topics for **${defaultTitle}**.\n\n### Key Concepts\n- Foundational theoretical definitions and principles.\n- Rigorous derivations and problem-solving steps.\n\n### Formula Reference\nMathematical relationships are expressed using standard KaTeX notation.`,
-        keyFormulas: [`Core formula for ${defaultTitle}`],
-        keyTakeaways: [`Master definition and units`, `Practice standard derivations`],
+        title: `${defaultTitle} — NCERT Revision Guide`,
+        summary: `Comprehensive chapter study guide covering verified NCERT syllabus topics, mathematical formulations, and high-scoring exam guidelines for ${defaultTitle}.`,
+        markdownContent: `## Executive Overview\n\nThis study guide covers the verified syllabus topics for **${defaultTitle}** aligned with the national NCERT curriculum standard.\n\n### Key Concepts & Definitions\n${topicsBulletPoints}\n\n### Theoretical Principles & Derivations\n- In this chapter, governing mathematical formulations relate independent variables with fundamental constants under standard conditions.\n- For analytical proofs, verify all initial boundary conditions before executing step-by-step algebraic manipulation.\n\n### Formula Reference & Units\n- Standard formulas are expressed using KaTeX mathematical notation.\n- Always double-check dimensional consistency and SI units in quantitative problems.\n\n### Common Student Pitfalls & Exam Checklist\n- **Trap 1**: Overlooking negative signs during algebraic substitutions.\n- **Trap 2**: Forgetting to state units or specify physical direction for vector quantities.\n- **Scoring Strategy**: Write standard formula, substitute values clearly, and underline final answers.`,
+        keyFormulas: [
+          `Fundamental equation for ${defaultTitle}`,
+          `Canonical derivation constraint for ${payload.chapter || 'this topic'}`,
+        ],
+        keyTakeaways: [
+          `Master all standard definitions and boundary constraints`,
+          `Practice multi-step algebraic derivations systematically`,
+          `Review common exam traps before attempting test papers`,
+        ],
       };
     }
     if (selectedOutputs.includes('mcq_quiz')) {

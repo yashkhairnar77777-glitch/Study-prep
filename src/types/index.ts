@@ -16,7 +16,9 @@ export type SubjectCategory =
   | 'English & Languages'
   | 'History & Social Studies'
   | 'Economics & Commerce'
-  | 'General Science';
+  | 'General Science'
+  | 'Japanese'
+  | 'Foundation & Olympiads';
 
 export type ExplanationStyle = 'quick' | 'step_by_step' | 'exam_ready' | 'basics';
 
@@ -139,7 +141,8 @@ export interface UserProfile {
   dailyStudyTargetMinutes: number;
   theme: 'dark' | 'light';
   isOnboarded: boolean;
-  authProvider: 'supabase' | 'local';
+  avatarUrl?: string;
+  authProvider: 'google' | 'supabase' | 'local';
 }
 
 export interface StudyTask {

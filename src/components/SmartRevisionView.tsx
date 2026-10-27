@@ -24,6 +24,7 @@ interface SmartRevisionViewProps {
   notes: SavedNote[];
   onUpdateFlashcards: (cards: Flashcard[]) => void;
   onUpdateNotes: (notes: SavedNote[]) => void;
+  onOpenNcertGenerator?: () => void;
 }
 
 export const SmartRevisionView: React.FC<SmartRevisionViewProps> = ({
@@ -32,6 +33,7 @@ export const SmartRevisionView: React.FC<SmartRevisionViewProps> = ({
   notes,
   onUpdateFlashcards,
   onUpdateNotes,
+  onOpenNcertGenerator,
 }) => {
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
   const [isFlipped, setIsFlipped] = useState(false);
@@ -154,6 +156,18 @@ export const SmartRevisionView: React.FC<SmartRevisionViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {onOpenNcertGenerator && (
+              <button
+                type="button"
+                onClick={onOpenNcertGenerator}
+                className="px-3.5 py-2 text-xs font-bold rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm hover:opacity-95 flex items-center gap-1.5 transition-all"
+                title="Generate NCERT flashcards with just 1-click chapter select"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>⚡ Generate by NCERT Chapter</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => setIsCreatingCard(true)}
@@ -390,13 +404,25 @@ export const SmartRevisionView: React.FC<SmartRevisionViewProps> = ({
               No flashcards due for review right now in this category. You can add new cards
               or switch categories to continue learning.
             </p>
-            <button
-              type="button"
-              onClick={() => setIsCreatingCard(true)}
-              className="clay-btn-primary px-4 py-2 text-xs font-bold shadow-sm"
-            >
-              Create New Flashcard
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+              {onOpenNcertGenerator && (
+                <button
+                  type="button"
+                  onClick={onOpenNcertGenerator}
+                  className="px-4 py-2 text-xs font-bold rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm hover:opacity-95 flex items-center gap-1.5 transition-all"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>⚡ Generate by NCERT Chapter</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsCreatingCard(true)}
+                className="clay-btn-secondary px-4 py-2 text-xs font-bold"
+              >
+                Create Manually
+              </button>
+            </div>
           </div>
         )}
 

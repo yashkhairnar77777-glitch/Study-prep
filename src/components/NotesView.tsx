@@ -13,24 +13,33 @@ import {
   FileText,
   AlignLeft,
   ListFilter,
+  Sparkles,
+  Compass,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { SavedNote, SubjectCategory, UserProfile } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { NCERT_EXPLORING_SOCIETY_CHAPTERS } from './ChatView';
 
 interface NotesViewProps {
   notes: SavedNote[];
   onUpdateNotes: (notes: SavedNote[]) => void;
   profile: UserProfile;
+  onOpenNcertGenerator?: () => void;
 }
 
 export const NotesView: React.FC<NotesViewProps> = ({
   notes,
   onUpdateNotes,
   profile,
+  onOpenNcertGenerator,
 }) => {
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(notes[0]?.id || null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSubject, setFilterSubject] = useState<string>('all');
+  const [filterExploringSocietyOnly, setFilterExploringSocietyOnly] = useState<boolean>(false);
+  const [showChapterNav, setShowChapterNav] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
@@ -56,6 +65,71 @@ export const NotesView: React.FC<NotesViewProps> = ({
     setEditContent(newNote.content);
     setEditSubject(newNote.subject);
     setIsEditing(true);
+  };
+
+  const handleSelectOrGenerateChapterNote = (ch: typeof NCERT_EXPLORING_SOCIETY_CHAPTERS[0]) => {
+    // Check if a note already exists for this chapter
+    const existing = notes.find(
+      n =>
+        n.title.toLowerCase().includes(`ch ${ch.number}`) ||
+        n.title.toLowerCase().includes(`chapter ${ch.number}`) ||
+        n.title.toLowerCase().includes(ch.name.toLowerCase())
+    );
+
+    if (existing) {
+      setSelectedNoteId(existing.id);
+      setIsEditing(false);
+      return;
+    }
+
+    // Auto-generate comprehensive NCERT revision note for this chapter
+    const newNote: SavedNote = {
+      id: `note-es-ch${ch.number}-${Date.now()}`,
+      title: `NCERT Exploring Society Ch ${ch.number}: ${ch.name}`,
+      subject: 'History & Social Studies',
+      createdAt: Date.now(),
+      tags: ['Exploring Society', 'NCERT', ch.theme.split(':')[0].trim(), ch.name],
+      content: `## NCERT Class 6 Exploring Society: India and Beyond
+### Chapter ${ch.number}: ${ch.name} (${ch.theme})
+
+---
+
+### 1. Overview & Core Themes
+This chapter is a foundational pillar of NCERT Class 6 Social Science:
+- **Core Topics**: ${ch.topics}
+- **Curriculum Theme**: ${ch.theme}
+- **Textbook**: NCERT Exploring Society: India and Beyond (Class 6)
+
+---
+
+### 2. Key Concepts & Structured Breakdown
+${ch.topics
+  .split(', ')
+  .map(
+    t => `#### • ${t}
+- Essential concept explaining human geography, ancient heritage, grassroots governance, or economic livelihoods.
+- Connects local daily observations with broader nationwide institutional structures.`
+  )
+  .join('\n\n')}
+
+---
+
+### 3. Exam Ready Key Terms & Definitions
+- Understand chronological and spatial coordinates relevant to this theme.
+- Contrast traditional community practices with modern democratic and economic frameworks.
+- Practice drawing conceptual maps, diagrams, and timeline charts.
+
+---
+
+### 4. Practice & Self-Evaluation Questions
+1. **Explain the primary significance of ${ch.name} in modern understanding of Indian society.**
+2. **How does this chapter highlight the harmony between people, land, and democratic institutions?**`,
+    };
+
+    const updated = [newNote, ...notes];
+    onUpdateNotes(updated);
+    setSelectedNoteId(newNote.id);
+    setIsEditing(false);
   };
 
   const handleSave = () => {
@@ -98,7 +172,16 @@ export const NotesView: React.FC<NotesViewProps> = ({
   };
 
   const filteredNotes = notes.filter(n => {
-    if (filterSubject !== 'all' && n.subject !== filterSubject) return false;
+    if (filterExploringSocietyOnly) {
+      const isES =
+        n.title.toLowerCase().includes('exploring society') ||
+        n.content.toLowerCase().includes('exploring society') ||
+        n.tags?.some(t => t.toLowerCase().includes('exploring society'));
+      if (!isES) return false;
+    } else if (filterSubject !== 'all' && n.subject !== filterSubject) {
+      return false;
+    }
+
     if (
       searchQuery &&
       !n.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -119,6 +202,8 @@ export const NotesView: React.FC<NotesViewProps> = ({
     'History & Social Studies',
     'Economics & Commerce',
     'General Science',
+    'Japanese',
+    'Foundation & Olympiads',
   ];
 
   // Concise view extracts top bullet points or headings
@@ -146,6 +231,18 @@ export const NotesView: React.FC<NotesViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2.5">
+            {onOpenNcertGenerator && (
+              <button
+                type="button"
+                onClick={onOpenNcertGenerator}
+                className="px-3.5 py-2 text-xs font-bold rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm hover:opacity-95 flex items-center gap-1.5 transition-all"
+                title="Generate comprehensive NCERT chapter notes with just 1-click chapter select"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>⚡ Generate NCERT Notes</span>
+              </button>
+            )}
+
             <button
               onClick={handleCreateNew}
               className="clay-btn-primary px-4 py-2 font-bold text-xs flex items-center gap-2 shadow-sm"
@@ -173,9 +270,45 @@ export const NotesView: React.FC<NotesViewProps> = ({
                 />
               </div>
 
+              {/* Filter Tabs: All vs Exploring Society */}
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterExploringSocietyOnly(false);
+                    setFilterSubject('all');
+                  }}
+                  className={`flex-1 py-1 px-2 rounded-lg font-bold text-center transition-all ${
+                    !filterExploringSocietyOnly
+                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                  }`}
+                >
+                  All Notes ({notes.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterExploringSocietyOnly(true);
+                    setFilterSubject('all');
+                  }}
+                  className={`flex-1 py-1 px-2 rounded-lg font-bold text-center transition-all flex items-center justify-center gap-1 ${
+                    filterExploringSocietyOnly
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10'
+                  }`}
+                >
+                  <Compass className="w-3 h-3" />
+                  <span>📘 Exploring Society</span>
+                </button>
+              </div>
+
               <select
                 value={filterSubject}
-                onChange={e => setFilterSubject(e.target.value)}
+                onChange={e => {
+                  setFilterSubject(e.target.value);
+                  if (filterExploringSocietyOnly) setFilterExploringSocietyOnly(false);
+                }}
                 className="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 text-xs text-slate-700 dark:text-slate-300 outline-none"
               >
                 <option value="all">All Subjects ({notes.length})</option>
@@ -183,17 +316,80 @@ export const NotesView: React.FC<NotesViewProps> = ({
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>
+
+              {/* NCERT 14 Chapters Quick Drawer Trigger */}
+              <button
+                type="button"
+                onClick={() => setShowChapterNav(!showChapterNav)}
+                className="w-full py-1.5 px-2.5 rounded-xl border border-emerald-500/30 bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-between transition-all hover:bg-emerald-100/70 dark:hover:bg-emerald-900/40"
+              >
+                <div className="flex items-center gap-1.5">
+                  <Compass className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>NCERT 14 Chapters Study Guides</span>
+                </div>
+                {showChapterNav ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+
+              {/* 14 Chapter Quick Drawer */}
+              {showChapterNav && (
+                <div className="max-h-48 overflow-y-auto space-y-1.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-emerald-500/20">
+                  <div className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider px-1">
+                    Exploring Society Chapters (1–14):
+                  </div>
+                  {NCERT_EXPLORING_SOCIETY_CHAPTERS.map(ch => {
+                    const isExisting = notes.some(
+                      n =>
+                        n.title.toLowerCase().includes(`ch ${ch.number}`) ||
+                        n.title.toLowerCase().includes(`chapter ${ch.number}`) ||
+                        n.title.toLowerCase().includes(ch.name.toLowerCase())
+                    );
+                    return (
+                      <button
+                        key={ch.id}
+                        type="button"
+                        onClick={() => handleSelectOrGenerateChapterNote(ch)}
+                        className={`w-full text-left p-1.5 rounded-lg text-xs flex items-center justify-between gap-1 transition-all ${
+                          isExisting
+                            ? 'bg-emerald-500/10 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-500/20'
+                            : 'bg-white dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:border-emerald-500/50'
+                        }`}
+                      >
+                        <div className="truncate">
+                          <span className="font-bold text-emerald-700 dark:text-emerald-400 mr-1">
+                            Ch {ch.number}:
+                          </span>
+                          <span className="truncate">{ch.name}</span>
+                        </div>
+                        <span className={`text-[9px] px-1 rounded shrink-0 font-medium ${
+                          isExisting
+                            ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                            : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                        }`}>
+                          {isExisting ? 'Ready' : '+ Note'}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Note items */}
             <div className="flex-1 overflow-y-auto space-y-2 pr-1">
               {filteredNotes.length === 0 ? (
                 <div className="p-6 text-center text-xs text-slate-400">
-                  No notes found matching your search.
+                  {filterExploringSocietyOnly
+                    ? 'No Exploring Society notes found. Use the NCERT 14 Chapters guide above to generate one!'
+                    : 'No notes found matching your search.'}
                 </div>
               ) : (
                 filteredNotes.map(note => {
                   const isSelected = note.id === (selectedNote?.id || '');
+                  const isExploringSociety =
+                    note.title.toLowerCase().includes('exploring society') ||
+                    note.content.toLowerCase().includes('exploring society') ||
+                    note.tags?.some(t => t.toLowerCase().includes('exploring society'));
+
                   return (
                     <div
                       key={note.id}
@@ -215,6 +411,14 @@ export const NotesView: React.FC<NotesViewProps> = ({
                           {note.subject}
                         </span>
                       </div>
+
+                      {isExploringSociety && (
+                        <div className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+                          <Compass className="w-2.5 h-2.5" />
+                          <span>NCERT Exploring Society</span>
+                        </div>
+                      )}
+
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">
                         {note.content.replace(/[#*`$]/g, '')}
                       </p>
@@ -382,7 +586,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
                       <h2 className="font-display text-2xl font-extrabold text-slate-900 dark:text-white">
                         {selectedNote.title}
                       </h2>
-                      <div className="text-slate-700 dark:text-slate-200 text-sm leading-relaxed">
+                      <div className="text-slate-900 dark:text-slate-100 text-sm leading-relaxed">
                         <MarkdownRenderer
                           content={
                             viewMode === 'concise'

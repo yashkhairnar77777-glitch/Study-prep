@@ -51,7 +51,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   const averageAccuracy =
     mockTests.length > 0
       ? Math.round(
-          mockTests.reduce((acc, t) => acc + t.accuracyPercentage, 0) / mockTests.length
+          mockTests.reduce((acc, t) => acc + (Number(t.accuracyPercentage) || 0), 0) / mockTests.length
         )
       : 0;
 

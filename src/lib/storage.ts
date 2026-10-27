@@ -24,6 +24,7 @@ const STORAGE_KEYS = {
   STUDY_ACTIVITIES: 'oryqen_study_activities_v1',
   STUDY_STREAK: 'oryqen_study_streak_v1',
   GENERATED_PACKS: 'oryqen_generated_packs_v1',
+  CURRICULUM_PROGRESS: 'oryqen_curriculum_progress_v1',
 };
 
 export const DEFAULT_PROFILE: UserProfile = {
@@ -86,6 +87,50 @@ const DEFAULT_FLASHCARDS: Flashcard[] = [
     nextReviewDate: Date.now(),
     reviewCount: 0,
     easeScore: 'unreviewed',
+  },
+  {
+    id: 'fc-5',
+    front: 'What is the Prime Meridian and how do latitudes and longitudes help locate places? (Exploring Society Ch 1)',
+    back: '• Latitudes are horizontal parallel circles running East-West; the Equator is at 0°.\n• Longitudes are vertical semi-circles running North-South; the Prime Meridian (0° longitude) passes through Greenwich (UK).\n• Together, they form a geographic grid allowing precise coordinate location of any spot on Earth.\n• India\'s Standard Meridian is 82°30\' E, located at Mirzapur (IST is UTC +5:30).',
+    subject: 'History & Social Studies',
+    topic: 'Exploring Society: Locating Places on the Earth',
+    box: 1,
+    nextReviewDate: Date.now(),
+    reviewCount: 0,
+    easeScore: 'unreviewed',
+  },
+  {
+    id: 'fc-6',
+    front: 'What were the defining features of the Harappan Civilisation? (Exploring Society Ch 6)',
+    back: '• City Layout: Divided into a raised Citadel (public/administrative) and Lower Town (residential).\n• Drainage: Precision covered drains along straight grid streets with inspection holes.\n• Great Bath at Mohenjo-daro: Watertight public tank lined with baked bricks and bitumen plaster.\n• Craft & Trade: Steatite seals with unicorn/bull motifs, weights, copper/bronze metallurgy, dockyard at Lothal.',
+    subject: 'History & Social Studies',
+    topic: 'Exploring Society: Beginnings of Indian Civilisation',
+    box: 2,
+    nextReviewDate: Date.now() + 86400000,
+    reviewCount: 1,
+    easeScore: 'medium',
+  },
+  {
+    id: 'fc-7',
+    front: 'How does Grassroots Democracy function in rural India? (Exploring Society Ch 10 & 11)',
+    back: '• Gram Sabha: The general assembly of all adult voters (18+) registered in the village panchayat area. It oversees decisions and holds leaders accountable.\n• Gram Panchayat: The elected executive governing body of Ward Members (Panchs) and Sarpanch (President), serving a 5-year term.\n• Secretary: Appointed by the state government (non-elected) to keep records and call meetings.\n• 3-Tier Structure: Gram Panchayat (village) → Panchayat Samiti / Janpad (block) → Zilla Parishad (district).',
+    subject: 'History & Social Studies',
+    topic: 'Exploring Society: Grassroots Democracy',
+    box: 1,
+    nextReviewDate: Date.now(),
+    reviewCount: 0,
+    easeScore: 'unreviewed',
+  },
+  {
+    id: 'fc-8',
+    front: 'What are the three main sectors of economic activities? (Exploring Society Ch 14)',
+    back: '• Primary Sector: Activities directly using natural resources (agriculture, fishing, forestry, dairy, mining).\n• Secondary Sector: Transforming raw materials into finished manufactured goods (textiles, automobile assembly, construction, factories).\n• Tertiary Sector: Providing supporting services rather than goods (transport, banking, healthcare, education, trade, IT).\n• Interdependence: Each sector relies on the other two for supply and distribution.',
+    subject: 'History & Social Studies',
+    topic: 'Exploring Society: Economic Activities Around Us',
+    box: 2,
+    nextReviewDate: Date.now() + 86400000,
+    reviewCount: 1,
+    easeScore: 'medium',
   },
 ];
 
@@ -169,6 +214,189 @@ const DEFAULT_FOCUS_SESSIONS: PomodoroSession[] = [
   },
 ];
 
+export const DEFAULT_NOTES: SavedNote[] = [
+  {
+    id: 'note-es-ch1',
+    title: 'NCERT Exploring Society Ch 1: Locating Places on the Earth',
+    subject: 'History & Social Studies',
+    createdAt: Date.now() - 3600000,
+    tags: ['Exploring Society', 'NCERT', 'Geography', 'Latitudes & Longitudes'],
+    content: `## NCERT Class 6 Exploring Society: India and Beyond
+### Chapter 1: Locating Places on the Earth — Comprehensive Study & Revision Guide
+
+---
+
+### 1. Earth's Shape & The Globe
+- **Geoid Shape**: The Earth is flattened at the poles and slightly bulges at the Equator. This shape is called a **geoid** ("earth-like shape").
+- **Globe**: A miniature, true 3-dimensional model of the Earth. It shows continents, oceans, and countries in their accurate relative proportions.
+- **Axis & Poles**: The imaginary line on which the globe rotates has two endpoints: the **North Pole** and the **South Pole**.
+
+---
+
+### 2. Parallels of Latitude
+- Latitudes are imaginary circular lines drawn parallel to the Equator running **East-West**.
+- **Equator**: $0^\\circ$ latitude, dividing the Earth into the Northern Hemisphere and Southern Hemisphere.
+- **Key Reference Latitudes**:
+  1. **Tropic of Cancer**: $23\\frac{1}{2}^\\circ\\text{ N}$
+  2. **Tropic of Capricorn**: $23\\frac{1}{2}^\\circ\\text{ S}$
+  3. **Arctic Circle**: $66\\frac{1}{2}^\\circ\\text{ N}$
+  4. **Antarctic Circle**: $66\\frac{1}{2}^\\circ\\text{ S}$
+
+#### Earth's Heat Zones:
+- **Torrid Zone**: Between the Tropic of Cancer and Tropic of Capricorn. Receives direct, vertical sunlight all year round $\\rightarrow$ warmest zone.
+- **Temperate Zones**: Between Tropics and Polar Circles. Moderate angles of sunlight $\\rightarrow$ mild climate.
+- **Frigid Zones**: North of Arctic Circle and South of Antarctic Circle. Sun never rises far above the horizon $\\rightarrow$ extremely cold.
+
+---
+
+### 3. Meridians of Longitude & Geographic Grid
+- Longitudes are semi-circles running from the North Pole to the South Pole (**North-South**).
+- Unlike latitudes, all meridians are equal in length and converge at the poles.
+- **Prime Meridian**: $0^\\circ$ longitude, passing through the Royal Observatory at **Greenwich, London**.
+- **180° Meridian**: Opposite the Prime Meridian, dividing the globe into Eastern and Western Hemispheres.
+- **The Grid System**: The intersection of latitudes and longitudes creates an exact coordinate reference. Any point on the planet can be pinned down using $(Latitude, Longitude)$.
+
+---
+
+### 4. Longitude, Local Time & Indian Standard Time (IST)
+- The Earth rotates $360^\\circ$ in approximately 24 hours:
+  $$\\frac{360^\\circ}{24\\text{ hours}} = 15^\\circ\\text{ per hour} = 1^\\circ\\text{ every 4 minutes}$$
+- Places east of Greenwich see sunrise earlier (time is ahead); places west are behind.
+- **Indian Standard Time (IST)**:
+  - India stretches from $68^\\circ 7'\\text{ E}$ (Gujarat) to $97^\\circ 25'\\text{ E}$ (Arunachal Pradesh) — a time difference of almost 1 hour and 45 minutes!
+  - To prevent confusion with train and flight schedules, the **Standard Meridian of India** is fixed at **$82^\\circ 30'\\text{ E}$** (passing through Mirzapur, Uttar Pradesh).
+  - Indian Standard Time is exactly **5 hours 30 minutes ahead of Greenwich Mean Time (UTC/GMT +5:30)**.`,
+  },
+  {
+    id: 'note-es-ch6',
+    title: 'NCERT Exploring Society Ch 6: The Beginnings of Indian Civilisation',
+    subject: 'History & Social Studies',
+    createdAt: Date.now() - 7200000,
+    tags: ['Exploring Society', 'NCERT', 'History', 'Harappa', 'Indus Valley'],
+    content: `## NCERT Class 6 Exploring Society: India and Beyond
+### Chapter 6: The Beginnings of Indian Civilisation (Harappan Civilisation)
+
+---
+
+### 1. Discovery and Significance
+- Flourished around **2600 BCE to 1900 BCE** along the Indus and Saraswati river basins.
+- Major excavation sites: **Harappa** (Punjab, Pakistan), **Mohenjo-daro** (Sindh), **Kalibangan** (Rajasthan), **Rakhigarhi** & **Banawali** (Haryana), **Dholavira** & **Lothal** (Gujarat).
+- It marked the dawn of first urbanisation in the Indian subcontinent.
+
+---
+
+### 2. Town Planning & Architecture
+- **Dual City Layout**:
+  - **Citadel (Upper Town)**: Built on a high mud-brick platform in the western portion. Housed monumental public buildings, storehouses (granaries), and administrative halls.
+  - **Lower Town**: Located to the east, occupied by residential brick quarters of common citizens, artisans, and traders.
+- **Baked Bricks**: Walls were made of kiln-baked bricks laid in an interlocking pattern, making them withstand earthquakes and floods for thousands of years.
+- **Grid Layout**: Streets intersected cleanly at right angles ($90^\\circ$), forming rectangular blocks.
+
+---
+
+### 3. Engineering Feats: Water Supply & Sanitation
+- **The Great Bath at Mohenjo-daro**:
+  - A special public rectangular bathing tank lined with bricks, coated with plaster, and sealed with a layer of natural tar (**bitumen**) to make it completely waterproof.
+  - Steps led down into it from the north and south; changing rooms bordered the sides. Likely used for ritual/ceremonial bathing.
+- **Covered Drainage System**:
+  - Waste water from each house flowed through bathroom chutes into street drains covered with flat stone slabs or bricks.
+  - Regular inspection holes were installed at intervals for maintenance and desilting.
+
+---
+
+### 4. Crafts, Trade & Seals
+- **Metallurgy**: Skilled in making bronze (alloy of copper and tin), copper tools, and gold/silver ornaments.
+- **Steatite Seals**: Square stone stamps carved with animal motifs (one-horned bull/unicorn, elephant, tiger) and an undeciphered pictographic script. Used to stamp clay seals on trade sacks.
+- **Weights & Measures**: Cubical chert stone weights graded systematically.
+- **Lothal Dockyard**: A massive brick basin on the Gulf of Khambhat where boats and ships arrived from the sea and river channels, trading with Mesopotamia.`,
+  },
+  {
+    id: 'note-es-ch10',
+    title: 'NCERT Exploring Society Ch 10 & 11: Grassroots Democracy — Governance & Rural Administration',
+    subject: 'History & Social Studies',
+    createdAt: Date.now() - 10800000,
+    tags: ['Exploring Society', 'NCERT', 'Civics', 'Grassroots Democracy', 'Panchayat'],
+    content: `## NCERT Class 6 Exploring Society: India and Beyond
+### Chapters 10 & 11: Grassroots Democracy — Governance & Local Government in Rural Areas
+
+---
+
+### 1. What is Governance?
+- **Governance** refers to the system and processes by which rules, policies, and decisions are made, implemented, and monitored for the common welfare of society.
+- **Levels of Government in India**:
+  1. **Local Level**: Village Panchayats and Urban Municipalities (addresses immediate civic needs: sanitation, drinking water, local roads).
+  2. **State Level**: State Legislative Assemblies and Chief Minister (law and order, state highways, agriculture).
+  3. **National / Union Level**: Parliament and Prime Minister (defense, foreign affairs, currency, railways).
+
+---
+
+### 2. The Gram Sabha — Pure Direct Democracy
+- **Definition**: The general assembly of all adults (aged 18 and above) who live in the area of a Gram Panchayat and whose names are registered in the electoral roll.
+- **Key Functions**:
+  - Scrutinises and approves development plans proposed by the Panchayat.
+  - Prevents the Panchayat from misusing funds or favouring specific people.
+  - Verifies the list of Below Poverty Line (BPL) families to ensure true beneficiaries receive benefits.
+
+---
+
+### 3. The Gram Panchayat — Elected Executive Body
+- Divided into small **Wards**. Each ward elects a representative called a **Ward Member (Panch)**.
+- All voters directly elect the **Sarpanch** (Panchayat President).
+- **Panchayat Secretary**:
+  - Not an elected person; appointed by the State Government.
+  - Responsible for convening the Gram Sabha meetings, recording minutes, and financial record compliance.
+- **Sources of Funds**:
+  - Collection of taxes on houses, market places, and fairs.
+  - Government scheme funds received through Janpad/Zilla Parishads.
+  - Donations for community works.
+
+---
+
+### 4. Three-Tier Structure of Panchayati Raj
+1. **Gram Panchayat** (Village Level): Direct local administration.
+2. **Panchayat Samiti / Block Samiti** (Block Level): Coordinates multiple Gram Panchayats.
+3. **Zilla Parishad** (District Level): Formulates district development plans and distributes state funds.`,
+  },
+  {
+    id: 'note-es-ch14',
+    title: 'NCERT Exploring Society Ch 14: Economic Activities Around Us',
+    subject: 'History & Social Studies',
+    createdAt: Date.now() - 14400000,
+    tags: ['Exploring Society', 'NCERT', 'Economics', 'Sectors of Economy'],
+    content: `## NCERT Class 6 Exploring Society: India and Beyond
+### Chapter 14: Economic Activities Around Us — Sector Classification & Interdependence
+
+---
+
+### 1. Economic vs Non-Economic Activities
+- **Economic Activity**: Any human action performed to earn a livelihood, generate income, or produce goods and services (e.g., farming, factory work, running a grocery store, driving a bus).
+- **Non-Economic Activity**: Actions done out of care, affection, social obligation, or personal hobby without financial compensation (e.g., helping a neighbour, volunteering, household care).
+- **Recognition of Work (Ch 13)**: Emphasises the immense dignity and economic value of domestic work, caregiving, and manual craftsmanship.
+
+---
+
+### 2. Three Sectors of Economic Activities
+1. **Primary Sector (Nature-Based)**:
+   - Activities that rely directly on the extraction or harvesting of Earth's natural resources.
+   - Examples: Farming / Agriculture, Animal Husbandry & Dairy, Fishing, Mining & Quarrying, Forestry.
+2. **Secondary Sector (Manufacturing & Processing)**:
+   - Activities where natural products are transformed into manufactured goods through machinery, craft skills, or factory production.
+   - Examples: Spinning cotton into yarn and weaving cloth, turning iron ore into steel, bakeries turning flour into bread.
+3. **Tertiary Sector (Services & Support)**:
+   - Does not produce physical goods directly, but provides essential services that support both production and daily life.
+   - Examples: Transport (trucks, trains), Banking and credit, Communications, Healthcare, Education, Tourism.
+
+---
+
+### 3. Economic Interdependence (The Supply Chain)
+No sector functions in isolation!
+- **Example — The Cotton Shirt**:
+  1. *Primary*: A farmer cultivates cotton bolls using soil and water.
+  2. *Secondary*: A ginning and textile mill weaves and stitches the fabric into shirts.
+  3. *Tertiary*: Trucks transport the shirts to retail stores, banks finance the business, and shopkeepers sell to consumers.`,
+  },
+];
+
 export const storage = {
   getProfile(): UserProfile {
     try {
@@ -248,9 +476,16 @@ export const storage = {
   getNotes(): SavedNote[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.NOTES);
-      return data ? JSON.parse(data) : [];
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+      localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify(DEFAULT_NOTES));
+      return DEFAULT_NOTES;
     } catch {
-      return [];
+      return DEFAULT_NOTES;
     }
   },
 
@@ -569,6 +804,23 @@ export const storage = {
       this.saveNotes(updated);
     } catch (e) {
       console.warn('Storage appendNote failed', e);
+    }
+  },
+
+  getCurriculumProgress(): Record<string, 'mastered' | 'in_progress' | 'not_started'> {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.CURRICULUM_PROGRESS);
+      return data ? JSON.parse(data) : {};
+    } catch {
+      return {};
+    }
+  },
+
+  saveCurriculumProgress(progress: Record<string, 'mastered' | 'in_progress' | 'not_started'>): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.CURRICULUM_PROGRESS, JSON.stringify(progress));
+    } catch (e) {
+      console.warn('Storage saveCurriculumProgress failed', e);
     }
   },
 

@@ -17,6 +17,39 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  // Helper to format inline markdown like **bold**, *italic*, and `code`
+  const renderInlineFormattedText = (text: string) => {
+    // Tokenize by inline code `...`, bold **...**, italic *...*
+    const tokens = text.split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*)/g);
+    return tokens.map((token, i) => {
+      if (token.startsWith('`') && token.endsWith('`') && token.length > 2) {
+        return (
+          <code
+            key={i}
+            className="rounded bg-slate-200/80 dark:bg-slate-800 px-1.5 py-0.5 font-mono text-[0.85em] font-semibold text-slate-900 dark:text-violet-300 border border-slate-300/60 dark:border-white/10"
+          >
+            {token.slice(1, -1)}
+          </code>
+        );
+      }
+      if (token.startsWith('**') && token.endsWith('**') && token.length > 4) {
+        return (
+          <strong key={i} className="font-extrabold text-slate-950 dark:text-white">
+            {token.slice(2, -2)}
+          </strong>
+        );
+      }
+      if (token.startsWith('*') && token.endsWith('*') && token.length > 2) {
+        return (
+          <em key={i} className="italic text-slate-900 dark:text-slate-200">
+            {token.slice(1, -1)}
+          </em>
+        );
+      }
+      return token;
+    });
+  };
+
   // Render text containing KaTeX equations ($...$ inline or $$...$$ block)
   const renderMathAndText = (rawText: string) => {
     // Process block math $$...$$ first, then inline $...$
@@ -30,12 +63,16 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
           return (
             <div
               key={idx}
-              className="my-3 overflow-x-auto py-2 text-center text-indigo-200"
+              className="my-3 overflow-x-auto py-2 text-center text-slate-950 dark:text-indigo-200 font-medium"
               dangerouslySetInnerHTML={{ __html: html }}
             />
           );
         } catch {
-          return <pre key={idx} className="font-mono text-sm">{part}</pre>;
+          return (
+            <pre key={idx} className="font-mono text-sm text-slate-900 dark:text-slate-100">
+              {part}
+            </pre>
+          );
         }
       } else if (part.startsWith('$') && part.endsWith('$') && part.length > 2) {
         const math = part.slice(1, -1).trim();
@@ -44,19 +81,23 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
           return (
             <span
               key={idx}
-              className="inline-math mx-0.5 text-indigo-300"
+              className="inline-math mx-0.5 text-slate-950 dark:text-indigo-300 font-semibold"
               dangerouslySetInnerHTML={{ __html: html }}
             />
           );
         } catch {
-          return <span key={idx} className="font-mono text-xs">{part}</span>;
+          return (
+            <span key={idx} className="font-mono text-xs text-slate-900 dark:text-slate-100">
+              {part}
+            </span>
+          );
         }
       }
-      return <React.Fragment key={idx}>{part}</React.Fragment>;
+      return <React.Fragment key={idx}>{renderInlineFormattedText(part)}</React.Fragment>;
     });
   };
 
-  // Simple, robust Markdown parser for academic and tutoring responses
+  // Robust Markdown parser for academic notes, formula sheets, questions, and explanations
   const parsedBlocks = useMemo(() => {
     const lines = content.split('\n');
     const blocks: React.ReactNode[] = [];
@@ -72,12 +113,12 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
       blocks.push(
         <Tag
           key={`list-${blocks.length}`}
-          className={`my-3 space-y-1 pl-5 ${
+          className={`my-3 space-y-1.5 pl-5 ${
             type === 'ol' ? 'list-decimal' : 'list-disc'
-          } text-slate-300`}
+          } text-slate-900 dark:text-slate-100`}
         >
           {items.map((item, i) => (
-            <li key={i} className="leading-relaxed">
+            <li key={i} className="leading-relaxed text-slate-900 dark:text-slate-100">
               {renderMathAndText(item)}
             </li>
           ))}
@@ -96,9 +137,9 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
           blocks.push(
             <div
               key={`code-${idx}`}
-              className="group relative my-3 overflow-hidden rounded-xl border border-slate-700/70 bg-slate-950 font-mono text-xs"
+              className="group relative my-3 overflow-hidden rounded-xl border border-slate-300 dark:border-slate-700/70 bg-slate-950 font-mono text-xs shadow-xs"
             >
-              <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/80 px-3.5 py-1.5 text-slate-400">
+              <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-3.5 py-1.5 text-slate-300">
                 <span className="font-medium tracking-wide uppercase">
                   {codeLanguage || 'code'}
                 </span>
@@ -120,7 +161,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
                   )}
                 </button>
               </div>
-              <pre className="overflow-x-auto p-3.5 text-slate-200 leading-relaxed">
+              <pre className="overflow-x-auto p-3.5 text-slate-100 leading-relaxed font-mono">
                 <code>{codeString}</code>
               </pre>
             </div>
@@ -186,7 +227,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
         blocks.push(
           <h3
             key={`h3-${idx}`}
-            className="mt-4 mb-2 text-base font-semibold text-slate-100 font-display"
+            className="mt-4 mb-2 text-base font-bold text-slate-900 dark:text-white font-display"
           >
             {renderMathAndText(line.slice(4))}
           </h3>
@@ -197,7 +238,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
         blocks.push(
           <h2
             key={`h2-${idx}`}
-            className="mt-5 mb-2.5 text-lg font-bold text-slate-100 font-display border-b border-slate-800 pb-1"
+            className="mt-5 mb-2.5 text-lg font-extrabold text-slate-900 dark:text-white font-display border-b border-slate-200 dark:border-slate-800 pb-1"
           >
             {renderMathAndText(line.slice(3))}
           </h2>
@@ -208,7 +249,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
         blocks.push(
           <h1
             key={`h1-${idx}`}
-            className="mt-6 mb-3 text-xl font-bold text-slate-100 font-display"
+            className="mt-6 mb-3 text-xl font-black text-slate-900 dark:text-white font-display"
           >
             {renderMathAndText(line.slice(2))}
           </h1>
@@ -221,7 +262,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
         blocks.push(
           <blockquote
             key={`bq-${idx}`}
-            className="my-3 rounded-lg border border-slate-700/60 bg-slate-800/40 px-4 py-2.5 text-sm italic text-slate-300"
+            className="my-3 rounded-xl border-l-4 border-violet-500 bg-slate-100/80 dark:bg-slate-800/50 px-4 py-2.5 text-sm italic text-slate-900 dark:text-slate-100"
           >
             {renderMathAndText(line.slice(2))}
           </blockquote>
@@ -231,7 +272,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
 
       // Regular paragraph
       blocks.push(
-        <p key={`p-${idx}`} className="my-2 leading-relaxed text-slate-200">
+        <p key={`p-${idx}`} className="my-2.5 leading-relaxed text-slate-900 dark:text-slate-100 font-normal">
           {renderMathAndText(line)}
         </p>
       );
@@ -241,5 +282,11 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
     return blocks;
   }, [content, copiedCode]);
 
-  return <div className={`text-sm md:text-base leading-relaxed ${className}`}>{parsedBlocks}</div>;
+  return (
+    <div
+      className={`text-sm md:text-base leading-relaxed text-slate-900 dark:text-slate-100 ${className}`}
+    >
+      {parsedBlocks}
+    </div>
+  );
 };

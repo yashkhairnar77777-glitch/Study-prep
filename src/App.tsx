@@ -27,6 +27,7 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import { NotificationModal } from './components/NotificationModal';
 import { NotificationToast } from './components/NotificationToast';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { NcertQuickGeneratorModal, QuickGeneratorMode } from './components/NcertQuickGeneratorModal';
 import { storage } from './lib/storage';
 import { api } from './lib/api';
 import {
@@ -60,6 +61,13 @@ export default function App() {
   const [activeExamPaper, setActiveExamPaper] = useState<ExamPaper | null>(null);
   const [isOpenMobileMenu, setIsOpenMobileMenu] = useState(false);
   const [isOpenProfileModal, setIsOpenProfileModal] = useState(false);
+  const [isOpenNcertModal, setIsOpenNcertModal] = useState<boolean>(false);
+  const [ncertModalMode, setNcertModalMode] = useState<QuickGeneratorMode>('flashcards');
+
+  const handleOpenNcertGenerator = (mode: QuickGeneratorMode = 'flashcards') => {
+    setNcertModalMode(mode);
+    setIsOpenNcertModal(true);
+  };
 
   // Sync theme with document class
   useEffect(() => {
@@ -362,6 +370,7 @@ What question, topic, or problem would you like to explore today?`;
               providerStatus={providerStatus}
               onSaveAsNote={handleSaveAsNote}
               onCreateFlashcard={handleCreateFlashcard}
+              onOpenNcertGenerator={() => handleOpenNcertGenerator('both')}
             />
           )}
 
@@ -406,6 +415,7 @@ What question, topic, or problem would you like to explore today?`;
                 storage.saveFlashcards(cards);
               }}
               onUpdateNotes={handleUpdateNotes}
+              onOpenNcertGenerator={() => handleOpenNcertGenerator('flashcards')}
             />
           )}
 
@@ -424,6 +434,8 @@ What question, topic, or problem would you like to explore today?`;
                 setActiveConvoId(id);
                 storage.setActiveConvoId(id);
               }}
+              onOpenNcertGenerator={handleOpenNcertGenerator}
+              onUpdateNotes={handleUpdateNotes}
             />
           )}
 
@@ -440,6 +452,7 @@ What question, topic, or problem would you like to explore today?`;
               notes={notes}
               onUpdateNotes={handleUpdateNotes}
               profile={profile}
+              onOpenNcertGenerator={() => handleOpenNcertGenerator('notes')}
             />
           )}
 
@@ -469,6 +482,25 @@ What question, topic, or problem would you like to explore today?`;
 
       {/* Global Focus Timer Modal */}
       <PomodoroGlobalModal profile={profile} />
+
+      {/* 1-Click NCERT Chapter Flashcard & Notes Generator Modal */}
+      <NcertQuickGeneratorModal
+        isOpen={isOpenNcertModal}
+        onClose={() => setIsOpenNcertModal(false)}
+        initialMode={ncertModalMode}
+        profile={profile}
+        onAddFlashcards={cards => {
+          setFlashcards(cards);
+          storage.saveFlashcards(cards);
+        }}
+        onAddNote={note => {
+          const updated = [note, ...notes];
+          setNotes(updated);
+          storage.saveNotes(updated);
+        }}
+        onNavigateToRevision={() => setCurrentView('revision')}
+        onNavigateToNotes={() => setCurrentView('notes')}
+      />
 
       {/* Study Notification Modal & Floating Toast */}
       <NotificationModal />

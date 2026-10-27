@@ -35,6 +35,7 @@ import {
 } from '../types';
 import { usePomodoro } from '../contexts/PomodoroContext';
 import { storage } from '../lib/storage';
+import { CurriculumRoadmapVisualizer } from './CurriculumRoadmapVisualizer';
 
 interface DashboardViewProps {
   profile: UserProfile;
@@ -47,6 +48,8 @@ interface DashboardViewProps {
   providerStatus: ProviderStatus | null;
   onNavigate: (view: AppView) => void;
   onSelectConversation: (id: string) => void;
+  onOpenNcertGenerator?: (mode?: 'flashcards' | 'notes' | 'both') => void;
+  onUpdateNotes?: (notes: SavedNote[]) => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -60,6 +63,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   providerStatus,
   onNavigate,
   onSelectConversation,
+  onOpenNcertGenerator,
+  onUpdateNotes,
 }) => {
   const { startTimer, setIsOpenModal, todayMinutes, isRunning, mode } = usePomodoro();
 
@@ -76,14 +81,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const averageAccuracy =
     mockTests.length > 0
       ? Math.round(
-          mockTests.reduce((acc, t) => acc + t.accuracyPercentage, 0) / mockTests.length
+          mockTests.reduce((acc, t) => acc + (Number(t.accuracyPercentage) || 0), 0) / mockTests.length
         )
       : 0;
 
   const completedTasks = tasks.filter(t => t.completed).length;
 
   const dailyGoalMinutes = profile.dailyStudyTargetMinutes || 30;
-  const goalProgressPercent = Math.min(100, Math.round((todayMinutes / dailyGoalMinutes) * 100));
+  const safeTodayMinutes = Number(todayMinutes) || 0;
+  const rawGoalPercent = dailyGoalMinutes > 0 ? Math.round((safeTodayMinutes / dailyGoalMinutes) * 100) : 0;
+  const goalProgressPercent = Number.isNaN(rawGoalPercent) ? 0 : Math.min(100, Math.max(0, rawGoalPercent));
 
   // Dynamic time-of-day greeting
   const getGreeting = () => {
@@ -289,6 +296,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
+        {/* Fast NCERT Chapter Generator Banner */}
+        {onOpenNcertGenerator && (
+          <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-extrabold uppercase tracking-wider backdrop-blur-xs">
+                  ⚡ 1-Click NCERT Engine
+                </span>
+                <span className="text-violet-200 text-xs font-semibold">
+                  Official Curriculum
+                </span>
+              </div>
+              <h3 className="font-display text-base sm:text-lg font-bold text-white">
+                Generate Flashcards & Notes by NCERT Chapter
+              </h3>
+              <p className="text-xs text-violet-100 max-w-xl leading-relaxed">
+                Just select your chapter to instantly generate active-recall flashcard decks and comprehensive formula notes.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => onOpenNcertGenerator('flashcards')}
+                className="px-4 py-2 rounded-2xl bg-white text-violet-700 hover:bg-violet-50 text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>⚡ NCERT Flashcards</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onOpenNcertGenerator('notes')}
+                className="px-4 py-2 rounded-2xl bg-violet-900/40 hover:bg-violet-900/60 border border-white/20 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-xs transition-all"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>📝 NCERT Notes</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Quick Action Cards: AI Tutor, Notes, Flashcards, Exam Generator */}
         <div>
           <div className="flex items-center justify-between mb-4">
@@ -417,6 +465,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Curriculum Roadmap Visualizer */}
+        <CurriculumRoadmapVisualizer
+          profile={profile}
+          notes={notes}
+          mockTests={mockTests}
+          flashcards={flashcards}
+          onNavigate={onNavigate}
+          onSelectConversation={onSelectConversation}
+          onUpdateNotes={onUpdateNotes}
+          onOpenNcertGenerator={onOpenNcertGenerator}
+        />
 
         {/* Lower Grid: Subject Progress Cards & Real Activity Log */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

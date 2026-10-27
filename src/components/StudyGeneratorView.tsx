@@ -70,6 +70,7 @@ import {
   SyllabusChapter,
 } from '../lib/syllabusData';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { NcertQuickGeneratorModal } from './NcertQuickGeneratorModal';
 import { api } from '../lib/api';
 import { storage } from '../lib/storage';
 
@@ -92,19 +93,50 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
 }) => {
   // Stepper state: Step 1 (Source) -> Step 2 (Syllabus) -> Step 3 (Tools) -> Step 4 (Generate & Study)
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
+  const [showNcertQuickModal, setShowNcertQuickModal] = useState<boolean>(false);
 
   // STEP 1: Source Mode ('ncert' | 'upload')
   const [sourceMode, setSourceMode] = useState<'syllabus' | 'upload'>('syllabus');
 
   // STEP 2: Syllabus & Chapters
   const [selectedBoardId, setSelectedBoardId] = useState<EducationBoard>('CBSE');
-  const [selectedClassId, setSelectedClassId] = useState<string>('cbse-class-10');
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>('cbse-10-math');
+  const [selectedClassId, setSelectedClassId] = useState<string>(() => {
+    const raw = (profile.selectedClass || '').toLowerCase();
+    const num = raw.replace(/\D/g, '');
+    if (num) {
+      const match = SYLLABUS_REGISTRY[0].classes.find(
+        c => c.id === `cbse-class-${num}` || c.name.toLowerCase().includes(`class ${num}`)
+      );
+      if (match) return match.id;
+    }
+    return 'cbse-class-5';
+  });
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(() => {
+    const raw = (profile.selectedClass || '').toLowerCase();
+    const num = raw.replace(/\D/g, '');
+    const cls = SYLLABUS_REGISTRY[0].classes.find(
+      c => c.id === `cbse-class-${num}` || c.name.toLowerCase().includes(`class ${num}`)
+    ) || SYLLABUS_REGISTRY[0].classes[0];
+    const match = cls.subjects.find(
+      s => s.category === profile.primarySubject || s.name.toLowerCase().includes(profile.primarySubject.toLowerCase())
+    );
+    return match ? match.id : (cls.subjects[0]?.id || 'cbse-5-math');
+  });
   const [selectedCurriculum, setSelectedCurriculum] = useState<string>('NCERT Standard Textbook');
   const [academicYear, setAcademicYear] = useState<string>('2025–2026');
 
   // Chapter Selection with Checkboxes & Select All
-  const [selectedChapterIds, setSelectedChapterIds] = useState<string[]>(['ch-quadratic-equations']);
+  const [selectedChapterIds, setSelectedChapterIds] = useState<string[]>(() => {
+    const raw = (profile.selectedClass || '').toLowerCase();
+    const num = raw.replace(/\D/g, '');
+    const cls = SYLLABUS_REGISTRY[0].classes.find(
+      c => c.id === `cbse-class-${num}` || c.name.toLowerCase().includes(`class ${num}`)
+    ) || SYLLABUS_REGISTRY[0].classes[0];
+    const match = cls.subjects.find(
+      s => s.category === profile.primarySubject || s.name.toLowerCase().includes(profile.primarySubject.toLowerCase())
+    ) || cls.subjects[0];
+    return match?.chapters[0] ? [match.chapters[0].id] : ['ch-5-fish-tale'];
+  });
   const [chapterSearchQuery, setChapterSearchQuery] = useState<string>('');
   const [customChapterName, setCustomChapterName] = useState<string>('');
   const [customTopicsOrNotes, setCustomTopicsOrNotes] = useState<string>('');
@@ -428,9 +460,12 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
     }, 6000);
 
     try {
-      const selectedChapters = currentSubject.chapters.filter(ch =>
+      let selectedChapters = currentSubject.chapters.filter(ch =>
         selectedChapterIds.includes(ch.id)
       );
+      if (selectedChapters.length === 0 && currentSubject.chapters.length > 0) {
+        selectedChapters = [currentSubject.chapters[0]];
+      }
 
       const allTopics = selectedChapters.flatMap(c => c.syllabusTopics);
       const chapterNames = selectedChapters.map(c => c.name);
@@ -691,6 +726,16 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setShowNcertQuickModal(true)}
+              className="px-3.5 py-2 text-xs font-bold rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm hover:opacity-95 flex items-center gap-1.5 transition-all"
+              title="Quick 1-click NCERT flashcard and notes generator by chapter"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>⚡ Fast NCERT (1-Click)</span>
+            </button>
+
             {savedPacks.length > 0 && (
               <button
                 type="button"
@@ -2304,7 +2349,7 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
                         className="w-full text-xs font-mono p-4 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-slate-100 outline-none"
                       />
                     ) : (
-                      <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm">
+                      <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm text-slate-900 dark:text-slate-100 prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-900 dark:prose-p:text-slate-100">
                         <MarkdownRenderer content={editedNotesContent || currentPack.outputs.notes.markdownContent} />
                       </div>
                     )}
@@ -2384,11 +2429,11 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
                             </div>
 
                             {hasAnswered && (
-                              <div className="p-3.5 rounded-xl bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900 text-xs text-slate-700 dark:text-slate-300 animate-in fade-in space-y-1">
-                                <div className="font-bold text-violet-900 dark:text-violet-200">
+                              <div className="p-3.5 rounded-xl bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900 text-xs text-slate-900 dark:text-slate-100 animate-in fade-in space-y-1">
+                                <div className="font-bold text-violet-950 dark:text-violet-200">
                                   Explanation:
                                 </div>
-                                <p>{mcq.explanation}</p>
+                                <p className="text-slate-900 dark:text-slate-100 font-medium">{mcq.explanation}</p>
                               </div>
                             )}
                           </div>
@@ -2531,7 +2576,7 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
                             </span>
                           </div>
 
-                          <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                          <div className="text-xs text-slate-900 dark:text-slate-100 leading-relaxed font-normal">
                             <MarkdownRenderer content={item.explanationOrAnswer} />
                           </div>
                         </div>
@@ -2616,6 +2661,20 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
             </div>
           </div>
         )}
+
+        {/* 1-Click NCERT Chapter Flashcard & Notes Modal */}
+        <NcertQuickGeneratorModal
+          isOpen={showNcertQuickModal}
+          onClose={() => setShowNcertQuickModal(false)}
+          profile={profile}
+          onAddFlashcards={cards => {
+            onUpdateFlashcards(cards);
+            storage.saveFlashcards(cards);
+          }}
+          onAddNote={note => {
+            onSaveAsNote(note.title, note.content, note.subject);
+          }}
+        />
       </div>
     </div>
   );

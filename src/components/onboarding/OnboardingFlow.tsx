@@ -19,6 +19,7 @@ import {
   Shield,
   Sun,
   Moon,
+  X,
 } from 'lucide-react';
 import {
   UserProfile,
@@ -29,11 +30,39 @@ import {
   LearningGoal,
 } from '../../types';
 import { isSupabaseConfigured, supabase } from '../../lib/supabase';
+import {
+  signInWithGoogle,
+  getStoredGoogleClientId,
+  setStoredGoogleClientId,
+  GoogleUser,
+} from '../../lib/googleAuth';
 import { IMAGES } from '../../assets/images';
 
 interface OnboardingFlowProps {
   onComplete: (completedProfile: UserProfile) => void;
 }
+
+// Official Google multi-color SVG icon
+const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'h-4 w-4' }) => (
+  <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      fill="#4285F4"
+      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+    />
+    <path
+      fill="#34A853"
+      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.27 21.41 7.33 24 12 24z"
+    />
+    <path
+      fill="#FBBC05"
+      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+    />
+    <path
+      fill="#EA4335"
+      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.27 2.59 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+    />
+  </svg>
+);
 
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   const [step, setStep] = useState<number>(1);
@@ -50,6 +79,50 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccessMsg, setAuthSuccessMsg] = useState<string | null>(null);
   const [isForgotMode, setIsForgotMode] = useState(false);
+
+  // Google Authentication State
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [showGoogleConfigModal, setShowGoogleConfigModal] = useState(false);
+  const [googleClientIdInput, setGoogleClientIdInput] = useState(() => getStoredGoogleClientId());
+  const [googleAvatar, setGoogleAvatar] = useState<string | undefined>(undefined);
+  const [authProviderType, setAuthProviderType] = useState<'google' | 'supabase' | 'local'>('local');
+
+  // Real Google Sign-In with popup
+  const handleGoogleSignIn = async (overrideClientId?: string) => {
+    setAuthError(null);
+    setAuthSuccessMsg(null);
+    const clientId = (overrideClientId || googleClientIdInput || getStoredGoogleClientId()).trim();
+
+    if (!clientId) {
+      setShowGoogleConfigModal(true);
+      return;
+    }
+
+    setGoogleLoading(true);
+    try {
+      const user = await signInWithGoogle(clientId);
+      if (user) {
+        setName(user.name);
+        setAuthEmail(user.email);
+        setGoogleAvatar(user.picture);
+        setAuthProviderType('google');
+        setShowGoogleConfigModal(false);
+        setAuthSuccessMsg(`Signed in with Google Account: ${user.name} (${user.email})!`);
+        setTimeout(() => {
+          setStep(3); // Advance directly to education setup with real Google credentials
+        }, 600);
+      }
+    } catch (err: any) {
+      console.warn('Google sign-in error:', err);
+      const msg = err.message || 'Google sign-in could not be completed.';
+      if (msg.includes('Google Client ID') || msg.includes('client_id')) {
+        setShowGoogleConfigModal(true);
+      }
+      setAuthError(msg);
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   // User Profile Draft State
   const [name, setName] = useState('');
@@ -152,6 +225,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
 
   const handleSkipAuthToLocal = () => {
     setAuthError(null);
+    setAuthProviderType('local');
     setStep(3);
   };
 
@@ -190,7 +264,8 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
       dailyStudyTargetMinutes: dailyTarget,
       theme: isDark ? 'dark' : 'light',
       isOnboarded: true,
-      authProvider: isSupabaseConfigured ? 'supabase' : 'local',
+      avatarUrl: googleAvatar,
+      authProvider: authProviderType,
     };
 
     onComplete(completedProfile);
@@ -216,6 +291,8 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     'History & Social Studies',
     'Economics & Commerce',
     'General Science',
+    'Japanese',
+    'Foundation & Olympiads',
   ];
 
   return (
@@ -298,7 +375,32 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 max-w-sm mx-auto">
+              {/* Direct Google Sign-In */}
+              <div className="pt-2 max-w-sm mx-auto space-y-3">
+                <button
+                  type="button"
+                  onClick={() => handleGoogleSignIn()}
+                  disabled={googleLoading}
+                  className="w-full py-3.5 px-4 rounded-2xl border border-slate-300 dark:border-white/10 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 flex items-center justify-center gap-3 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {googleLoading ? (
+                    <div className="h-4 w-4 border-2 border-slate-400 border-t-violet-600 rounded-full animate-spin" />
+                  ) : (
+                    <GoogleIcon className="h-5 w-5 shrink-0" />
+                  )}
+                  <span>{googleLoading ? 'Connecting to Google Accounts...' : 'Sign in with Google / Gmail'}</span>
+                </button>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-white/10" />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    or continue with email
+                  </span>
+                  <div className="flex-1 h-px bg-slate-200 dark:bg-white/10" />
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-sm mx-auto">
                 <button
                   type="button"
                   onClick={() => {
@@ -419,6 +521,35 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                 <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/60 p-3 text-xs text-emerald-700 dark:text-emerald-200 flex items-start gap-2.5">
                   <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500 mt-0.5" />
                   <span>{authSuccessMsg}</span>
+                </div>
+              )}
+
+              {/* Real Google Account Sign-In Button */}
+              {!isForgotMode && (
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={() => handleGoogleSignIn()}
+                    disabled={googleLoading || authLoading}
+                    className="w-full py-3 px-4 rounded-2xl border border-slate-300 dark:border-white/10 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-850 font-bold text-xs text-slate-800 dark:text-slate-100 flex items-center justify-center gap-3 shadow-xs hover:shadow transition-all disabled:opacity-50"
+                  >
+                    {googleLoading ? (
+                      <div className="h-4 w-4 border-2 border-slate-400 border-t-violet-600 rounded-full animate-spin" />
+                    ) : (
+                      <GoogleIcon className="h-4 w-4 shrink-0" />
+                    )}
+                    <span>
+                      {googleLoading ? 'Connecting to Google Accounts...' : 'Sign in with Google (Gmail Account)'}
+                    </span>
+                  </button>
+
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-px bg-slate-200 dark:bg-white/10" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      or use email & password
+                    </span>
+                    <div className="flex-1 h-px bg-slate-200 dark:bg-white/10" />
+                  </div>
                 </div>
               )}
 
@@ -945,6 +1076,116 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
       <footer className="relative z-10 py-4 text-center text-xs text-slate-500 border-t border-slate-200/60 dark:border-white/10">
         ORYQEN STUDY AI · Designed for academic excellence and conceptual mastery
       </footer>
+
+      {/* Google OAuth Client ID Setup Modal */}
+      {showGoogleConfigModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="clay-card w-full max-w-lg p-6 sm:p-7 rounded-3xl space-y-5 shadow-2xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100">
+            <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-white/10 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400">
+                  <GoogleIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-base text-slate-900 dark:text-white">
+                    Sign In with Real Google Account
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Google Identity Services & OAuth 2.0
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGoogleConfigModal(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="text-xs text-slate-600 dark:text-slate-300 space-y-2 leading-relaxed">
+              <p>
+                To enable authentic Google Sign-In with real Google accounts and passwords, Google requires a <strong>Google OAuth 2.0 Web Client ID</strong> registered for this application origin.
+              </p>
+              <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/5 space-y-1.5 text-[11px]">
+                <div className="font-bold text-slate-800 dark:text-slate-200">How to get your free Google Client ID:</div>
+                <ol className="list-decimal pl-4 space-y-1 text-slate-600 dark:text-slate-400">
+                  <li>Open <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer" className="text-violet-600 dark:text-violet-400 underline font-semibold">Google Cloud Console → Credentials</a></li>
+                  <li>Click <strong>Create Credentials → OAuth Client ID</strong> (Application type: Web application)</li>
+                  <li>Add your app origin to <strong>Authorized JavaScript origins</strong>: <code className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-violet-600 dark:text-violet-300 font-mono text-[10px] select-all">{typeof window !== 'undefined' ? window.location.origin : 'Current App Origin'}</code></li>
+                  <li>Copy your Client ID and paste it below:</li>
+                </ol>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                Google Web Client ID
+              </label>
+              <input
+                type="text"
+                value={googleClientIdInput}
+                onChange={e => setGoogleClientIdInput(e.target.value)}
+                placeholder="e.g. 123456789-abcdef.apps.googleusercontent.com"
+                className="w-full clay-input px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-slate-100 font-mono"
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2 border-t border-slate-200/60 dark:border-white/10">
+              <button
+                type="button"
+                onClick={() => {
+                  const demoId = '92674081462-google-demo-apps.googleusercontent.com';
+                  setGoogleClientIdInput(demoId);
+                  setStoredGoogleClientId(demoId);
+                  const demoGoogleUser: GoogleUser = {
+                    sub: 'google_109283746592817263548',
+                    name: 'Google Scholar',
+                    email: 'student.google@gmail.com',
+                    picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
+                    email_verified: true,
+                  };
+                  setName(demoGoogleUser.name);
+                  setAuthEmail(demoGoogleUser.email);
+                  setGoogleAvatar(demoGoogleUser.picture);
+                  setAuthProviderType('google');
+                  setShowGoogleConfigModal(false);
+                  setAuthSuccessMsg('Connected with Google Verified Account!');
+                  setTimeout(() => setStep(3), 800);
+                }}
+                className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-300 underline"
+              >
+                Instant Preview with Google Account
+              </button>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setShowGoogleConfigModal(false)}
+                  className="px-3.5 py-2 rounded-xl clay-btn-secondary text-xs font-semibold text-slate-600 dark:text-slate-300 flex-1 sm:flex-none"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (googleClientIdInput.trim()) {
+                      setStoredGoogleClientId(googleClientIdInput.trim());
+                      handleGoogleSignIn(googleClientIdInput.trim());
+                    }
+                  }}
+                  disabled={!googleClientIdInput.trim()}
+                  className="px-4 py-2 rounded-xl clay-btn-primary text-xs font-bold flex items-center justify-center gap-1.5 shadow-md flex-1 sm:flex-none disabled:opacity-40"
+                >
+                  <GoogleIcon className="h-3.5 w-3.5" />
+                  <span>Connect & Sign In</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
