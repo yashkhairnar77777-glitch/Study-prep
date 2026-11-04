@@ -21,6 +21,12 @@ import {
   ChevronRight,
   ExternalLink,
   Search,
+  CreditCard,
+  ShieldAlert,
+  Lock,
+  Crown,
+  ArrowRight,
+  Clock,
 } from 'lucide-react';
 import { Conversation, UserProfile, AppView } from '../types';
 import { OryqenLogo } from './OryqenLogo';
@@ -94,11 +100,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   const toolsNav = [
-    { id: 'exam' as const, label: 'Mock Tests & Exams', icon: Award },
+    { id: 'exam' as const, label: 'Mock Tests & Exams', icon: Award, locked: profile.subscriptionTier === 'free' },
+    { id: 'timer' as const, label: 'Smart Study Timer', icon: Clock },
     { id: 'revision' as const, label: 'Flashcards', icon: Layers },
     { id: 'planner' as const, label: 'Study Planner', icon: Calendar },
     { id: 'notes' as const, label: 'Study Notes', icon: BookMarked },
     { id: 'progress' as const, label: 'Learning Diagnostics', icon: BarChart3 },
+    { id: 'pricing' as const, label: 'Plans & UPI Payment', icon: CreditCard, highlight: true },
+    { id: 'my_subscription' as const, label: 'My Subscription', icon: Sparkles },
+    ...(profile.email === 'yashkhairnar77777@gmail.com'
+      ? [{ id: 'admin_payments' as const, label: 'Admin Payment Portal', icon: ShieldAlert }]
+      : []),
   ];
 
   const filteredConversations = conversations.filter(c =>
@@ -237,15 +249,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       setCurrentView(item.id);
                       onCloseMobile();
                     }}
-                    className={`w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-semibold transition-all ${
+                    className={`w-full flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-semibold transition-all ${
                       isActive
                         ? 'bg-violet-600 text-white font-bold shadow-sm shadow-violet-900/40 border border-violet-400/30'
+                        : item.highlight
+                        ? 'text-indigo-300 bg-indigo-950/40 border border-indigo-500/30 hover:bg-indigo-900/60 hover:text-white'
                         : 'text-slate-300 hover:bg-white/5 hover:text-white'
                     }`}
                     title={item.label}
                   >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    {!isCollapsedDesktop && <span className="truncate">{item.label}</span>}
+                    <div className="flex items-center gap-2.5 truncate">
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {!isCollapsedDesktop && <span className="truncate">{item.label}</span>}
+                    </div>
+                    {!isCollapsedDesktop && item.locked && (
+                      <Lock className="h-3 w-3 text-amber-400 shrink-0 ml-1.5" />
+                    )}
+                    {!isCollapsedDesktop && item.highlight && (
+                      <span className="text-[10px] font-extrabold bg-indigo-500 text-white px-1.5 py-0.2 rounded-full">
+                        ₹99
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -362,6 +386,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           )}
         </div>
+
+        {/* Upgrade & UPI Payment Card for Free & Plus Students */}
+        {!isCollapsedDesktop && profile.subscriptionTier !== 'pro' && (
+          <div className="mx-3 my-2 p-3 rounded-2xl bg-gradient-to-br from-indigo-950/80 via-purple-950/60 to-slate-900 border border-indigo-500/40 text-xs space-y-2 shadow-md">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-white flex items-center gap-1.5 text-[11px]">
+                <Crown className="w-3.5 h-3.5 text-amber-400" />
+                {profile.subscriptionTier === 'plus' ? 'Upgrade to Pro' : 'Unlock Plus & Pro'}
+              </span>
+              <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                UPI / QR
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-300 leading-snug">
+              Unlock NCERT Graphic Notes, Oral Viva Examiner & Full Mock Practice Tests.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentView('pricing');
+                onCloseMobile();
+              }}
+              className="w-full py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-[11px] shadow-sm flex items-center justify-center gap-1 cursor-pointer"
+            >
+              <span>View Plans & Pay via UPI</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+        )}
 
         {/* Footer Actions: Settings, Backup, Overview */}
         <div className="p-3 border-t border-[#19233d] space-y-1">

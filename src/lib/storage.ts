@@ -41,6 +41,7 @@ export const DEFAULT_PROFILE: UserProfile = {
   theme: 'dark',
   isOnboarded: false,
   authProvider: 'local',
+  subscriptionTier: 'free',
 };
 
 const DEFAULT_FLASHCARDS: Flashcard[] = [
@@ -265,7 +266,13 @@ export const DEFAULT_NOTES: SavedNote[] = [
 - **Indian Standard Time (IST)**:
   - India stretches from $68^\\circ 7'\\text{ E}$ (Gujarat) to $97^\\circ 25'\\text{ E}$ (Arunachal Pradesh) — a time difference of almost 1 hour and 45 minutes!
   - To prevent confusion with train and flight schedules, the **Standard Meridian of India** is fixed at **$82^\\circ 30'\\text{ E}$** (passing through Mirzapur, Uttar Pradesh).
-  - Indian Standard Time is exactly **5 hours 30 minutes ahead of Greenwich Mean Time (UTC/GMT +5:30)**.`,
+  - Indian Standard Time is exactly **5 hours 30 minutes ahead of Greenwich Mean Time (UTC/GMT +5:30)**.
+
+---
+
+### 5. NCERT Textbook Capsule & Board Exam Pointers
+> [!DID-YOU-KNOW] Mirzapur in Uttar Pradesh was chosen for India's Standard Meridian (82°30' E) because it lies right in the longitudinal middle of the country, ensuring uniform rail and flight schedules from Gujarat to Arunachal Pradesh!
+> [!EXAM-TIP] Common Board Exam Mistake: Latitudes are horizontal parallel circles that NEVER meet and decrease in circumference toward the poles, whereas Longitudes are semi-circles that ALL converge at the North and South Poles and are equal in length!`,
   },
   {
     id: 'note-es-ch6',
@@ -308,7 +315,13 @@ export const DEFAULT_NOTES: SavedNote[] = [
 - **Metallurgy**: Skilled in making bronze (alloy of copper and tin), copper tools, and gold/silver ornaments.
 - **Steatite Seals**: Square stone stamps carved with animal motifs (one-horned bull/unicorn, elephant, tiger) and an undeciphered pictographic script. Used to stamp clay seals on trade sacks.
 - **Weights & Measures**: Cubical chert stone weights graded systematically.
-- **Lothal Dockyard**: A massive brick basin on the Gulf of Khambhat where boats and ships arrived from the sea and river channels, trading with Mesopotamia.`,
+- **Lothal Dockyard**: A massive brick basin on the Gulf of Khambhat where boats and ships arrived from the sea and river channels, trading with Mesopotamia.
+
+---
+
+### 5. NCERT Textbook Capsule & Key Exam Takeaway
+> [!DID-YOU-KNOW] Harappan cities had the world's first covered underground drainage networks! Each house had its own bathroom drain connecting directly to street sewers with flat inspection slabs for routine desilting.
+> [!EXAM-TIP] Core Marking Scheme: When describing Harappan town planning, always distinguish the Citadel (western raised administrative zone with Great Bath and granaries) from the Lower Town (eastern residential brick quarters).`,
   },
   {
     id: 'note-es-ch10',
@@ -513,6 +526,14 @@ export const storage = {
       localStorage.setItem(STORAGE_KEYS.MOCK_TESTS, JSON.stringify(tests));
     } catch (e) {
       console.warn('Storage saveMockTest failed', e);
+    }
+  },
+
+  saveMockTests(tests: MockTestAttempt[]): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.MOCK_TESTS, JSON.stringify(tests));
+    } catch (e) {
+      console.warn('Storage saveMockTests failed', e);
     }
   },
 

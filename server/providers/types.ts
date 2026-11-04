@@ -246,3 +246,39 @@ export interface StudyGeneratorResponsePayload {
   modelUsed?: string;
 }
 
+export interface AiScheduleIntervalGenerated {
+  id: string;
+  type: 'focus' | 'short_break' | 'long_break';
+  title: string;
+  durationMinutes: number;
+  objective: string;
+  breakActivity?: string;
+  tips?: string;
+}
+
+export interface AiStudyScheduleGenerated {
+  id: string;
+  title: string;
+  subject: string;
+  topic: string;
+  totalDurationMinutes: number;
+  energyLevel: 'high' | 'moderate' | 'low';
+  goalType: 'deep_learning' | 'problem_solving' | 'rapid_revision' | 'memorization';
+  summary: string;
+  rationale: string;
+  intervals: AiScheduleIntervalGenerated[];
+  createdAt: number;
+  providerUsed?: string;
+  modelUsed?: string;
+}
+
+export interface StudyScheduleRequestPayload {
+  subject: string;
+  topic: string;
+  totalDurationMinutes: number;
+  energyLevel: 'high' | 'moderate' | 'low';
+  goalType: 'deep_learning' | 'problem_solving' | 'rapid_revision' | 'memorization';
+  customContext?: string;
+  grade?: string;
+}
+

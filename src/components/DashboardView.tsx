@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import confetti from 'canvas-confetti';
 import {
   Sparkles,
   Award,
@@ -20,6 +21,9 @@ import {
   Zap,
   Play,
   Target,
+  Trophy,
+  Crown,
+  CreditCard,
 } from 'lucide-react';
 import {
   UserProfile,
@@ -100,6 +104,73 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return 'Good evening';
   };
 
+  // Weekly Goal State
+  const [weeklyGoalTarget, setWeeklyGoalTarget] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('oryqen_weekly_milestone_goal');
+      if (saved) {
+        const val = parseInt(saved, 10);
+        if (!Number.isNaN(val) && val > 0) return val;
+      }
+    } catch {
+      // fallback
+    }
+    return 10;
+  });
+
+  const [weeklyGoalFilter, setWeeklyGoalFilter] = useState<'all' | 'tasks' | 'revision'>('all');
+
+  const handleUpdateWeeklyGoal = (val: number) => {
+    const clamped = Math.max(1, Math.min(50, val));
+    setWeeklyGoalTarget(clamped);
+    try {
+      localStorage.setItem('oryqen_weekly_milestone_goal', clamped.toString());
+    } catch {}
+  };
+
+  // Weekly timeframe calculations (Monday 00:00:00 to now)
+  const now = new Date();
+  const dayOfWeek = (now.getDay() + 6) % 7; // Monday = 0, Sunday = 6
+  const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
+  startOfWeek.setHours(0, 0, 0, 0);
+  const startOfWeekTimestamp = startOfWeek.getTime();
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  const weekRangeStr = `${startOfWeek.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} – ${endOfWeek.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+
+  // Completed study tasks
+  const tasksCompletedCount = tasks.filter(t => t.completed).length;
+
+  // Completed revision sessions (flashcard reviews, focus sessions)
+  const revisionActivitiesCount = activities.filter(
+    a => (a.type === 'flashcard_review' || a.type === 'focus_session') && a.timestamp >= startOfWeekTimestamp
+  ).length;
+  const reviewedFlashcardsCount = flashcards.filter(f => (f.reviewCount || 0) > 0).length;
+  const revisionSessionsCount = Math.max(revisionActivitiesCount, reviewedFlashcardsCount);
+
+  // Selected completed count based on filter
+  const weeklyCompletedCount =
+    weeklyGoalFilter === 'tasks'
+      ? tasksCompletedCount
+      : weeklyGoalFilter === 'revision'
+      ? revisionSessionsCount
+      : tasksCompletedCount + revisionSessionsCount;
+
+  const rawWeeklyPercent = weeklyGoalTarget > 0 ? Math.round((weeklyCompletedCount / weeklyGoalTarget) * 100) : 0;
+  const weeklyProgressPercent = Math.min(100, Math.max(0, rawWeeklyPercent));
+  const isWeeklyGoalAchieved = weeklyCompletedCount >= weeklyGoalTarget;
+
+  const handleTriggerCelebration = () => {
+    try {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+    } catch {}
+  };
+
   // Last 7 days streak indicators (Sun..Sat)
   const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   const todayDayIndex = (new Date().getDay() + 6) % 7; // Monday = 0
@@ -107,6 +178,40 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="h-full overflow-y-auto p-4 sm:p-6 md:p-8 transition-colors">
       <div className="max-w-7xl mx-auto space-y-8 pb-16">
+        {/* Subscription Plan & UPI Upgrade Alert Banner (Free Tier) */}
+        {profile.subscriptionTier === 'free' && (
+          <div className="rounded-3xl p-5 bg-gradient-to-r from-indigo-900/60 via-purple-900/40 to-slate-900 border-2 border-indigo-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center text-white shrink-0 shadow-md shadow-indigo-500/30">
+                <Crown className="w-6 h-6 text-amber-300" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                    Free Plan Active
+                  </span>
+                  <span className="text-sm font-bold text-white">
+                    Upgrade to Scholar Plus (₹99/mo) or Mastery Pro
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 max-w-xl">
+                  Unlock NCERT Graphic Colored Notes, AI Oral Viva Voice Examination & 20 Full Timed Mock Tests.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onNavigate('pricing')}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-xs shadow-md shadow-indigo-500/25 flex items-center gap-2 shrink-0 transition-transform active:scale-95 cursor-pointer"
+            >
+              <CreditCard className="w-4 h-4" />
+              <span>View Plans & Pay via UPI</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Top Hero: Personalized Greeting & Study Status */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0d1527] to-[#131b32] text-white p-6 sm:p-8 border border-white/10 shadow-lg">
           {/* Subtle Ambient Background Gradients */}
@@ -157,11 +262,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setIsOpenModal(true)}
+                  onClick={() => onNavigate('timer')}
                   className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/15 font-semibold text-xs flex items-center gap-2 transition-colors"
                 >
                   <Clock className="w-4 h-4 text-violet-400" />
-                  <span>Start Focus Sprint</span>
+                  <span>Smart AI Study Timer</span>
                 </button>
 
                 <button
@@ -292,6 +397,279 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 Focus Time Today
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Weekly Study & Revision Goal Progress Bar Card */}
+        <div className="clay-card p-5 sm:p-7 rounded-3xl space-y-6 relative overflow-hidden border border-slate-200/80 dark:border-white/10 shadow-sm transition-all">
+          {/* Subtle ambient decorative backdrop glow */}
+          <div
+            className={`absolute -right-16 -top-16 w-56 h-56 rounded-full blur-3xl pointer-events-none opacity-20 ${
+              isWeeklyGoalAchieved ? 'bg-emerald-500' : 'bg-violet-600'
+            }`}
+          />
+
+          {/* Card Header: Title, Week Range & Quick Target Selector */}
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-3.5">
+              <div
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-colors ${
+                  isWeeklyGoalAchieved
+                    ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-400'
+                    : 'bg-violet-100 text-violet-600 dark:bg-violet-950/80 dark:text-violet-400'
+                }`}
+              >
+                {isWeeklyGoalAchieved ? (
+                  <Trophy className="w-6 h-6 animate-bounce" />
+                ) : (
+                  <Target className="w-6 h-6" />
+                )}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-display font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">
+                    Weekly Goal Progress
+                  </h3>
+                  {isWeeklyGoalAchieved && (
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/50 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-emerald-500" />
+                      Goal Reached
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Track study tasks and revision sessions completed for{' '}
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">{weekRangeStr}</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Controls: Category Filter + Target Selector */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Category Filter Tabs */}
+              <div className="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-white/5 text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setWeeklyGoalFilter('all')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    weeklyGoalFilter === 'all'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  All ({tasksCompletedCount + revisionSessionsCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWeeklyGoalFilter('tasks')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    weeklyGoalFilter === 'tasks'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Tasks ({tasksCompletedCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWeeklyGoalFilter('revision')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    weeklyGoalFilter === 'revision'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Revision ({revisionSessionsCount})
+                </button>
+              </div>
+
+              {/* Goal Target Dropdown */}
+              <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-xl border border-slate-200/60 dark:border-white/5 text-xs">
+                <span className="text-slate-500 dark:text-slate-400 text-[11px] font-medium">Goal:</span>
+                <select
+                  aria-label="Weekly study goal target"
+                  value={weeklyGoalTarget}
+                  onChange={e => handleUpdateWeeklyGoal(Number(e.target.value))}
+                  className="bg-transparent font-bold text-slate-800 dark:text-slate-200 text-xs outline-none cursor-pointer"
+                >
+                  <option value={5}>5 / week</option>
+                  <option value={8}>8 / week</option>
+                  <option value={10}>10 / week</option>
+                  <option value={12}>12 / week</option>
+                  <option value={15}>15 / week</option>
+                  <option value={20}>20 / week</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Visual Progress Bar Section */}
+          <div className="relative z-10 space-y-3 pt-1">
+            {/* Value Indicators Above Bar */}
+            <div className="flex items-baseline justify-between">
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                  {weeklyCompletedCount}
+                </span>
+                <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                  of {weeklyGoalTarget}{' '}
+                  {weeklyGoalFilter === 'tasks'
+                    ? 'tasks'
+                    : weeklyGoalFilter === 'revision'
+                    ? 'revision sessions'
+                    : 'milestones'}{' '}
+                  completed
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span
+                  className={`font-display text-sm font-extrabold px-3 py-1 rounded-full ${
+                    isWeeklyGoalAchieved
+                      ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                      : 'bg-violet-500/15 text-violet-600 dark:text-violet-400 border border-violet-500/20'
+                  }`}
+                >
+                  {weeklyProgressPercent}% Achieved
+                </span>
+              </div>
+            </div>
+
+            {/* The Visual Progress Bar Track */}
+            <div className="relative w-full h-5 rounded-full bg-slate-100 dark:bg-slate-800/90 p-1 border border-slate-200/80 dark:border-white/10 overflow-hidden shadow-inner">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ease-out relative overflow-hidden ${
+                  isWeeklyGoalAchieved
+                    ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 shadow-sm shadow-emerald-500/30'
+                    : 'bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-500 shadow-sm shadow-violet-500/30'
+                }`}
+                style={{ width: `${weeklyProgressPercent}%` }}
+              >
+                {/* Subtle animated shimmer line across progress fill */}
+                <div className="absolute inset-0 bg-white/20 -skew-x-12 animate-pulse pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Milestone Markers */}
+            <div className="grid grid-cols-4 text-[11px] font-semibold text-slate-400 dark:text-slate-500 pt-0.5">
+              <div className="text-left flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
+                <span>25% Start</span>
+              </div>
+              <div className="text-center flex items-center justify-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
+                <span>50% Halfway</span>
+              </div>
+              <div className="text-center flex items-center justify-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
+                <span>75% Pace</span>
+              </div>
+              <div className="text-right flex items-center justify-end gap-1">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isWeeklyGoalAchieved ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
+                  }`}
+                />
+                <span className={isWeeklyGoalAchieved ? 'text-emerald-600 dark:text-emerald-400 font-bold' : ''}>
+                  100% Goal
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Sub-Metric Cards & Quick Action Buttons */}
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+            {/* Card 1: Completed Study Tasks */}
+            <div
+              onClick={() => onNavigate('planner')}
+              className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/50 border border-slate-200/60 dark:border-white/5 hover:border-violet-500/30 transition-all cursor-pointer flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-950/70 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <span>{tasksCompletedCount} Tasks Done</span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                    of {tasks.length} in study planner
+                  </div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-violet-600 transition-transform group-hover:translate-x-0.5" />
+            </div>
+
+            {/* Card 2: Revision & Flashcard Sessions */}
+            <div
+              onClick={() => onNavigate('revision')}
+              className="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/50 border border-slate-200/60 dark:border-white/5 hover:border-indigo-500/30 transition-all cursor-pointer flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                  <Layers className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <span>{revisionSessionsCount} Revision Sprints</span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                    active recall sessions
+                  </div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-transform group-hover:translate-x-0.5" />
+            </div>
+
+            {/* Card 3: Milestone Trajectory / Celebration Action */}
+            <div
+              className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between ${
+                isWeeklyGoalAchieved
+                  ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-200/80 dark:border-emerald-900/40'
+                  : 'bg-slate-50/80 dark:bg-slate-900/50 border-slate-200/60 dark:border-white/5'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    isWeeklyGoalAchieved
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-amber-100 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400'
+                  }`}
+                >
+                  {isWeeklyGoalAchieved ? <Sparkles className="w-4.5 h-4.5" /> : <TrendingUp className="w-4.5 h-4.5" />}
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                    {isWeeklyGoalAchieved
+                      ? 'Goal Complete!'
+                      : `${weeklyGoalTarget - weeklyCompletedCount} more to hit goal`}
+                  </div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {isWeeklyGoalAchieved ? 'Curriculum target achieved' : 'Keep weekly pace'}
+                  </div>
+                </div>
+              </div>
+
+              {isWeeklyGoalAchieved ? (
+                <button
+                  type="button"
+                  onClick={handleTriggerCelebration}
+                  className="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-xs transition-colors shrink-0 flex items-center gap-1"
+                >
+                  <span>Celebrate</span>
+                  <span>🎉</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onNavigate('planner')}
+                  className="px-2.5 py-1.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-[11px] font-bold shadow-xs transition-colors shrink-0"
+                >
+                  + Add Task
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -1,0 +1,222 @@
+{
+  "subscriptions": {
+    "scholartest@gmail.com": {
+      "studentEmail": "scholartest@gmail.com",
+      "studentName": "Scholar Test",
+      "plan": "plus",
+      "status": "active",
+      "billingDuration": "monthly",
+      "activatedAt": 1793639526308,
+      "expiresAt": 1796231526308,
+      "source": "upi_payment",
+      "referenceId": "REQ-20261102-RUK0"
+    }
+  },
+  "paymentRequests": [
+    {
+      "id": "REQ-20261102-RUK0",
+      "studentEmail": "scholartest@gmail.com",
+      "studentName": "Scholar Test",
+      "payerUpiId": "scholar@okhdfcbank",
+      "utrNumber": "412345678901",
+      "plan": "plus",
+      "duration": "monthly",
+      "amount": 99,
+      "discountAmount": 0,
+      "status": "approved",
+      "submittedAt": 1793639511023,
+      "reviewedAt": 1793639526308,
+      "reviewedBy": "yashkhairnar77777@gmail.com",
+      "adminNotes": "Verified on HDFC netbanking merchant statement",
+      "approvedPlan": "plus",
+      "approvedDuration": "monthly"
+    }
+  ],
+  "coupons": [
+    {
+      "id": "cpn-friend-1",
+      "code": "ORYQENFRIEND",
+      "type": "free_plus",
+      "category": "FRIEND",
+      "discountValue": 100,
+      "durationDays": 30,
+      "targetPlan": "plus",
+      "maxRedemptions": 1000,
+      "redemptionCount": 0,
+      "perStudentLimit": 1,
+      "startDate": 1793553097864,
+      "expiryDate": 1825175497864,
+      "isActive": true,
+      "description": "30 Days of Free Scholar Plus access for friends & early scholars.",
+      "createdAt": 1793639497864,
+      "createdBy": "system"
+    },
+    {
+      "id": "cpn-welcome-20",
+      "code": "WELCOME20",
+      "type": "percent_discount",
+      "category": "PROMOTIONAL",
+      "discountValue": 20,
+      "durationDays": 30,
+      "maxRedemptions": 500,
+      "redemptionCount": 0,
+      "perStudentLimit": 1,
+      "startDate": 1793553097864,
+      "expiryDate": 1809191497864,
+      "isActive": true,
+      "description": "20% discount on all Plus and Pro subscriptions.",
+      "createdAt": 1793639497864,
+      "createdBy": "system"
+    },
+    {
+      "id": "cpn-pro-7",
+      "code": "ORYQENPRO",
+      "type": "free_pro",
+      "category": "PROMOTIONAL",
+      "discountValue": 100,
+      "durationDays": 7,
+      "targetPlan": "pro",
+      "maxRedemptions": 1000,
+      "redemptionCount": 0,
+      "perStudentLimit": 1,
+      "startDate": 1793553097864,
+      "expiryDate": 1809191497864,
+      "isActive": true,
+      "description": "7 Days of Free Mastery Pro tier access.",
+      "createdAt": 1793639497864,
+      "createdBy": "system"
+    }
+  ],
+  "couponRedemptions": [],
+  "adminAuditLogs": [
+    {
+      "id": "log-1793639526309-6vbc",
+      "timestamp": 1793639526309,
+      "adminEmail": "yashkhairnar77777@gmail.com",
+      "action": "approve_payment",
+      "details": "Approved payment request REQ-20261102-RUK0 (UTR: 412345678901) for scholartest@gmail.com. Activated PLUS for 30 days until 2026-12-02T17:12:06.308Z",
+      "metadata": {
+        "requestId": "REQ-20261102-RUK0",
+        "studentEmail": "scholartest@gmail.com",
+        "plan": "plus",
+        "expiresAt": 1796231526308
+      }
+    },
+    {
+      "id": "log-1793639526308-dp2p",
+      "timestamp": 1793639526308,
+      "adminEmail": "yashkhairnar77777@gmail.com",
+      "action": "manual_subscription_grant",
+      "details": "Set subscription for scholartest@gmail.com to PLUS (monthly), expires: 2026-12-02T17:12:06.308Z",
+      "metadata": {
+        "email": "scholartest@gmail.com",
+        "plan": "plus"
+      }
+    }
+  ],
+  "plans": [
+    {
+      "id": "free",
+      "name": "Free Learner",
+      "tagline": "Essential everyday homework help and foundational study tools.",
+      "monthlyPrice": 0,
+      "yearlyPrice": 0,
+      "features": [
+        "Basic AI Tutor with 10 conceptual questions/day",
+        "Photo Question Solver (up to 5 questions/day)",
+        "Basic NCERT chapter revision notes",
+        "Up to 20 Leitner spaced-repetition flashcards",
+        "3 Mock practice quizzes per month",
+        "Standard AI model access",
+        "Study checklist & planner",
+        "Full data backup & export"
+      ],
+      "limits": {
+        "aiQuestionsPerDay": 10,
+        "mockTestsPerMonth": 3,
+        "flashcardsLimit": 20,
+        "pdfAnalysisPageLimit": 3,
+        "customStudyPacksPerWeek": 3,
+        "oralExamAccess": false,
+        "subjectiveGrading": false,
+        "highCapacityModels": false
+      }
+    },
+    {
+      "id": "plus",
+      "name": "Scholar Plus",
+      "tagline": "Accelerated revision, visual NCERT sheets, and higher AI capacity.",
+      "monthlyPrice": 99,
+      "yearlyPrice": 999,
+      "badge": "POPULAR",
+      "popular": true,
+      "features": [
+        "Higher AI Tutor limit (50 questions/day)",
+        "Photo Question Solver (up to 25 questions/day)",
+        "Detailed NCERT Visual Graphic Study Sheets",
+        "Advanced flashcard decks (up to 200 cards)",
+        "20 Full practice tests & quizzes per month",
+        "AI Oral Viva test mode with keyword scoring",
+        "Formula reference sheet generation",
+        "PDF Document analysis up to 25 pages",
+        "Multi-provider auto-failover routing"
+      ],
+      "limits": {
+        "aiQuestionsPerDay": 50,
+        "mockTestsPerMonth": 20,
+        "flashcardsLimit": 200,
+        "pdfAnalysisPageLimit": 25,
+        "customStudyPacksPerWeek": 20,
+        "oralExamAccess": true,
+        "subjectiveGrading": true,
+        "highCapacityModels": false
+      }
+    },
+    {
+      "id": "pro",
+      "name": "Mastery Pro",
+      "tagline": "High-capacity AI reasoning, unlimited PDF processing, and custom board exams.",
+      "monthlyPrice": 199,
+      "yearlyPrice": 1999,
+      "badge": "MAX POWER",
+      "features": [
+        "Highest fair usage AI limits (200 questions/day)",
+        "High-capacity reasoning models (Gemini Pro, Claude 3.5, Llama 3.3 70B)",
+        "Unlimited Photo Solver with step-by-step diagram analysis",
+        "Full-length PDF textbook analysis & semantic search",
+        "Unlimited practice exam papers with custom marking rubrics",
+        "Deep subjective evaluation with mark breakdowns",
+        "Unlimited AI Oral Viva examiner sessions",
+        "Priority fast-lane processing",
+        "All upcoming premium study tools"
+      ],
+      "limits": {
+        "aiQuestionsPerDay": 200,
+        "mockTestsPerMonth": 999,
+        "flashcardsLimit": 9999,
+        "pdfAnalysisPageLimit": 200,
+        "customStudyPacksPerWeek": 999,
+        "oralExamAccess": true,
+        "subjectiveGrading": true,
+        "highCapacityModels": true
+      }
+    }
+  ],
+  "merchantConfig": {
+    "merchantUpiId": "9922321046@mbk",
+    "merchantName": "Archana Prakash Khairnar",
+    "merchantBank": "MobiKwik Pocket UPI",
+    "qrImageUrl": "/assets/aistudio/Screenshot_20261104_205858_MobiKwik_885c48cb.jpg",
+    "adminEmails": [
+      "yashkhairnar77777@gmail.com"
+    ],
+    "instructions": [
+      "Open any UPI app on your phone (Google Pay, PhonePe, Paytm, BHIM, Cred, MobiKwik).",
+      "Scan the verified MobiKwik Pocket QR code or pay to UPI ID: 9922321046@mbk.",
+      "Verify receiver name displays as 'Archana Prakash Khairnar'.",
+      "Enter the exact payable plan amount.",
+      "After successful payment, copy the 12-digit UTR / UPI Transaction Reference.",
+      "Submit the UTR number in the form below for fast manual verification."
+    ]
+  }
+}

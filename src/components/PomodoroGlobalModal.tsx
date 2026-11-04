@@ -6,9 +6,10 @@ import { UserProfile } from '../types';
 
 interface PomodoroGlobalModalProps {
   profile: UserProfile;
+  onNavigate?: (view: any) => void;
 }
 
-export const PomodoroGlobalModal: React.FC<PomodoroGlobalModalProps> = ({ profile }) => {
+export const PomodoroGlobalModal: React.FC<PomodoroGlobalModalProps> = ({ profile, onNavigate }) => {
   const { isOpenModal, setIsOpenModal, lastCompletedNotice, dismissNotice } = usePomodoro();
 
   return (
@@ -17,6 +18,7 @@ export const PomodoroGlobalModal: React.FC<PomodoroGlobalModalProps> = ({ profil
         profile={profile}
         isOpen={isOpenModal}
         onClose={() => setIsOpenModal(false)}
+        onNavigate={onNavigate}
       />
 
       {/* Completion Toast Notification */}

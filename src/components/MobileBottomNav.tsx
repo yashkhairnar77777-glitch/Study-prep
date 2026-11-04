@@ -65,9 +65,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         {/* Focus Sprint Timer Mobile Tab */}
         <button
           type="button"
-          onClick={() => setIsOpenModal(true)}
+          onClick={() => {
+            if (currentView === 'timer') {
+              setIsOpenModal(true);
+            } else {
+              setCurrentView('timer');
+            }
+          }}
           className={`flex flex-col items-center justify-center flex-1 h-full min-h-[44px] transition-colors relative ${
-            isRunning
+            currentView === 'timer' || isRunning
               ? 'text-violet-600 dark:text-violet-300 font-bold'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
           }`}
@@ -82,6 +88,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <span className="text-[10px] tracking-tight font-mono">
             {isRunning ? timerStr : 'Timer'}
           </span>
+          {currentView === 'timer' && (
+            <span className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-violet-600 dark:bg-violet-400" />
+          )}
         </button>
       </div>
     </nav>

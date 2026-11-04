@@ -5,16 +5,17 @@ import {
   Save,
   Download,
   Upload,
-  Trash2,
-  CheckCircle,
   CheckCircle2,
-  AlertTriangle,
+  AlertCircle,
   LogOut,
+  Mail,
+  Lock,
+  Cloud,
+  RefreshCw,
+  KeyRound,
   ShieldCheck,
-  Award,
-  Compass,
-  Clock,
-  ExternalLink,
+  UserPlus,
+  LogIn,
 } from 'lucide-react';
 import {
   UserProfile,
@@ -26,14 +27,15 @@ import {
   ProviderStatus,
 } from '../types';
 import { storage } from '../lib/storage';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import {
-  signOutGoogle,
   signInWithGoogle,
-  getStoredGoogleClientId,
-  setStoredGoogleClientId,
-  GoogleUser,
-} from '../lib/googleAuth';
+  signInWithEmail,
+  signUpWithEmail,
+  sendResetPasswordEmail,
+  signOutUser,
+  syncToFirestore,
+  loadFromFirestore,
+} from '../lib/firebaseAuth';
 
 const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'w-5 h-5' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none">
@@ -86,58 +88,169 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const [defaultStyle, setDefaultStyle] = useState<ExplanationStyle>(profile.defaultStyle);
   const [dailyTarget, setDailyTarget] = useState<number>(profile.dailyStudyTargetMinutes || 30);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Google Authentication State
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [showGoogleConfigModal, setShowGoogleConfigModal] = useState(false);
-  const [googleClientIdInput, setGoogleClientIdInput] = useState(() => getStoredGoogleClientId());
-  const [googleAvatar, setGoogleAvatar] = useState<string | undefined>(profile.avatarUrl);
-  const [currentEmail, setCurrentEmail] = useState<string | undefined>(profile.email);
-  const [authProvider, setAuthProvider] = useState<'google' | 'supabase' | 'local'>(profile.authProvider || 'local');
+  // Authentication State
+  const [authLoading, setAuthLoading] = useState(false);
+  const [syncingCloud, setSyncingCloud] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [emailInput, setEmailInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleConnectGoogle = async (overrideClientId?: string) => {
-    const clientId = (overrideClientId || googleClientIdInput || getStoredGoogleClientId()).trim();
-
-    if (!clientId) {
-      setShowGoogleConfigModal(true);
-      return;
-    }
-
-    setGoogleLoading(true);
+  const handleGoogleAuth = async () => {
+    setAuthLoading(true);
+    setErrorMessage(null);
     try {
-      const user = await signInWithGoogle(clientId);
+      const user = await signInWithGoogle();
       if (user) {
-        setName(user.name);
-        setCurrentEmail(user.email);
-        setGoogleAvatar(user.picture);
-        setAuthProvider('google');
-        setShowGoogleConfigModal(false);
+        // Load existing cloud data if available
+        const cloudData = await loadFromFirestore(user.uid);
 
         const updated: UserProfile = {
           ...profile,
-          name: user.name,
-          email: user.email,
-          avatarUrl: user.picture,
+          userId: user.uid,
+          name: user.displayName || profile.name || 'Scholar',
+          email: user.email || undefined,
+          avatarUrl: user.photoURL || undefined,
           authProvider: 'google',
+          ...(cloudData?.profile || {}),
         };
+
+        setName(updated.name);
         storage.saveProfile(updated);
         onSaveProfile(updated);
-        setStatusMessage(`Connected Google Account: ${user.name} (${user.email})!`);
-        setTimeout(() => setStatusMessage(null), 3500);
+
+        // Sync local study state to Firestore
+        await syncToFirestore(user.uid, {
+          profile: updated,
+          notes: storage.getNotes(),
+          flashcards: storage.getFlashcards(),
+          mockTests: storage.getMockTests(),
+          tasks: storage.getTasks(),
+          conversations: storage.getConversations(),
+        });
+
+        setStatusMessage(`Signed in with Google as ${user.displayName || user.email}!`);
+        setTimeout(() => setStatusMessage(null), 4000);
       }
     } catch (err: any) {
-      console.warn('Google sign-in error:', err);
-      const msg = err.message || 'Google sign-in could not be completed.';
-      if (msg.includes('Google Client ID') || msg.includes('client_id')) {
-        setShowGoogleConfigModal(true);
-      }
-      setStatusMessage(`Google Sign-In: ${msg}`);
-      setTimeout(() => setStatusMessage(null), 4000);
+      console.error('Google sign-in error:', err);
+      setErrorMessage(err.message || 'Google sign-in failed. Please try again.');
     } finally {
-      setGoogleLoading(false);
+      setAuthLoading(false);
     }
+  };
+
+  const handleEmailAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailInput || !passwordInput) {
+      setErrorMessage('Please enter both email and password.');
+      return;
+    }
+    setAuthLoading(true);
+    setErrorMessage(null);
+
+    try {
+      let user;
+      if (authMode === 'signup') {
+        user = await signUpWithEmail(emailInput.trim(), passwordInput, name.trim() || 'Scholar');
+      } else {
+        user = await signInWithEmail(emailInput.trim(), passwordInput);
+      }
+
+      const cloudData = await loadFromFirestore(user.uid);
+
+      const updated: UserProfile = {
+        ...profile,
+        userId: user.uid,
+        name: user.displayName || name.trim() || 'Scholar',
+        email: user.email || emailInput.trim(),
+        avatarUrl: user.photoURL || undefined,
+        authProvider: 'local',
+        ...(cloudData?.profile || {}),
+      };
+
+      setName(updated.name);
+      storage.saveProfile(updated);
+      onSaveProfile(updated);
+
+      // Sync state to Firestore
+      await syncToFirestore(user.uid, {
+        profile: updated,
+        notes: storage.getNotes(),
+        flashcards: storage.getFlashcards(),
+        mockTests: storage.getMockTests(),
+        tasks: storage.getTasks(),
+        conversations: storage.getConversations(),
+      });
+
+      setStatusMessage(
+        authMode === 'signup'
+          ? `Account created successfully for ${user.email}!`
+          : `Welcome back, ${user.displayName || user.email}!`
+      );
+      setShowPasswordForm(false);
+      setTimeout(() => setStatusMessage(null), 4000);
+    } catch (err: any) {
+      console.error('Email auth error:', err);
+      setErrorMessage(err.message || 'Authentication failed. Please verify credentials.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!emailInput.trim()) {
+      setErrorMessage('Please enter your email above to receive a password reset link.');
+      return;
+    }
+    setAuthLoading(true);
+    setErrorMessage(null);
+    try {
+      await sendResetPasswordEmail(emailInput.trim());
+      setResetSent(true);
+      setStatusMessage(`Password reset link sent to ${emailInput.trim()}! Check your inbox.`);
+      setTimeout(() => setStatusMessage(null), 5000);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Failed to send password reset email.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleManualCloudSync = async () => {
+    if (!profile.userId) return;
+    setSyncingCloud(true);
+    setErrorMessage(null);
+    try {
+      await syncToFirestore(profile.userId, {
+        profile,
+        notes: storage.getNotes(),
+        flashcards: storage.getFlashcards(),
+        mockTests: storage.getMockTests(),
+        tasks: storage.getTasks(),
+        conversations: storage.getConversations(),
+      });
+      setStatusMessage('All study notes, flashcards & progress synced to Google Firestore!');
+      setTimeout(() => setStatusMessage(null), 3000);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Cloud sync failed.');
+    } finally {
+      setSyncingCloud(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOutUser();
+    } catch (e) {
+      console.warn('Sign out warning:', e);
+    }
+    onLogout();
   };
 
   const computeGradeLevel = (): GradeLevel => {
@@ -163,9 +276,6 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     const updated: UserProfile = {
       ...profile,
       name: name.trim() || 'Scholar',
-      email: currentEmail,
-      avatarUrl: googleAvatar,
-      authProvider,
       educationCategory,
       grade: finalGrade,
       selectedClass: educationCategory === 'school' ? selectedClass : undefined,
@@ -183,6 +293,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     };
     storage.saveProfile(updated);
     onSaveProfile(updated);
+
+    if (profile.userId) {
+      syncToFirestore(profile.userId, { profile: updated }).catch(console.warn);
+    }
+
     setStatusMessage('Profile preferences saved!');
     setTimeout(() => {
       setStatusMessage(null);
@@ -219,19 +334,13 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           onClose();
         }, 1500);
       } else {
-        alert('Invalid JSON backup file.');
+        setErrorMessage('Invalid JSON backup file.');
       }
     };
     reader.readAsText(file);
   };
 
-  const handleSignOut = async () => {
-    signOutGoogle();
-    if (isSupabaseConfigured && supabase) {
-      await supabase.auth.signOut();
-    }
-    onLogout();
-  };
+  const isAuthenticated = Boolean(profile.userId || profile.email);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in">
@@ -239,14 +348,14 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-950/80 text-violet-600 dark:text-violet-400">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/20">
               <User className="h-5 w-5" />
             </div>
             <div>
               <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">
-                Student Profile & Study Settings
+                Student Profile & Cloud Sync
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {profile.email ? profile.email : 'Local Study Workspace'}
               </p>
             </div>
@@ -261,86 +370,236 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
         </div>
 
         {statusMessage && (
-          <div className="rounded-xl bg-emerald-600 p-2.5 text-center text-xs font-semibold text-white">
-            {statusMessage}
+          <div className="rounded-xl bg-emerald-600 p-2.5 text-center text-xs font-semibold text-white shadow-sm flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{statusMessage}</span>
           </div>
         )}
 
-        {/* Real Google Account Card */}
-        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-slate-900/60 p-4 space-y-3">
+        {errorMessage && (
+          <div className="rounded-xl bg-rose-500/10 border border-rose-500/20 p-2.5 text-xs font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        {/* Real Authentication & Firestore Card */}
+        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-slate-900/60 p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-              <GoogleIcon className="w-3.5 h-3.5" /> Authentication & Account
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-violet-500" /> Real Authentication & Cloud Sync
             </span>
-            {authProvider === 'google' && (
+            {isAuthenticated && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                <CheckCircle2 className="w-3 h-3" /> Real Google Account
+                <CheckCircle2 className="w-3 h-3" />
+                {profile.authProvider === 'google' ? 'Google Account' : 'Verified Student'}
               </span>
             )}
           </div>
 
-          {authProvider === 'google' ? (
-            <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-800/80 rounded-xl p-3 border border-slate-200 dark:border-white/5">
-              <div className="flex items-center gap-3 min-w-0">
-                {googleAvatar ? (
-                  <img
-                    src={googleAvatar}
-                    alt={name}
-                    className="w-10 h-10 rounded-full border border-slate-200 dark:border-white/20 object-cover shrink-0"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
-                    {name.charAt(0).toUpperCase()}
+          {isAuthenticated ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-800/80 rounded-xl p-3 border border-slate-200 dark:border-white/5">
+                <div className="flex items-center gap-3 min-w-0">
+                  {profile.avatarUrl ? (
+                    <img
+                      src={profile.avatarUrl}
+                      alt={name}
+                      className="w-10 h-10 rounded-full border border-slate-200 dark:border-white/20 object-cover shrink-0"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                      {name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                      {name}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate flex items-center gap-1">
+                      {profile.email}
+                    </p>
                   </div>
-                )}
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                    {name}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate flex items-center gap-1">
-                    {currentEmail}
-                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleManualCloudSync}
+                    disabled={syncingCloud}
+                    title="Synchronize study notes & flashcards with Firestore"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-900/40 hover:bg-violet-100 transition-colors"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${syncingCloud ? 'animate-spin' : ''}`} />
+                    <span>{syncingCloud ? 'Syncing...' : 'Sync Cloud'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/30 transition-colors"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Sign Out</span>
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => handleConnectGoogle()}
-                  disabled={googleLoading}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                >
-                  {googleLoading ? 'Connecting...' : 'Switch Account'}
-                </button>
+
+              <div className="flex items-center gap-2 text-[11px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2 rounded-xl border border-emerald-200/50 dark:border-emerald-900/30">
+                <Cloud className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  Real Cloud Storage active: Your notes, mock tests, and flashcards sync automatically to Google Firestore.
+                </span>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-800/80 rounded-xl p-3.5 border border-slate-200 dark:border-white/5">
-              <div>
-                <p className="text-xs font-semibold text-slate-900 dark:text-white">
-                  Sign in with your Google (Gmail) Account
-                </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Authenticates directly via accounts.google.com with your real Gmail account credentials.
-                </p>
-              </div>
+            <div className="space-y-3">
+              {/* Google 1-Click Sign In */}
               <button
                 type="button"
-                onClick={() => handleConnectGoogle()}
-                disabled={googleLoading}
-                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 shadow-xs hover:shadow text-xs font-semibold text-slate-700 dark:text-slate-100 hover:bg-slate-50 transition-all shrink-0 disabled:opacity-50"
+                onClick={handleGoogleAuth}
+                disabled={authLoading}
+                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-750 shadow-xs hover:shadow text-xs font-bold text-slate-800 dark:text-slate-100 transition-all disabled:opacity-50"
               >
-                {googleLoading ? (
+                {authLoading ? (
                   <div className="h-4 w-4 border-2 border-slate-400 border-t-violet-600 rounded-full animate-spin" />
                 ) : (
                   <GoogleIcon className="w-4 h-4 shrink-0" />
                 )}
-                <span>{googleLoading ? 'Opening Google...' : 'Sign in with Google / Gmail'}</span>
+                <span>Sign in with Google Account</span>
               </button>
+
+              {/* Email & Password Toggle */}
+              {!showPasswordForm ? (
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordForm(true)}
+                  className="w-full text-center text-xs font-semibold text-violet-600 dark:text-violet-400 hover:underline pt-1"
+                >
+                  Or sign in / create account with Email & Password
+                </button>
+              ) : (
+                <div className="bg-white dark:bg-slate-800/90 rounded-xl p-3.5 border border-slate-200 dark:border-white/10 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-2">
+                    <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700/60 p-0.5 rounded-lg text-xs font-semibold">
+                      <button
+                        type="button"
+                        onClick={() => setAuthMode('signin')}
+                        className={`px-3 py-1 rounded-md transition-all ${
+                          authMode === 'signin'
+                            ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-violet-400 shadow-xs'
+                            : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                        }`}
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAuthMode('signup')}
+                        className={`px-3 py-1 rounded-md transition-all ${
+                          authMode === 'signup'
+                            ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-violet-400 shadow-xs'
+                            : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                        }`}
+                      >
+                        Create Account
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordForm(false)}
+                      className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    >
+                      Hide
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleEmailAuthSubmit} className="space-y-2.5">
+                    {authMode === 'signup' && (
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={e => setName(e.target.value)}
+                          placeholder="Your student name"
+                          className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 text-xs outline-none focus:ring-2 focus:ring-violet-500/20"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                        Email Address
+                      </label>
+                      <div className="relative">
+                        <Mail className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                        <input
+                          type="email"
+                          required
+                          value={emailInput}
+                          onChange={e => setEmailInput(e.target.value)}
+                          placeholder="student@example.com"
+                          className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 text-xs outline-none focus:ring-2 focus:ring-violet-500/20"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                          Password
+                        </label>
+                        {authMode === 'signin' && (
+                          <button
+                            type="button"
+                            onClick={handleForgotPassword}
+                            className="text-[10px] text-violet-600 dark:text-violet-400 hover:underline"
+                          >
+                            Forgot Password?
+                          </button>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <Lock className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                        <input
+                          type="password"
+                          required
+                          minLength={6}
+                          value={passwordInput}
+                          onChange={e => setPasswordInput(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full pl-8 pr-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 text-xs outline-none focus:ring-2 focus:ring-violet-500/20"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={authLoading}
+                      className="w-full mt-2 py-2 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+                    >
+                      {authLoading ? (
+                        <div className="h-3.5 w-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                      ) : authMode === 'signup' ? (
+                        <UserPlus className="w-3.5 h-3.5" />
+                      ) : (
+                        <LogIn className="w-3.5 h-3.5" />
+                      )}
+                      <span>{authMode === 'signup' ? 'Create Account' : 'Sign In with Password'}</span>
+                    </button>
+                  </form>
+                </div>
+              )}
             </div>
           )}
         </div>
 
+        {/* Academic Preferences Form */}
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -349,26 +608,26 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               </label>
               <input
                 type="text"
+                required
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
-                required
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
               />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Education Level
+                Education Track
               </label>
               <select
                 value={educationCategory}
                 onChange={e => setEducationCategory(e.target.value as EducationCategory)}
-                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
               >
-                <option value="school">School (Classes 1–12)</option>
-                <option value="college">College / University</option>
-                <option value="competitive">Competitive Exams</option>
-                <option value="other">Other / Lifelong Learning</option>
+                <option value="school">School (Classes 1 - 12 / NCERT / CBSE / ICSE)</option>
+                <option value="college">College / University Degree</option>
+                <option value="competitive">Competitive Exams (JEE / NEET / UPSC / etc.)</option>
+                <option value="independent">Independent Learner / Professional</option>
               </select>
             </div>
           </div>
@@ -376,33 +635,33 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           {educationCategory === 'school' && (
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Class / Grade
+                Class / Grade Level
               </label>
               <select
                 value={selectedClass}
                 onChange={e => setSelectedClass(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
               >
-                {Array.from({ length: 12 }, (_, i) => `Class ${i + 1}`).map(cls => (
-                  <option key={cls} value={cls}>
-                    {cls}
+                {[...Array(12)].map((_, i) => (
+                  <option key={i + 1} value={`Class ${i + 1}`}>
+                    Class {i + 1} (NCERT / CBSE)
                   </option>
                 ))}
               </select>
             </div>
           )}
 
-          {(educationCategory === 'college' || educationCategory === 'university') && (
+          {educationCategory === 'college' && (
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Degree / Course
+                Course / Major
               </label>
               <input
                 type="text"
                 value={collegeCourse}
                 onChange={e => setCollegeCourse(e.target.value)}
-                placeholder="e.g. Computer Science, Mechanical Engg, Pre-Med"
-                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none"
+                placeholder="e.g. B.Tech Computer Science, MBBS, B.Com"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
               />
             </div>
           )}
@@ -410,48 +669,21 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           {educationCategory === 'competitive' && (
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Target Exam
+                Target Competitive Exam
               </label>
               <select
                 value={competitiveExamCategory}
                 onChange={e => setCompetitiveExamCategory(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
               >
-                <option value="Engineering (JEE / BITSAT / GATE)">Engineering (JEE / BITSAT / GATE)</option>
-                <option value="Medical (NEET UG / MCAT)">Medical (NEET UG / MCAT)</option>
-                <option value="Government & Civil Services (UPSC)">Government & Civil Services (UPSC)</option>
-                <option value="Graduate & International (SAT / GRE / GMAT)">Graduate & International (SAT / GRE / GMAT)</option>
-                <option value="Other Entrance Tests">Other Entrance Tests</option>
+                <option value="Engineering (JEE / BITSAT)">JEE Main & Advanced / BITSAT</option>
+                <option value="Medical (NEET / AIIMS)">NEET UG / Medical</option>
+                <option value="Civil Services (UPSC / State PSC)">UPSC / State PCS</option>
+                <option value="Banking & SSC">Banking / SSC CGL</option>
+                <option value="International (SAT / AP / GRE)">SAT / AP Exams / GRE</option>
               </select>
             </div>
           )}
-
-          {/* Primary Goal Selector */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Primary Learning Goal
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { id: 'exam_prep', label: 'Exam Prep' },
-                { id: 'learn_anything', label: 'Conceptual' },
-                { id: 'both', label: 'Comprehensive' },
-              ].map(g => (
-                <button
-                  key={g.id}
-                  type="button"
-                  onClick={() => setPrimaryGoal(g.id as any)}
-                  className={`rounded-xl border py-2 text-xs font-semibold transition-all ${
-                    primaryGoal === g.id
-                      ? 'border-violet-600 bg-violet-50 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 shadow-xs'
-                      : 'border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400'
-                  }`}
-                >
-                  {g.label}
-                </button>
-              ))}
-            </div>
-          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -461,213 +693,130 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               <select
                 value={primarySubject}
                 onChange={e => setPrimarySubject(e.target.value as SubjectCategory)}
-                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
               >
                 <option value="Mathematics">Mathematics</option>
                 <option value="Physics">Physics</option>
                 <option value="Chemistry">Chemistry</option>
                 <option value="Biology">Biology</option>
-                <option value="Computer Science">Computer Science</option>
-                <option value="English & Languages">English & Languages</option>
-                <option value="History & Social Studies">History & Social Studies</option>
-                <option value="Economics & Commerce">Economics & Commerce</option>
+                <option value="History">History & Social Studies</option>
+                <option value="Computer Science">Computer Science / Coding</option>
                 <option value="General Science">General Science</option>
-                <option value="Japanese">Japanese (Ume / Momo / Sakura)</option>
-                <option value="Foundation & Olympiads">Foundation & Olympiads</option>
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Daily Study Target (Minutes)
+                Learning Goal
               </label>
-              <input
-                type="number"
-                min={10}
-                max={300}
-                value={dailyTarget}
-                onChange={e => setDailyTarget(Number(e.target.value))}
-                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="submit"
-              className="clay-btn-primary px-5 py-2.5 text-xs font-bold flex items-center gap-1.5 shadow-sm"
-            >
-              <Save className="h-4 w-4" />
-              <span>Save Changes</span>
-            </button>
-          </div>
-        </form>
-
-        {/* Local-First Persistence & Backup */}
-        <div className="border-t border-slate-100 dark:border-white/5 pt-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Data Backup & Account
-            </h4>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={handleExport}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-            >
-              <Download className="h-3.5 w-3.5 text-violet-500" />
-              <span>Export Backup (JSON)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-            >
-              <Upload className="h-3.5 w-3.5 text-emerald-500" />
-              <span>Import Backup</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="flex items-center gap-1.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-300 hover:bg-rose-100 transition-colors ml-auto"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              <span>Log Out</span>
-            </button>
-          </div>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleImportFile}
-            className="hidden"
-          />
-        </div>
-      </div>
-
-      {/* Google OAuth Client ID Setup Modal */}
-      {showGoogleConfigModal && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg p-6 sm:p-7 rounded-3xl space-y-5 shadow-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f172a] text-slate-800 dark:text-slate-100">
-            <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-white/10 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400">
-                  <GoogleIcon className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-display font-bold text-base text-slate-900 dark:text-white">
-                    Sign In with Real Google Account
-                  </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Google Identity Services & OAuth 2.0
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowGoogleConfigModal(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white"
+              <select
+                value={primaryGoal}
+                onChange={e => setPrimaryGoal(e.target.value as LearningGoal)}
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
               >
-                <X className="h-4 w-4" />
-              </button>
+                <option value="exam_prep">Exam Preparation & High Scores</option>
+                <option value="learn_anything">Deep Conceptual Understanding</option>
+                <option value="both">Both (Holistic Mastery)</option>
+              </select>
             </div>
+          </div>
 
-            <div className="text-xs text-slate-600 dark:text-slate-300 space-y-2 leading-relaxed">
-              <p>
-                To enable authentic Google Sign-In with real Google accounts and passwords, Google requires a <strong>Google OAuth 2.0 Web Client ID</strong> registered for this application origin.
-              </p>
-              <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/5 space-y-1.5 text-[11px]">
-                <div className="font-bold text-slate-800 dark:text-slate-200">How to get your free Google Client ID:</div>
-                <ol className="list-decimal pl-4 space-y-1 text-slate-600 dark:text-slate-400">
-                  <li>Open <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer" className="text-violet-600 dark:text-violet-400 underline font-semibold inline-flex items-center gap-0.5">Google Cloud Console → Credentials <ExternalLink className="w-2.5 h-2.5 inline" /></a></li>
-                  <li>Click <strong>Create Credentials → OAuth Client ID</strong> (Application type: Web application)</li>
-                  <li>Add your app origin to <strong>Authorized JavaScript origins</strong>: <code className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-violet-600 dark:text-violet-300 font-mono text-[10px] select-all">{typeof window !== 'undefined' ? window.location.origin : 'Current App Origin'}</code></li>
-                  <li>Copy your Client ID and paste it below:</li>
-                </ol>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                Google Web Client ID
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Preferred Language
               </label>
               <input
                 type="text"
-                value={googleClientIdInput}
-                onChange={e => setGoogleClientIdInput(e.target.value)}
-                placeholder="e.g. 123456789-abcdef.apps.googleusercontent.com"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 text-xs outline-none text-slate-800 dark:text-slate-100 font-mono focus:ring-2 focus:ring-violet-500/20"
+                value={preferredLanguage}
+                onChange={e => setPreferredLanguage(e.target.value)}
+                placeholder="e.g. English, Hindi, Hinglish, Marathi"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2 border-t border-slate-200/60 dark:border-white/10">
-              <button
-                type="button"
-                onClick={() => {
-                  const demoId = '92674081462-google-demo-apps.googleusercontent.com';
-                  setGoogleClientIdInput(demoId);
-                  setStoredGoogleClientId(demoId);
-                  const demoGoogleUser: GoogleUser = {
-                    sub: 'google_109283746592817263548',
-                    name: 'Google Scholar',
-                    email: 'student.google@gmail.com',
-                    picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
-                    email_verified: true,
-                  };
-                  setName(demoGoogleUser.name);
-                  setCurrentEmail(demoGoogleUser.email);
-                  setGoogleAvatar(demoGoogleUser.picture);
-                  setAuthProvider('google');
-                  setShowGoogleConfigModal(false);
-                  const updated: UserProfile = {
-                    ...profile,
-                    name: demoGoogleUser.name,
-                    email: demoGoogleUser.email,
-                    avatarUrl: demoGoogleUser.picture,
-                    authProvider: 'google',
-                  };
-                  storage.saveProfile(updated);
-                  onSaveProfile(updated);
-                  setStatusMessage('Connected with Google Verified Account!');
-                  setTimeout(() => setStatusMessage(null), 3000);
-                }}
-                className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-300 underline"
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Explanation Depth
+              </label>
+              <select
+                value={defaultStyle}
+                onChange={e => setDefaultStyle(e.target.value as ExplanationStyle)}
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
               >
-                Instant Preview with Google Account
-              </button>
-
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <button
-                  type="button"
-                  onClick={() => setShowGoogleConfigModal(false)}
-                  className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex-1 sm:flex-none"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (googleClientIdInput.trim()) {
-                      setStoredGoogleClientId(googleClientIdInput.trim());
-                      handleConnectGoogle(googleClientIdInput.trim());
-                    }
-                  }}
-                  disabled={!googleClientIdInput.trim()}
-                  className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md flex-1 sm:flex-none disabled:opacity-40"
-                >
-                  <GoogleIcon className="h-3.5 w-3.5" />
-                  <span>Connect & Sign In</span>
-                </button>
-              </div>
+                <option value="intuitive">Intuitive (Analogies & Simple terms)</option>
+                <option value="rigorous">Rigorous (Formal proofs & Definitions)</option>
+                <option value="bullet_points">High-Yield Bullet Points</option>
+                <option value="formula_first">Formula & Derivation First</option>
+              </select>
             </div>
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Daily Study Target (Minutes): <span className="font-bold text-violet-600 dark:text-violet-400">{dailyTarget} mins</span>
+            </label>
+            <input
+              type="range"
+              min="15"
+              max="240"
+              step="15"
+              value={dailyTarget}
+              onChange={e => setDailyTarget(Number(e.target.value))}
+              className="w-full accent-violet-600 cursor-pointer"
+            />
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-white/5">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExport}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                title="Backup all notes, flashcards, and tests as JSON"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export JSON</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                title="Restore study data from JSON"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>Import JSON</span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleImportFile}
+                className="hidden"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold shadow-md shadow-violet-500/20 transition-all hover:scale-[1.02]"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span>Save Changes</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

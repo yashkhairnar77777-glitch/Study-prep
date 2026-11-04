@@ -88,7 +88,7 @@ export const waitForGoogleIdentityServices = (maxWaitMs = 3000): Promise<boolean
 export const signInWithGoogle = async (customClientId?: string): Promise<GoogleUser> => {
   // First attempt: Firebase Google OAuth popup
   try {
-    const { user: fbUser } = await firebaseGoogleSignIn();
+    const fbUser = await firebaseGoogleSignIn();
     const user: GoogleUser = {
       sub: fbUser.uid,
       name: fbUser.displayName || fbUser.email?.split('@')[0] || 'Google Scholar',

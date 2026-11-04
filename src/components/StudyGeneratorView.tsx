@@ -70,9 +70,11 @@ import {
   SyllabusChapter,
 } from '../lib/syllabusData';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { NcertVisualNoteRenderer } from './NcertVisualNoteRenderer';
 import { NcertQuickGeneratorModal } from './NcertQuickGeneratorModal';
 import { api } from '../lib/api';
 import { storage } from '../lib/storage';
+import { hasFeatureAccess } from '../lib/subscriptionService';
 
 interface StudyGeneratorViewProps {
   profile: UserProfile;
@@ -197,6 +199,7 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
   // Notes
   const [isEditingNotes, setIsEditingNotes] = useState<boolean>(false);
   const [editedNotesContent, setEditedNotesContent] = useState<string>('');
+  const [notesPresentationMode, setNotesPresentationMode] = useState<'visual_ncert' | 'document'>('visual_ncert');
 
   // UI Utilities
   const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
@@ -299,8 +302,17 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
     }
   };
 
-  // Study Tools Toggle
+  // Study Tools Toggle (Enforcing Subscription Permissions)
   const toggleTool = (tool: StudyGeneratorOutputType) => {
+    if (tool === 'oral_test' && !hasFeatureAccess(profile.subscriptionTier || 'free', 'oral_viva')) {
+      showToast('🔒 AI Oral Viva Examiner requires Scholar Plus (₹99/mo) or Mastery Pro.');
+      return;
+    }
+    if (tool === 'practice_exam' && !hasFeatureAccess(profile.subscriptionTier || 'free', 'mock_tests')) {
+      showToast('🔒 Full Mock Practice Exams require Scholar Plus (₹99/mo) or Mastery Pro.');
+      return;
+    }
+
     if (selectedOutputs.includes(tool)) {
       if (selectedOutputs.length === 1) {
         showToast('Please select at least one study tool.');
@@ -313,23 +325,41 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
   };
 
   const applyPreset = (preset: 'all' | 'revision' | 'exam' | 'oral') => {
+    const isFree = !hasFeatureAccess(profile.subscriptionTier || 'free', 'oral_viva');
     if (preset === 'all') {
-      setSelectedOutputs([
-        'flashcards',
-        'notes',
-        'mcq_quiz',
-        'short_test',
-        'practice_exam',
-        'oral_test',
-        'formula_sheet',
-        'important_questions',
-      ]);
+      setSelectedOutputs(
+        isFree
+          ? ['flashcards', 'notes', 'mcq_quiz', 'short_test', 'important_questions']
+          : [
+              'flashcards',
+              'notes',
+              'mcq_quiz',
+              'short_test',
+              'practice_exam',
+              'oral_test',
+              'formula_sheet',
+              'important_questions',
+            ]
+      );
+      if (isFree) {
+        showToast('Selected all Free tools. Oral Viva and Full Exams require Scholar Plus.');
+      }
     } else if (preset === 'revision') {
       setSelectedOutputs(['flashcards', 'notes', 'formula_sheet', 'important_questions']);
     } else if (preset === 'exam') {
-      setSelectedOutputs(['mcq_quiz', 'short_test', 'practice_exam', 'formula_sheet']);
+      if (isFree) {
+        setSelectedOutputs(['mcq_quiz', 'short_test']);
+        showToast('🔒 Full Practice Exams require Scholar Plus (₹99/mo).');
+      } else {
+        setSelectedOutputs(['mcq_quiz', 'short_test', 'practice_exam', 'formula_sheet']);
+      }
     } else if (preset === 'oral') {
-      setSelectedOutputs(['oral_test', 'flashcards', 'important_questions']);
+      if (isFree) {
+        showToast('🔒 Oral Viva Voice Examination requires Scholar Plus (₹99/mo).');
+        setSelectedOutputs(['flashcards', 'important_questions']);
+      } else {
+        setSelectedOutputs(['oral_test', 'flashcards', 'important_questions']);
+      }
     }
   };
 
@@ -1447,8 +1477,9 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
                     <div className="w-10 h-10 rounded-xl bg-violet-600 text-white flex items-center justify-center font-bold">
                       <Mic className="w-5 h-5" />
                     </div>
-                    <span className="px-2 py-0.5 rounded-md bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300 text-[10px] font-bold">
-                      Interactive Viva
+                    <span className="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-[10px] font-extrabold flex items-center gap-1">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      Scholar Plus
                     </span>
                   </div>
                   <div>
@@ -2320,7 +2351,37 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Visual NCERT Sheet vs Classic Document toggle */}
+                        {!isEditingNotes && (
+                          <div className="flex items-center p-0.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold mr-1 border border-slate-200/60 dark:border-white/5">
+                            <button
+                              type="button"
+                              onClick={() => setNotesPresentationMode('visual_ncert')}
+                              className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
+                                notesPresentationMode === 'visual_ncert'
+                                  ? 'bg-amber-400 text-slate-950 font-bold shadow-xs'
+                                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                              }`}
+                            >
+                              <Sparkles className="w-3.5 h-3.5" />
+                              <span>🎨 NCERT Visual Sheet</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setNotesPresentationMode('document')}
+                              className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
+                                notesPresentationMode === 'document'
+                                  ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-300 font-bold shadow-xs'
+                                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                              }`}
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              <span>Document</span>
+                            </button>
+                          </div>
+                        )}
+
                         <button
                           type="button"
                           onClick={() => setIsEditingNotes(!isEditingNotes)}
@@ -2347,6 +2408,14 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
                         value={editedNotesContent}
                         onChange={e => setEditedNotesContent(e.target.value)}
                         className="w-full text-xs font-mono p-4 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-slate-100 outline-none"
+                      />
+                    ) : notesPresentationMode === 'visual_ncert' ? (
+                      <NcertVisualNoteRenderer
+                        title={currentPack.outputs.notes.title}
+                        content={editedNotesContent || currentPack.outputs.notes.markdownContent}
+                        subject={currentPack.sourceMetadata.subject}
+                        tags={[currentPack.sourceMetadata.board, currentPack.sourceMetadata.grade].filter(Boolean) as string[]}
+                        onOpenEdit={() => setIsEditingNotes(true)}
                       />
                     ) : (
                       <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm text-slate-900 dark:text-slate-100 prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-900 dark:prose-p:text-slate-100">

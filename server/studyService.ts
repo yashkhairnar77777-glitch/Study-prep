@@ -9,6 +9,9 @@ import {
   StudyGeneratorRequestPayload,
   StudyGeneratorResponsePayload,
   OralTestEvaluation,
+  StudyScheduleRequestPayload,
+  AiStudyScheduleGenerated,
+  AiScheduleIntervalGenerated,
 } from './providers/types.js';
 
 export class StudyService {
@@ -533,9 +536,9 @@ ${textSample}
     if (selectedOutputs.includes('notes')) {
       requestedSectionsPrompt.push(`
 "notes": {
-  "title": "${isSyllabus ? chapterSummaryTitle : payload.documentTitle} — Comprehensive Revision Notes",
-  "summary": "2-3 sentence executive conceptual summary of the core principles.",
-  "markdownContent": "Comprehensive, publication-grade chapter revision notes in GitHub-flavored Markdown. Must include:\\n## Executive Overview\\n## Key Concepts & Verified NCERT Definitions\\n## Theorems, Proofs & Step-by-Step Derivations (use LaTeX $...$ or $$...$$)\\n## Core Formulas & Equation Reference\\n## Practical Applications & Worked Exemplars\\n## Common Student Pitfalls & Scoring Checklist",
+  "title": "${isSyllabus ? chapterSummaryTitle : payload.documentTitle} — NCERT Visual Graphic Revision Sheet",
+  "summary": "Creative visual textbook breakdown with color-coded NCERT key definitions, formula capsules, and board exam tips.",
+  "markdownContent": "Generate creative, highly visual textbook notes styled like an illustrated NCERT infographic sheet (rich structured text, NOT an image). Must include numbered modules with bold key-terms:\\n## 1. Overview & Curriculum Core Pillars\\nConcise orientation on core learning objectives.\\n\\n## 2. Key Terms & NCERT Official Definitions\\nStructure every bullet point with a bold term followed by a colon: '- **Term Name**: Precise NCERT definition and real-world analogy.'\\n\\n## 3. Core Mechanisms & Step-by-Step Concepts\\nNumbered explanations with equations in LaTeX ($...$ or $$...$$).\\n\\n## 4. NCERT Textbook Box Items\\nInclude real textbook callout boxes:\\n> [!DID-YOU-KNOW] Fascinating real-world or historical fact capsule from the NCERT book.\\n> [!EXAM-TIP] Critical board exam scoring tip, common misconception, or step-marking guideline.\\n\\n## 5. Governing Formulas & Quantitative Laws\\nFormulas with all variable definitions and standard SI units.\\n\\n## 6. Points to Remember & Fast Revision Checklist\\nNumbered high-yield points for last-minute exam recall.",
   "keyFormulas": ["Core formula 1 with all variables defined", "Core formula 2"],
   "keyTakeaways": ["Crucial exam concept 1", "Crucial exam concept 2", "Crucial exam concept 3"]
 }`);
@@ -945,6 +948,215 @@ Output ONLY a valid JSON object matching this schema without markdown code block
         exemplarPhrasing: payload.modelAnswer || 'State the formal principle clearly, followed by the governing conditions and real-world implications.',
       };
     }
+  }
+
+  /**
+   * Generates a cognitive-science optimized study schedule with adaptive focus sprints and restorative breaks
+   */
+  public async generateStudySchedule(
+    payload: StudyScheduleRequestPayload
+  ): Promise<AiStudyScheduleGenerated> {
+    const {
+      subject,
+      topic,
+      totalDurationMinutes,
+      energyLevel,
+      goalType,
+      customContext,
+      grade,
+    } = payload;
+
+    const systemPrompt = `You are an elite Cognitive Science & Spaced Retrieval Study Coach in ORYQEN STUDY AI.
+Your mission is to construct an optimal study schedule that alternates focused deep-work sprints with scientific brain-recovery breaks.
+
+CRITICAL INSTRUCTIONS:
+1. Target total duration is approximately ${totalDurationMinutes} minutes. The sum of all interval durations MUST roughly match ${totalDurationMinutes} minutes (within ±5 minutes).
+2. The user has "${energyLevel}" energy level and their primary goal is "${goalType.replace('_', ' ')}".
+   - HIGH energy: longer initial focus blocks (30-45 mins), followed by short active breaks (5-7 mins), finishing with a synthesis/consolidation block.
+   - MODERATE energy: balanced 25-30 min focus blocks with 5 min restorative breaks (Classic Pomodoro / Spaced intervals).
+   - LOW / FATIGUED energy: gentle 15-20 min momentum-building micro-sprints, with 5-8 min physical recovery/movement breaks to prevent burnout.
+3. Every FOCUS interval MUST have an actionable, specific micro-objective (e.g., "Review core principles & derive main formulas", "Solve 5 practice problems from easy to medium", "Self-test with active recall without notes").
+4. Every BREAK interval MUST have a scientifically grounded restorative activity that aids memory consolidation and dopamine reset (e.g., "20-20-20 eye rest rule + drink cold water", "Box breathing & desk shoulder stretches", "Step away from screens and take a light walk").
+5. Return ONLY a valid JSON object matching the exact schema below, with no markdown fences other than \`\`\`json if needed:
+
+{
+  "title": "Short descriptive title for this study schedule",
+  "summary": "1-2 sentence overview of the session strategy",
+  "rationale": "Why this pacing, duration, and break frequency maximizes retention for ${subject} under ${energyLevel} energy based on cognitive science",
+  "intervals": [
+    {
+      "id": "step-1",
+      "type": "focus",
+      "title": "Sprint 1: Concept Absorption",
+      "durationMinutes": 25,
+      "objective": "Clear action-oriented learning goal for this block",
+      "tips": "Pro-tip to maintain high focus"
+    },
+    {
+      "id": "step-2",
+      "type": "short_break",
+      "title": "Mindful Physical Reset",
+      "durationMinutes": 5,
+      "objective": "Brain recovery and sensory reset",
+      "breakActivity": "Specific physical/mental recovery action to take",
+      "tips": "Avoid checking social media or phones during this break"
+    }
+  ]
+}`;
+
+    const userMessage = `Create an AI study schedule for:
+- Subject: ${subject}
+- Topic: ${topic}
+- Target Total Duration: ${totalDurationMinutes} minutes
+- Energy Level: ${energyLevel}
+- Learning Goal: ${goalType}
+${grade ? `- Grade / Class: ${grade}` : ''}
+${customContext ? `- Specific Focus Notes: ${customContext}` : ''}
+
+Generate the complete alternating focus and break intervals now.`;
+
+    try {
+      const response = await orchestrator.executeChat([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
+      ], { temperature: 0.3, maxTokens: 1400 });
+
+      const parsed = this.parseJsonSafely<any>(response.content);
+      if (parsed && Array.isArray(parsed.intervals) && parsed.intervals.length > 0) {
+        return {
+          id: `sched-${Date.now()}`,
+          title: parsed.title || `${subject}: ${topic} Adaptive Study Flow`,
+          subject,
+          topic,
+          totalDurationMinutes,
+          energyLevel,
+          goalType,
+          summary: parsed.summary || `Personalized ${totalDurationMinutes}-minute study sprint for ${topic}`,
+          rationale: parsed.rationale || `Optimized for ${energyLevel} energy and ${goalType} using spaced cognitive intervals.`,
+          intervals: parsed.intervals.map((inv: any, idx: number) => ({
+            id: inv.id || `inv-${idx + 1}`,
+            type: inv.type === 'long_break' ? 'long_break' : inv.type === 'short_break' ? 'short_break' : 'focus',
+            title: inv.title || (inv.type === 'focus' ? `Focus Block ${idx + 1}` : 'Restorative Break'),
+            durationMinutes: Number(inv.durationMinutes) || (inv.type === 'focus' ? 25 : 5),
+            objective: inv.objective || (inv.type === 'focus' ? `Focus on ${topic}` : 'Rest your eyes and reset attention'),
+            breakActivity: inv.breakActivity,
+            tips: inv.tips,
+          })),
+          createdAt: Date.now(),
+          providerUsed: response.providerUsed,
+          modelUsed: response.modelUsed,
+        };
+      }
+      throw new Error('AI output was not in expected schedule format');
+    } catch (err) {
+      console.warn('[StudyService.generateStudySchedule fallback invoked]:', err);
+      // Smart Heuristic Fallback based on Cognitive Science
+      return this.buildHeuristicSchedule(payload);
+    }
+  }
+
+  /**
+   * High-quality cognitive science heuristic schedule when AI generation is unavailable
+   */
+  private buildHeuristicSchedule(payload: StudyScheduleRequestPayload): AiStudyScheduleGenerated {
+    const { subject, topic, totalDurationMinutes, energyLevel, goalType } = payload;
+    const intervals: AiScheduleIntervalGenerated[] = [];
+
+    let focusBlockLen = 25;
+    let breakLen = 5;
+
+    if (energyLevel === 'high') {
+      focusBlockLen = totalDurationMinutes >= 90 ? 40 : 30;
+      breakLen = 6;
+    } else if (energyLevel === 'low') {
+      focusBlockLen = 20;
+      breakLen = 7;
+    }
+
+    let remainingMinutes = totalDurationMinutes;
+    let blockCount = 1;
+
+    const breakSuggestions = [
+      'Perform the 20-20-20 rule: look at an object 20 feet away for 20 seconds. Drink 250ml water.',
+      'Stand up, do 5 gentle shoulder rolls and open-chest doorway stretches to restore blood flow.',
+      'Box Breathing: Inhale for 4s, hold for 4s, exhale for 4s, hold for 4s. Repeat 3 times.',
+      'Hydrate with cold water and step away from all computer/phone screens for complete cognitive detachment.',
+    ];
+
+    const getGoalObjective = (count: number, isLast: boolean): string => {
+      if (goalType === 'problem_solving') {
+        if (count === 1) return `Review key formulas and solve 2 foundational exemplar problems for ${topic}.`;
+        if (isLast) return `Tackle 1 timed exam-style question without reference material to verify mastery.`;
+        return `Solve intermediate practice problems. Identify any recurring algebraic or conceptual hurdles.`;
+      }
+      if (goalType === 'rapid_revision') {
+        if (count === 1) return `Fast active recall: write down all main headings, laws, and definitions from memory.`;
+        return `Fill knowledge gaps on ${topic} using summary flashcards and high-yield notes.`;
+      }
+      if (goalType === 'memorization') {
+        if (count === 1) return `Read and chunk complex terminology in ${topic} into memorable mnemonics.`;
+        return `Spaced self-quizzing: cover notes and test yourself on key definitions and diagrams.`;
+      }
+      // default: deep_learning
+      if (count === 1) return `First pass: read the core theory and establish the conceptual mental model for ${topic}.`;
+      if (isLast) return `Synthesize key takeaways into 5 bullet summary notes and self-test core principles.`;
+      return `Deep dive into mechanisms, derivations, and edge cases for ${topic}.`;
+    };
+
+    while (remainingMinutes > 15) {
+      const currentFocus = Math.min(focusBlockLen, remainingMinutes);
+      remainingMinutes -= currentFocus;
+
+      intervals.push({
+        id: `step-${intervals.length + 1}`,
+        type: 'focus',
+        title: `Focus Sprint ${blockCount}: ${goalType === 'problem_solving' ? 'Application' : 'Deep Study'}`,
+        durationMinutes: currentFocus,
+        objective: getGoalObjective(blockCount, remainingMinutes <= 15),
+        tips: 'Keep your phone on Do Not Disturb and write down any stray thoughts on a scratchpad.',
+      });
+
+      if (remainingMinutes >= 5) {
+        const currentBreak = Math.min(breakLen, remainingMinutes);
+        remainingMinutes -= currentBreak;
+        const breakTip = breakSuggestions[(blockCount - 1) % breakSuggestions.length];
+
+        intervals.push({
+          id: `step-${intervals.length + 1}`,
+          type: currentBreak >= 10 ? 'long_break' : 'short_break',
+          title: `Restorative Break ${blockCount}`,
+          durationMinutes: currentBreak,
+          objective: 'Reset attention span and consolidate short-term memory.',
+          breakActivity: breakTip,
+          tips: 'Avoid checking social media; let your visual cortex relax completely.',
+        });
+      }
+      blockCount++;
+    }
+
+    if (remainingMinutes > 0 && intervals.length > 0) {
+      // Allocate leftover minutes to the final focus block
+      const lastFocus = [...intervals].reverse().find(i => i.type === 'focus');
+      if (lastFocus) {
+        lastFocus.durationMinutes += remainingMinutes;
+      }
+    }
+
+    return {
+      id: `sched-${Date.now()}`,
+      title: `${subject}: ${topic} Cognitive Flow`,
+      subject,
+      topic,
+      totalDurationMinutes,
+      energyLevel,
+      goalType,
+      summary: `Paced ${totalDurationMinutes}-minute schedule balancing ${intervals.filter(i => i.type === 'focus').length} focus sprints with dedicated brain resets.`,
+      rationale: `Structured using Ultradian and Pomodoro rhythms to match ${energyLevel} energy, minimizing cognitive fatigue.`,
+      intervals,
+      createdAt: Date.now(),
+      providerUsed: 'oryqen-cognitive-engine',
+      modelUsed: 'heuristic-v2',
+    };
   }
 }
 

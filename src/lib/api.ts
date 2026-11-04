@@ -8,6 +8,8 @@ import {
   StudyGeneratorPayload,
   GeneratedStudyPack,
   OralTestEvaluation,
+  AiStudySchedule,
+  StudyScheduleRequestPayload,
 } from '../types';
 
 export interface ChatResponseData {
@@ -207,6 +209,21 @@ export const api = {
     }
 
     return { text: json.text, providerUsed: json.providerUsed };
+  },
+
+  async generateStudySchedule(params: StudyScheduleRequestPayload): Promise<AiStudySchedule> {
+    const res = await fetch('/api/generate-study-schedule', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      throw new Error(json.error || 'Failed to generate AI study schedule.');
+    }
+
+    return json.data;
   },
 };
 

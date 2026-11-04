@@ -20,17 +20,21 @@ import {
 } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { api } from '../lib/api';
+import { FeatureLockCard } from './SubscriptionLockBadge';
+import { hasFeatureAccess } from '../lib/subscriptionService';
 
 interface ExamGeneratorViewProps {
   profile: UserProfile;
   onStartMockTest: (paper: ExamPaper) => void;
   onNavigateToStudyGenerator?: () => void;
+  onNavigateToPricing?: () => void;
 }
 
 export const ExamGeneratorView: React.FC<ExamGeneratorViewProps> = ({
   profile,
   onStartMockTest,
   onNavigateToStudyGenerator,
+  onNavigateToPricing,
 }) => {
   const [grade, setGrade] = useState<GradeLevel>(profile.grade);
   const [subject, setSubject] = useState<SubjectCategory>(profile.primarySubject);
@@ -59,6 +63,16 @@ export const ExamGeneratorView: React.FC<ExamGeneratorViewProps> = ({
   };
 
   const handleGenerate = async () => {
+    if (!hasFeatureAccess(profile.subscriptionTier || 'free', 'mock_tests')) {
+      setErrorMessage(
+        '🔒 Full Mock Practice Tests require Scholar Plus (₹99/mo) or Mastery Pro. Please upgrade to unlock timed exams and official scoring rubrics.'
+      );
+      if (onNavigateToPricing) {
+        onNavigateToPricing();
+      }
+      return;
+    }
+
     const parsedTopics = topicsInput
       .split(',')
       .map(t => t.trim())
@@ -143,6 +157,17 @@ export const ExamGeneratorView: React.FC<ExamGeneratorViewProps> = ({
             Print for offline practice or launch directly in interactive timed test simulation.
           </p>
         </div>
+
+        {/* Feature Lock Barrier for Free Tier Users */}
+        {!hasFeatureAccess(profile.subscriptionTier || 'free', 'mock_tests') && (
+          <FeatureLockCard
+            featureKey="mock_tests"
+            currentTier={profile.subscriptionTier || 'free'}
+            onUpgradeClick={() => {
+              if (onNavigateToPricing) onNavigateToPricing();
+            }}
+          />
+        )}
 
         {/* Configuration Groups */}
         <div className="clay-card p-6 rounded-3xl space-y-6">

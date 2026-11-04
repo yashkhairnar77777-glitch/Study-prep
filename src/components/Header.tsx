@@ -10,6 +10,10 @@ import {
   Flame,
   Search,
   Bell,
+  Crown,
+  Sparkles,
+  ShieldAlert,
+  CreditCard,
 } from 'lucide-react';
 import { UserProfile, AppView } from '../types';
 import { usePomodoro } from '../contexts/PomodoroContext';
@@ -75,6 +79,9 @@ export const Header: React.FC<HeaderProps> = ({
     notes: 'Study Notes',
     progress: 'Learning Diagnostics',
     pricing: 'Plans & Upgrades',
+    my_subscription: 'My Subscription',
+    admin_payments: 'Payment Management',
+    timer: 'Smart AI Study Timer',
   };
 
   return (
@@ -120,6 +127,7 @@ export const Header: React.FC<HeaderProps> = ({
             { id: 'photo' as const, label: 'Photo Solver' },
             { id: 'doc' as const, label: 'PDF Analysis' },
             { id: 'exam' as const, label: 'Mocks' },
+            { id: 'timer' as const, label: 'Timer' },
             { id: 'revision' as const, label: 'Flashcards' },
             { id: 'planner' as const, label: 'Planner' },
             { id: 'notes' as const, label: 'Notes' },
@@ -217,6 +225,51 @@ export const Header: React.FC<HeaderProps> = ({
             title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
           >
             {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-violet-600" />}
+          </button>
+
+          {/* Admin Portal Shortcut if authorized */}
+          {profile.email === 'yashkhairnar77777@gmail.com' && (
+            <button
+              type="button"
+              onClick={() => setCurrentView('admin_payments')}
+              className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all ${
+                currentView === 'admin_payments'
+                  ? 'bg-rose-600 text-white shadow-xs'
+                  : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100'
+              }`}
+              title="Authorised Admin Payment Portal"
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-rose-500" />
+              <span>Admin</span>
+            </button>
+          )}
+
+          {/* Prominent Plans & UPI Payment Button */}
+          <button
+            type="button"
+            onClick={() => setCurrentView('pricing')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold border transition-all shadow-xs cursor-pointer ${
+              currentView === 'pricing'
+                ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white border-transparent ring-2 ring-indigo-400'
+                : profile.subscriptionTier === 'pro'
+                ? 'bg-gradient-to-r from-amber-500/10 to-rose-500/10 text-amber-700 dark:text-amber-300 border-amber-300/80 dark:border-amber-700/60 hover:bg-amber-100/40'
+                : profile.subscriptionTier === 'plus'
+                ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700 hover:bg-indigo-100/60'
+                : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white border-transparent shadow-indigo-500/25 animate-pulse'
+            }`}
+            title="View Plans & Pay via UPI (Scholar Plus / Mastery Pro)"
+          >
+            <CreditCard className="w-3.5 h-3.5" />
+            <span className="hidden xs:inline">
+              {profile.subscriptionTier === 'pro'
+                ? '👑 Pro Active'
+                : profile.subscriptionTier === 'plus'
+                ? '⭐ Plus Active'
+                : '💎 Plans & UPI Pay'}
+            </span>
+            <span className="xs:hidden">
+              {profile.subscriptionTier === 'pro' ? 'Pro' : profile.subscriptionTier === 'plus' ? 'Plus' : 'Plans'}
+            </span>
           </button>
 
           {/* Student Profile Button */}

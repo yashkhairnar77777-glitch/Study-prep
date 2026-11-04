@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { ChatView } from './components/ChatView';
@@ -18,6 +19,9 @@ import { StudyPlannerView } from './components/StudyPlannerView';
 import { NotesView } from './components/NotesView';
 import { ProgressView } from './components/ProgressView';
 import { PricingView } from './components/PricingView';
+import { StudentSubscriptionView } from './components/StudentSubscriptionView';
+import { AdminPaymentDashboard } from './components/AdminPaymentDashboard';
+import { SmartStudyTimerView } from './components/SmartStudyTimerView';
 import { LandingPage } from './components/LandingPage';
 import { ProfileModal } from './components/ProfileModal';
 import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
@@ -30,6 +34,12 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { NcertQuickGeneratorModal, QuickGeneratorMode } from './components/NcertQuickGeneratorModal';
 import { storage } from './lib/storage';
 import { api } from './lib/api';
+import {
+  subscribeToAuth,
+  loadFromFirestore,
+  syncToFirestore,
+  signOutUser,
+} from './lib/firebaseAuth';
 import {
   Conversation,
   Flashcard,
@@ -54,6 +64,7 @@ export default function App() {
   const [providerStatus, setProviderStatus] = useState<ProviderStatus | null>(null);
 
   const [currentView, setCurrentView] = useState<AppView>('dashboard');
+  const shouldReduceMotion = useReducedMotion();
   const [isDark, setIsDark] = useState<boolean>(() => {
     return profile.theme === 'dark';
   });
@@ -151,7 +162,81 @@ What question, topic, or problem would you like to explore today?`;
     setCurrentView('dashboard');
   };
 
-  const handleLogout = () => {
+  // Listen to Firebase Auth state changes and load cloud data
+  useEffect(() => {
+    const unsubscribe = subscribeToAuth(async authUser => {
+      if (authUser) {
+        try {
+          const cloudData = await loadFromFirestore(authUser.uid);
+          setProfile(prev => {
+            const updated: UserProfile = {
+              ...prev,
+              userId: authUser.uid,
+              name: authUser.displayName || prev.name || 'Scholar',
+              email: authUser.email || prev.email,
+              avatarUrl: authUser.photoURL || prev.avatarUrl,
+              authProvider: authUser.providerData?.[0]?.providerId === 'google.com' ? 'google' : 'local',
+              isOnboarded: true,
+              ...(cloudData?.profile || {}),
+            };
+            storage.saveProfile(updated);
+            return updated;
+          });
+
+          if (cloudData) {
+            if (Array.isArray(cloudData.notes) && cloudData.notes.length > 0) {
+              setNotes(cloudData.notes);
+              storage.saveNotes(cloudData.notes);
+            }
+            if (Array.isArray(cloudData.flashcards) && cloudData.flashcards.length > 0) {
+              setFlashcards(cloudData.flashcards);
+              storage.saveFlashcards(cloudData.flashcards);
+            }
+            if (Array.isArray(cloudData.mockTests) && cloudData.mockTests.length > 0) {
+              setMockTests(cloudData.mockTests);
+              storage.saveMockTests(cloudData.mockTests);
+            }
+            if (Array.isArray(cloudData.tasks) && cloudData.tasks.length > 0) {
+              setTasks(cloudData.tasks);
+              storage.saveTasks(cloudData.tasks);
+            }
+            if (Array.isArray(cloudData.conversations) && cloudData.conversations.length > 0) {
+              setConversations(cloudData.conversations);
+              storage.saveConversations(cloudData.conversations);
+            }
+          }
+        } catch (err) {
+          console.warn('[Firestore] Error loading cloud data on auth state change:', err);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Auto-sync real study data to Google Firestore for authenticated user
+  useEffect(() => {
+    if (!profile.userId) return;
+    const timer = setTimeout(() => {
+      syncToFirestore(profile.userId!, {
+        profile,
+        notes,
+        flashcards,
+        mockTests,
+        tasks,
+        conversations,
+      }).catch(err => console.warn('[Firestore] Auto-sync warning:', err));
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [profile, notes, flashcards, mockTests, tasks, conversations]);
+
+  const handleLogout = async () => {
+    try {
+      await signOutUser();
+    } catch (e) {
+      console.warn('Sign out warning:', e);
+    }
     storage.logoutUser();
     setProfile(storage.getProfile());
     setIsOpenProfileModal(false);
@@ -348,129 +433,168 @@ What question, topic, or problem would you like to explore today?`;
         />
 
         <main className="flex-1 overflow-hidden relative">
-          {currentView === 'generator' && (
-            <StudyGeneratorView
-              profile={profile}
-              onStartMockTest={handleStartMockTest}
-              onSaveAsNote={handleSaveAsNote}
-              onCreateFlashcard={handleCreateFlashcard}
-              onUpdateFlashcards={cards => {
-                setFlashcards(cards);
-                storage.saveFlashcards(cards);
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={currentView === 'mock_test' ? `mock_test_${activeExamPaper?.title || 'active'}` : currentView}
+              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.995 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.995 }}
+              transition={{
+                duration: shouldReduceMotion ? 0.05 : 0.18,
+                ease: [0.22, 1, 0.36, 1],
               }}
-              onUpdateNotes={handleUpdateNotes}
-            />
-          )}
+              className="h-full w-full overflow-hidden flex flex-col"
+            >
+              {currentView === 'generator' && (
+                <StudyGeneratorView
+                  profile={profile}
+                  onStartMockTest={handleStartMockTest}
+                  onSaveAsNote={handleSaveAsNote}
+                  onCreateFlashcard={handleCreateFlashcard}
+                  onUpdateFlashcards={cards => {
+                    setFlashcards(cards);
+                    storage.saveFlashcards(cards);
+                  }}
+                  onUpdateNotes={handleUpdateNotes}
+                />
+              )}
 
-          {currentView === 'chat' && (
-            <ChatView
-              conversation={activeConversation}
-              onUpdateConversation={handleUpdateConversation}
-              profile={profile}
-              providerStatus={providerStatus}
-              onSaveAsNote={handleSaveAsNote}
-              onCreateFlashcard={handleCreateFlashcard}
-              onOpenNcertGenerator={() => handleOpenNcertGenerator('both')}
-            />
-          )}
+              {currentView === 'chat' && (
+                <ChatView
+                  conversation={activeConversation}
+                  onUpdateConversation={handleUpdateConversation}
+                  profile={profile}
+                  providerStatus={providerStatus}
+                  onSaveAsNote={handleSaveAsNote}
+                  onCreateFlashcard={handleCreateFlashcard}
+                  onOpenNcertGenerator={() => handleOpenNcertGenerator('both')}
+                />
+              )}
 
-          {currentView === 'photo' && (
-            <PhotoSolverView
-              profile={profile}
-              providerStatus={providerStatus}
-              onSaveAsNote={handleSaveAsNote}
-              onCreateFlashcard={handleCreateFlashcard}
-            />
-          )}
+              {currentView === 'photo' && (
+                <PhotoSolverView
+                  profile={profile}
+                  providerStatus={providerStatus}
+                  onSaveAsNote={handleSaveAsNote}
+                  onCreateFlashcard={handleCreateFlashcard}
+                />
+              )}
 
-          {currentView === 'doc' && <DocumentAnalysisView profile={profile} />}
+              {currentView === 'doc' && <DocumentAnalysisView profile={profile} />}
 
-          {currentView === 'exam' && (
-            <ExamGeneratorView
-              profile={profile}
-              onStartMockTest={handleStartMockTest}
-              onNavigateToStudyGenerator={() => setCurrentView('generator')}
-            />
-          )}
+              {currentView === 'exam' && (
+                <ExamGeneratorView
+                  profile={profile}
+                  onStartMockTest={handleStartMockTest}
+                  onNavigateToStudyGenerator={() => setCurrentView('generator')}
+                  onNavigateToPricing={() => setCurrentView('pricing')}
+                />
+              )}
 
-          {currentView === 'mock_test' && activeExamPaper && (
-            <MockTestView
-              paper={activeExamPaper}
-              profile={profile}
-              onExitTest={() => setCurrentView('exam')}
-              onSavedAttempt={attempt => {
-                setMockTests(prev => [attempt, ...prev]);
-                storage.saveMockTest(attempt);
-              }}
-            />
-          )}
+              {currentView === 'mock_test' && activeExamPaper && (
+                <MockTestView
+                  paper={activeExamPaper}
+                  profile={profile}
+                  onExitTest={() => setCurrentView('exam')}
+                  onSavedAttempt={attempt => {
+                    setMockTests(prev => [attempt, ...prev]);
+                    storage.saveMockTest(attempt);
+                  }}
+                />
+              )}
 
-          {currentView === 'revision' && (
-            <SmartRevisionView
-              profile={profile}
-              flashcards={flashcards}
-              notes={notes}
-              onUpdateFlashcards={cards => {
-                setFlashcards(cards);
-                storage.saveFlashcards(cards);
-              }}
-              onUpdateNotes={handleUpdateNotes}
-              onOpenNcertGenerator={() => handleOpenNcertGenerator('flashcards')}
-            />
-          )}
+              {currentView === 'revision' && (
+                <SmartRevisionView
+                  profile={profile}
+                  flashcards={flashcards}
+                  notes={notes}
+                  onUpdateFlashcards={cards => {
+                    setFlashcards(cards);
+                    storage.saveFlashcards(cards);
+                  }}
+                  onUpdateNotes={handleUpdateNotes}
+                  onOpenNcertGenerator={() => handleOpenNcertGenerator('flashcards')}
+                />
+              )}
 
-          {currentView === 'dashboard' && (
-            <DashboardView
-              profile={profile}
-              conversations={conversations}
-              flashcards={flashcards}
-              notes={notes}
-              mockTests={mockTests}
-              tasks={tasks}
-              onToggleTask={handleToggleTask}
-              providerStatus={providerStatus}
-              onNavigate={setCurrentView}
-              onSelectConversation={id => {
-                setActiveConvoId(id);
-                storage.setActiveConvoId(id);
-              }}
-              onOpenNcertGenerator={handleOpenNcertGenerator}
-              onUpdateNotes={handleUpdateNotes}
-            />
-          )}
+              {currentView === 'dashboard' && (
+                <DashboardView
+                  profile={profile}
+                  conversations={conversations}
+                  flashcards={flashcards}
+                  notes={notes}
+                  mockTests={mockTests}
+                  tasks={tasks}
+                  onToggleTask={handleToggleTask}
+                  providerStatus={providerStatus}
+                  onNavigate={setCurrentView}
+                  onSelectConversation={id => {
+                    setActiveConvoId(id);
+                    storage.setActiveConvoId(id);
+                  }}
+                  onOpenNcertGenerator={handleOpenNcertGenerator}
+                  onUpdateNotes={handleUpdateNotes}
+                />
+              )}
 
-          {currentView === 'planner' && (
-            <StudyPlannerView
-              tasks={tasks}
-              onUpdateTasks={handleUpdateTasks}
-              profile={profile}
-            />
-          )}
+              {currentView === 'planner' && (
+                <StudyPlannerView
+                  tasks={tasks}
+                  onUpdateTasks={handleUpdateTasks}
+                  profile={profile}
+                />
+              )}
 
-          {currentView === 'notes' && (
-            <NotesView
-              notes={notes}
-              onUpdateNotes={handleUpdateNotes}
-              profile={profile}
-              onOpenNcertGenerator={() => handleOpenNcertGenerator('notes')}
-            />
-          )}
+              {currentView === 'notes' && (
+                <NotesView
+                  notes={notes}
+                  onUpdateNotes={handleUpdateNotes}
+                  profile={profile}
+                  onOpenNcertGenerator={() => handleOpenNcertGenerator('notes')}
+                  onNavigateToPricing={() => setCurrentView('pricing')}
+                />
+              )}
 
-          {currentView === 'progress' && (
-            <ProgressView
-              profile={profile}
-              mockTests={mockTests}
-              flashcards={flashcards}
-              conversations={conversations}
-              tasks={tasks}
-            />
-          )}
+              {currentView === 'progress' && (
+                <ProgressView
+                  profile={profile}
+                  mockTests={mockTests}
+                  flashcards={flashcards}
+                  conversations={conversations}
+                  tasks={tasks}
+                />
+              )}
 
-          {currentView === 'pricing' && (
-            <PricingView
-              onBackToDashboard={() => setCurrentView('dashboard')}
-            />
-          )}
+              {currentView === 'pricing' && (
+                <PricingView
+                  userProfile={profile}
+                  onBackToDashboard={() => setCurrentView('dashboard')}
+                  onNavigateToMySubscription={() => setCurrentView('my_subscription')}
+                />
+              )}
+
+              {currentView === 'my_subscription' && (
+                <StudentSubscriptionView
+                  userProfile={profile}
+                  onNavigateToPricing={() => setCurrentView('pricing')}
+                />
+              )}
+
+              {currentView === 'admin_payments' && (
+                <AdminPaymentDashboard
+                  adminEmail={profile.email || 'yashkhairnar77777@gmail.com'}
+                  onBackToDashboard={() => setCurrentView('dashboard')}
+                />
+              )}
+
+              {currentView === 'timer' && (
+                <SmartStudyTimerView
+                  profile={profile}
+                  onNavigate={setCurrentView}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         {/* Mobile Bottom Navigation */}
@@ -481,7 +605,7 @@ What question, topic, or problem would you like to explore today?`;
       </div>
 
       {/* Global Focus Timer Modal */}
-      <PomodoroGlobalModal profile={profile} />
+      <PomodoroGlobalModal profile={profile} onNavigate={setCurrentView} />
 
       {/* 1-Click NCERT Chapter Flashcard & Notes Generator Modal */}
       <NcertQuickGeneratorModal
