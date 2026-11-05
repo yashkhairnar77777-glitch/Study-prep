@@ -51,7 +51,9 @@ import {
   SubjectCategory,
   StudyTask,
   AppView,
+  SubscriptionTier,
 } from './types';
+import { subscriptionService } from './lib/subscriptionService';
 
 export default function App() {
   const [profile, setProfile] = useState<UserProfile>(storage.getProfile());
@@ -230,6 +232,46 @@ What question, topic, or problem would you like to explore today?`;
 
     return () => clearTimeout(timer);
   }, [profile, notes, flashcards, mockTests, tasks, conversations]);
+
+  // Real-time synchronization of subscription tier from coupons and admin approvals
+  useEffect(() => {
+    const handleSubUpdate = (e: Event) => {
+      const custom = e as CustomEvent<{ plan?: SubscriptionTier }>;
+      if (custom.detail?.plan) {
+        setProfile(prev => {
+          const updated: UserProfile = { ...prev, subscriptionTier: custom.detail.plan };
+          storage.saveProfile(updated);
+          return updated;
+        });
+      } else {
+        setProfile(storage.getProfile());
+      }
+    };
+    window.addEventListener('oryqen:subscription_updated', handleSubUpdate);
+    return () => window.removeEventListener('oryqen:subscription_updated', handleSubUpdate);
+  }, []);
+
+  // Sync active subscription tier with server on mount or when email changes
+  useEffect(() => {
+    const email = profile.email || 'student@oryqen.ai';
+    subscriptionService
+      .getStatus(email)
+      .then(res => {
+        if (
+          res.subscription &&
+          res.subscription.status === 'active' &&
+          res.subscription.plan &&
+          res.subscription.plan !== profile.subscriptionTier
+        ) {
+          setProfile(prev => {
+            const updated: UserProfile = { ...prev, subscriptionTier: res.subscription.plan };
+            storage.saveProfile(updated);
+            return updated;
+          });
+        }
+      })
+      .catch(() => {});
+  }, [profile.email]);
 
   const handleLogout = async () => {
     try {
@@ -570,6 +612,7 @@ What question, topic, or problem would you like to explore today?`;
                   userProfile={profile}
                   onBackToDashboard={() => setCurrentView('dashboard')}
                   onNavigateToMySubscription={() => setCurrentView('my_subscription')}
+                  onProfileUpdated={updated => setProfile(updated)}
                 />
               )}
 

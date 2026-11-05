@@ -165,7 +165,14 @@ app.post('/api/coupons/validate', (req: Request, res: Response) => {
     }
 
     const validation = subscriptionStore.validateCoupon(code, email, targetPlan);
-    res.json({ success: validation.isValid, validation });
+    res.json({
+      success: validation.isValid,
+      validation: {
+        ...validation,
+        reason: validation.error,
+        freePlan: validation.freePlanGranted,
+      },
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to validate coupon';
     res.status(500).json({ success: false, error: message });
@@ -204,17 +211,64 @@ app.post('/api/coupons/redeem', (req: Request, res: Response) => {
   }
 });
 
-// --- ADMIN CONTROL ROUTES (Role-based Backend Protected) ---
-const requireAdmin = (req: Request, res: Response, next: () => void) => {
-  const adminEmail = getRequestAdminEmail(req);
-  if (!subscriptionStore.isAuthorizedAdmin(adminEmail)) {
-    res.status(403).json({
-      success: false,
-      error: 'Access denied: Authorised administrator permissions required.',
+// --- ADMIN CONTROL & MASTER PASSWORD AUTH ROUTES ---
+app.post('/api/admin/auth/verify-password', (req: Request, res: Response) => {
+  try {
+    const { password, email } = req.body;
+    if (!password) {
+      res.status(400).json({ success: false, error: 'Password is required.' });
+      return;
+    }
+
+    if (!subscriptionStore.verifyAdminPassword(password)) {
+      res.status(401).json({
+        success: false,
+        error: 'Incorrect administrator master password. Access denied.',
+      });
+      return;
+    }
+
+    const session = subscriptionStore.createAdminSession(email);
+    res.json({
+      success: true,
+      message: 'Admin authentication successful.',
+      token: session.token,
+      expiresAt: session.expiresAt,
+      adminEmail: email || 'yashkhairnar77777@gmail.com',
     });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Admin authentication failed';
+    res.status(500).json({ success: false, error: message });
+  }
+});
+
+app.get('/api/admin/auth/check', (req: Request, res: Response) => {
+  const adminToken = (req.headers['x-admin-token'] as string) || (req.query.adminToken as string);
+  const isValid = subscriptionStore.isValidAdminSession(adminToken);
+  res.json({ success: true, isAuthenticated: isValid });
+});
+
+const requireAdmin = (req: Request, res: Response, next: () => void) => {
+  const adminToken = (req.headers['x-admin-token'] as string) || (req.query.adminToken as string);
+  const adminPassword = (req.headers['x-admin-password'] as string);
+
+  // 1. Password verification
+  if (adminPassword && subscriptionStore.verifyAdminPassword(adminPassword)) {
+    next();
     return;
   }
-  next();
+
+  // 2. Active session token verification
+  if (adminToken && subscriptionStore.isValidAdminSession(adminToken)) {
+    next();
+    return;
+  }
+
+  res.status(401).json({
+    success: false,
+    error: 'Access denied: Master administrator password or verified session required.',
+    needsAuth: true,
+  });
 };
 
 // Admin: Get all payment requests

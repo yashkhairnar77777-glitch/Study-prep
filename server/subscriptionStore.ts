@@ -247,6 +247,34 @@ export class SubscriptionStore {
     return (email || 'student@oryqen.ai').toLowerCase().trim();
   }
 
+  public static readonly ADMIN_MASTER_PASSWORD = 'y@ash2013';
+  private adminSessions: Map<string, { email: string; expiresAt: number }> = new Map();
+
+  public verifyAdminPassword(password?: string): boolean {
+    if (!password) return false;
+    return password.trim() === SubscriptionStore.ADMIN_MASTER_PASSWORD;
+  }
+
+  public createAdminSession(email?: string): { token: string; expiresAt: number } {
+    const token = `adm_${Date.now()}_${Math.random().toString(36).slice(2, 10)}${Math.random().toString(36).slice(2, 10)}`;
+    const expiresAt = Date.now() + 12 * 3600 * 1000;
+    const adminEmail = email || 'yashkhairnar77777@gmail.com';
+    this.adminSessions.set(token, { email: adminEmail, expiresAt });
+    this.logAdminAction('admin_password_login', adminEmail, 'Administrator authenticated with master password');
+    return { token, expiresAt };
+  }
+
+  public isValidAdminSession(token?: string): boolean {
+    if (!token) return false;
+    const session = this.adminSessions.get(token);
+    if (!session) return false;
+    if (Date.now() > session.expiresAt) {
+      this.adminSessions.delete(token);
+      return false;
+    }
+    return true;
+  }
+
   public isAuthorizedAdmin(email?: string): boolean {
     if (!email) return false;
     const clean = this.normalizeEmail(email);
@@ -636,6 +664,7 @@ export class SubscriptionStore {
     discountAmount?: number;
     isFreeAccess?: boolean;
     freePlanGranted?: SubscriptionTier;
+    freePlan?: SubscriptionTier;
     durationDays?: number;
     error?: string;
   } {
@@ -692,6 +721,7 @@ export class SubscriptionStore {
         coupon,
         isFreeAccess: true,
         freePlanGranted: 'plus',
+        freePlan: 'plus',
         durationDays: coupon.durationDays,
       };
     }
@@ -702,6 +732,7 @@ export class SubscriptionStore {
         coupon,
         isFreeAccess: true,
         freePlanGranted: 'pro',
+        freePlan: 'pro',
         durationDays: coupon.durationDays,
       };
     }

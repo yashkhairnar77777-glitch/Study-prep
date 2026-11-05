@@ -10,6 +10,28 @@
       "expiresAt": 1796231526308,
       "source": "upi_payment",
       "referenceId": "REQ-20261102-RUK0"
+    },
+    "scholar1@oryqen.ai": {
+      "studentEmail": "scholar1@oryqen.ai",
+      "studentName": "Scholar One",
+      "plan": "plus",
+      "status": "active",
+      "billingDuration": "monthly",
+      "activatedAt": 1793896823289,
+      "expiresAt": 1796488823289,
+      "source": "coupon",
+      "referenceId": "ORYQENFRIEND"
+    },
+    "scholar2@oryqen.ai": {
+      "studentEmail": "scholar2@oryqen.ai",
+      "studentName": "Scholar Two",
+      "plan": "pro",
+      "status": "active",
+      "billingDuration": "monthly",
+      "activatedAt": 1793896832817,
+      "expiresAt": 1794501632817,
+      "source": "coupon",
+      "referenceId": "ORYQENPRO"
     }
   },
   "paymentRequests": [
@@ -42,7 +64,7 @@
       "durationDays": 30,
       "targetPlan": "plus",
       "maxRedemptions": 1000,
-      "redemptionCount": 0,
+      "redemptionCount": 1,
       "perStudentLimit": 1,
       "startDate": 1793553097864,
       "expiryDate": 1825175497864,
@@ -77,7 +99,7 @@
       "durationDays": 7,
       "targetPlan": "pro",
       "maxRedemptions": 1000,
-      "redemptionCount": 0,
+      "redemptionCount": 1,
       "perStudentLimit": 1,
       "startDate": 1793553097864,
       "expiryDate": 1809191497864,
@@ -87,7 +109,26 @@
       "createdBy": "system"
     }
   ],
-  "couponRedemptions": [],
+  "couponRedemptions": [
+    {
+      "id": "red-1793896823289-3xgf",
+      "couponCode": "ORYQENFRIEND",
+      "studentEmail": "scholar1@oryqen.ai",
+      "studentName": "Scholar One",
+      "planGranted": "plus",
+      "durationDaysGranted": 30,
+      "redeemedAt": 1793896823289
+    },
+    {
+      "id": "red-1793896832817-5b6b",
+      "couponCode": "ORYQENPRO",
+      "studentEmail": "scholar2@oryqen.ai",
+      "studentName": "Scholar Two",
+      "planGranted": "pro",
+      "durationDaysGranted": 7,
+      "redeemedAt": 1793896832817
+    }
+  ],
   "adminAuditLogs": [
     {
       "id": "log-1793639526309-6vbc",

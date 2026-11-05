@@ -108,9 +108,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'progress' as const, label: 'Learning Diagnostics', icon: BarChart3 },
     { id: 'pricing' as const, label: 'Plans & UPI Payment', icon: CreditCard, highlight: true },
     { id: 'my_subscription' as const, label: 'My Subscription', icon: Sparkles },
-    ...(profile.email === 'yashkhairnar77777@gmail.com'
-      ? [{ id: 'admin_payments' as const, label: 'Admin Payment Portal', icon: ShieldAlert }]
-      : []),
+    { id: 'admin_payments' as const, label: 'Admin Access', icon: ShieldAlert },
   ];
 
   const filteredConversations = conversations.filter(c =>

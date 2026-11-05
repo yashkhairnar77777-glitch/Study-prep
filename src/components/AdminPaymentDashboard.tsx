@@ -24,6 +24,9 @@ import {
   ExternalLink,
   Crown,
   Sparkles,
+  Key,
+  EyeOff,
+  LogOut,
 } from 'lucide-react';
 import {
   PaymentRequest,
@@ -51,6 +54,15 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
   const [activeTab, setActiveTab] = useState<'payments' | 'coupons' | 'pricing' | 'audit'>('payments');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Admin Password Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return Boolean(subscriptionService.getAdminAuthToken());
+  });
+  const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [verifyingPassword, setVerifyingPassword] = useState(false);
 
   // Payments State
   const [payments, setPayments] = useState<PaymentRequest[]>([]);
@@ -96,8 +108,40 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
   const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
 
   useEffect(() => {
-    loadAllData();
-  }, [adminEmail, activeTab]);
+    if (isAuthenticated) {
+      loadAllData();
+    }
+  }, [adminEmail, activeTab, isAuthenticated]);
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!passwordInput.trim()) return;
+
+    setVerifyingPassword(true);
+    setAuthError(null);
+    try {
+      const res = await subscriptionService.verifyAdminPassword(passwordInput.trim(), adminEmail);
+      if (res.success && res.token) {
+        setIsAuthenticated(true);
+        setPasswordInput('');
+        setAuthError(null);
+      } else {
+        setAuthError(res.error || 'Incorrect administrator master password. Access denied.');
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Authentication failed';
+      setAuthError(msg);
+    } finally {
+      setVerifyingPassword(false);
+    }
+  };
+
+  const handleLockAdmin = () => {
+    subscriptionService.clearAdminAuthToken();
+    setIsAuthenticated(false);
+    setPasswordInput('');
+    setAuthError(null);
+  };
 
   const loadAllData = async () => {
     setLoading(true);
@@ -132,6 +176,10 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to load admin data';
+      if (msg.includes('Access denied') || msg.includes('password') || msg.includes('session')) {
+        subscriptionService.clearAdminAuthToken();
+        setIsAuthenticated(false);
+      }
       setErrorMessage(msg);
     } finally {
       setLoading(false);
@@ -198,18 +246,20 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
       loadAllData();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create coupon';
-      alert(msg);
+      setErrorMessage(msg);
     } finally {
       setSubmittingCoupon(false);
     }
   };
+
+  const [pricingSuccessMsg, setPricingSuccessMsg] = useState<string | null>(null);
 
   const handleToggleCoupon = async (couponId: string) => {
     try {
       await subscriptionService.toggleCouponActive(adminEmail, couponId);
       loadAllData();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Toggle failed');
+      setErrorMessage(err instanceof Error ? err.message : 'Toggle failed');
     }
   };
 
@@ -219,10 +269,11 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
         subscriptionService.updatePlanPrice(adminEmail, 'plus', pricingEdit.plusMonthly, pricingEdit.plusYearly),
         subscriptionService.updatePlanPrice(adminEmail, 'pro', pricingEdit.proMonthly, pricingEdit.proYearly),
       ]);
-      alert('Plan pricing successfully updated on the server!');
+      setPricingSuccessMsg('Plan pricing successfully updated on the server!');
+      setTimeout(() => setPricingSuccessMsg(null), 4000);
       loadAllData();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Failed to update pricing');
+      setErrorMessage(err instanceof Error ? err.message : 'Failed to update pricing');
     }
   };
 
@@ -235,6 +286,85 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
       minute: '2-digit',
     });
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="h-full overflow-y-auto flex items-center justify-center p-4 sm:p-6 bg-slate-50/50 dark:bg-slate-950/50">
+        <div className="w-full max-w-md p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6">
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-rose-600 via-indigo-600 to-amber-500 p-0.5 shadow-xl shadow-rose-500/20">
+              <div className="w-full h-full rounded-[22px] bg-slate-950 flex items-center justify-center text-white">
+                <Lock className="w-8 h-8 text-rose-400" />
+              </div>
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/80 mb-2">
+                <ShieldAlert className="w-3.5 h-3.5" />
+                <span>Restricted Admin Portal</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                Administrator Authentication
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">
+                Enter your master administrator access password to review UPI payments, activate subscriptions, and manage coupons.
+              </p>
+            </div>
+          </div>
+
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                Master Administrator Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={passwordInput}
+                  onChange={e => setPasswordInput(e.target.value)}
+                  placeholder="Enter admin password..."
+                  autoFocus
+                  required
+                  className="w-full pl-3.5 pr-10 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-sm font-mono text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {authError && (
+              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300">
+                <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                <span>{authError}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={verifyingPassword || !passwordInput.trim()}
+              className="w-full py-3 px-4 rounded-2xl font-bold text-xs bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/25 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              <Key className="w-4 h-4" />
+              <span>{verifyingPassword ? 'Verifying Password...' : 'Unlock Admin Portal'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onBackToDashboard}
+              className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+            >
+              Return to Student Dashboard
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full overflow-y-auto p-4 sm:p-6 md:p-8">
@@ -261,6 +391,14 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
               title="Refresh Data"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+              onClick={handleLockAdmin}
+              className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-400/30 transition-colors cursor-pointer flex items-center gap-1.5"
+              title="Lock Admin and require password on next entry"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Lock Admin</span>
             </button>
             <button
               onClick={onBackToDashboard}
@@ -666,6 +804,13 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
                     </div>
                   </div>
                 </div>
+
+                {pricingSuccessMsg && (
+                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold text-emerald-800 dark:text-emerald-200 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>{pricingSuccessMsg}</span>
+                  </div>
+                )}
 
                 <button
                   onClick={handleSavePlanPrices}

@@ -161,26 +161,32 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     setCouponStatus(null);
     try {
       const emailForCoupon = authEmail.trim() || 'student@oryqen.ai';
-      const val = await subscriptionService.validateCoupon(code, emailForCoupon, selectedTier);
+      const val = await subscriptionService.validateCoupon(code, emailForCoupon);
       if (!val || !val.isValid) {
-        setCouponStatus({ success: false, message: val?.reason || 'Invalid or expired coupon code.' });
+        setCouponStatus({ success: false, message: val?.reason || val?.error || 'Invalid or expired coupon code.' });
       } else {
-        if (val.freePlan) {
-          const res = await subscriptionService.redeemCoupon(code, emailForCoupon, name.trim() || 'Student');
-          setSelectedTier(val.freePlan);
+        const freePlan =
+          val.freePlan ||
+          val.freePlanGranted ||
+          (val.coupon?.type === 'free_pro' ? 'pro' : val.coupon?.type === 'free_plus' ? 'plus' : undefined);
+
+        if (freePlan) {
+          const res = await subscriptionService.redeemCoupon(code, emailForCoupon, name.trim() || 'Student', freePlan);
+          setSelectedTier(freePlan);
           setCouponStatus({
             success: true,
-            message: `🎉 Coupon activated! You received free ${val.freePlan.toUpperCase()} access for ${res.durationDaysGranted} days!`,
+            message: `🎉 Coupon activated! You received free ${freePlan.toUpperCase()} access for ${res.durationDaysGranted || val.durationDays || 30} days!`,
           });
         } else {
           setCouponStatus({
             success: true,
-            message: `Discount code applied! ${val.description || ''}`,
+            message: `🎉 Discount code verified (${val.discountPercent ? `${val.discountPercent}% OFF` : `₹${val.discountAmount} OFF`})!`,
           });
         }
       }
-    } catch (err: any) {
-      setCouponStatus({ success: false, message: err.message || 'Coupon verification failed' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Coupon verification failed';
+      setCouponStatus({ success: false, message: msg });
     } finally {
       setCouponValidating(false);
     }
@@ -189,7 +195,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
   const handleSubmitPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!utrNumber.trim()) {
-      alert('Please enter your 12-digit UPI Transaction Reference (UTR) number.');
+      setPaymentSubmittedMsg('⚠️ Please enter your 12-digit UPI Transaction Reference (UTR) number.');
       return;
     }
     setPaymentSubmitting(true);
@@ -860,7 +866,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                             type="text"
                             value={couponInput}
                             onChange={e => setCouponInput(e.target.value.toUpperCase())}
-                            placeholder="e.g. ORYQENFRIEND, WELCOME20"
+                            placeholder="Enter promo or access code (optional)"
                             className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 text-xs font-mono uppercase outline-none focus:ring-2 focus:ring-indigo-500/20"
                           />
                           <button
@@ -878,7 +884,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                           </p>
                         )}
                         <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                          Tip: Use code <code className="font-bold text-indigo-600 dark:text-indigo-400">ORYQENFRIEND</code> for 30 days Free Plus access!
+                          Tip: Scholarship passes and study ambassador codes grant instant premium tier access.
                         </p>
                       </div>
 

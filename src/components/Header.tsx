@@ -227,22 +227,20 @@ export const Header: React.FC<HeaderProps> = ({
             {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-violet-600" />}
           </button>
 
-          {/* Admin Portal Shortcut if authorized */}
-          {profile.email === 'yashkhairnar77777@gmail.com' && (
-            <button
-              type="button"
-              onClick={() => setCurrentView('admin_payments')}
-              className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all ${
-                currentView === 'admin_payments'
-                  ? 'bg-rose-600 text-white shadow-xs'
-                  : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100'
-              }`}
-              title="Authorised Admin Payment Portal"
-            >
-              <ShieldAlert className="w-3.5 h-3.5 text-rose-500" />
-              <span>Admin</span>
-            </button>
-          )}
+          {/* Admin Portal Shortcut */}
+          <button
+            type="button"
+            onClick={() => setCurrentView('admin_payments')}
+            className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all ${
+              currentView === 'admin_payments'
+                ? 'bg-rose-600 text-white shadow-xs'
+                : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100'
+            }`}
+            title="Authorised Admin Access Portal"
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-rose-500" />
+            <span>Admin</span>
+          </button>
 
           {/* Prominent Plans & UPI Payment Button */}
           <button

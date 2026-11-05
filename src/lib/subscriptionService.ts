@@ -9,6 +9,21 @@ import {
   AdminAuditLog,
   MerchantPaymentConfig,
 } from '../types';
+import { storage } from './storage';
+
+export interface CouponValidationResult {
+  isValid: boolean;
+  coupon?: Coupon;
+  discountPercent?: number;
+  discountAmount?: number;
+  isFreeAccess?: boolean;
+  freePlan?: SubscriptionTier;
+  freePlanGranted?: SubscriptionTier;
+  durationDays?: number;
+  error?: string;
+  reason?: string;
+  description?: string;
+}
 
 export type FeatureKey =
   | 'basic_ai'
@@ -189,14 +204,50 @@ export const subscriptionService = {
     };
   },
 
-  async validateCoupon(code: string, studentEmail: string, targetPlan?: SubscriptionTier) {
-    const res = await fetch('/api/coupons/validate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, studentEmail, targetPlan }),
-    });
-    const json = await res.json();
-    return json.validation;
+  async validateCoupon(
+    code: string,
+    studentEmail: string,
+    targetPlan?: SubscriptionTier
+  ): Promise<CouponValidationResult> {
+    try {
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code.trim().toUpperCase(), studentEmail, targetPlan }),
+      });
+      const json = await res.json();
+      const val = json.validation || {};
+      const freePlan =
+        val.freePlan ||
+        val.freePlanGranted ||
+        (val.coupon?.type === 'free_pro' ? 'pro' : val.coupon?.type === 'free_plus' ? 'plus' : undefined);
+      const isFree = Boolean(
+        val.isFreeAccess || freePlan || val.coupon?.type === 'free_plus' || val.coupon?.type === 'free_pro'
+      );
+      const errorMsg = val.error || json.error;
+
+      return {
+        isValid: Boolean(json.success && val.isValid !== false),
+        error: errorMsg,
+        reason: errorMsg || 'Invalid or expired coupon code.',
+        coupon: val.coupon,
+        discountPercent: val.discountPercent,
+        discountAmount: val.discountAmount,
+        isFreeAccess: isFree,
+        freePlan: freePlan,
+        freePlanGranted: freePlan,
+        durationDays: val.durationDays || val.coupon?.durationDays || 30,
+        description:
+          val.coupon?.description || (freePlan ? `100% Free ${freePlan.toUpperCase()} access for ${val.durationDays || 30} days` : ''),
+      };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Coupon validation failed';
+      return {
+        isValid: false,
+        error: msg,
+        reason: msg,
+      };
+    }
   },
 
   async redeemCoupon(
@@ -215,11 +266,73 @@ export const subscriptionService = {
     const res = await fetch('/api/coupons/redeem', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, studentEmail, studentName, targetPlan }),
+      body: JSON.stringify({ code: code.trim().toUpperCase(), studentEmail, studentName, targetPlan }),
     });
     const json = await res.json();
     if (!res.ok || !json.success) {
       throw new Error(json.error || 'Coupon redemption failed');
+    }
+
+    // Automatically sync localStorage profile and emit event
+    if (json.planGranted) {
+      try {
+        const currentProf = storage.getProfile();
+        currentProf.subscriptionTier = json.planGranted;
+        storage.saveProfile(currentProf);
+        window.dispatchEvent(
+          new CustomEvent('oryqen:subscription_updated', {
+            detail: { plan: json.planGranted, subscription: json.subscription },
+          })
+        );
+      } catch (e) {
+        console.warn('Profile sync after coupon redemption warning:', e);
+      }
+    }
+
+    return json;
+  },
+
+  // Admin Password & Session Authentication
+  getAdminAuthToken(): string | null {
+    try {
+      return sessionStorage.getItem('oryqen_admin_token');
+    } catch {
+      return null;
+    }
+  },
+
+  setAdminAuthToken(token: string): void {
+    try {
+      sessionStorage.setItem('oryqen_admin_token', token);
+    } catch {}
+  },
+
+  clearAdminAuthToken(): void {
+    try {
+      sessionStorage.removeItem('oryqen_admin_token');
+    } catch {}
+  },
+
+  getAdminHeaders(adminEmail: string): Record<string, string> {
+    const token = this.getAdminAuthToken() || '';
+    return {
+      'x-admin-email': adminEmail,
+      'x-admin-token': token,
+    };
+  },
+
+  async verifyAdminPassword(
+    password: string,
+    email?: string
+  ): Promise<{ success: boolean; token?: string; error?: string }> {
+    const res = await fetch('/api/admin/auth/verify-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password, email }),
+    });
+    const json = await res.json();
+    if (res.ok && json.success && json.token) {
+      this.setAdminAuthToken(json.token);
     }
     return json;
   },
@@ -234,7 +347,7 @@ export const subscriptionService = {
     if (filter?.search) query.set('search', filter.search);
 
     const res = await fetch(`/api/admin/payments?${query.toString()}`, {
-      headers: { 'x-admin-email': adminEmail },
+      headers: this.getAdminHeaders(adminEmail),
     });
     const json = await res.json();
     if (!res.ok || !json.success) {
@@ -258,7 +371,7 @@ export const subscriptionService = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-admin-email': adminEmail,
+        ...this.getAdminHeaders(adminEmail),
       },
       body: JSON.stringify(data),
     });
@@ -271,7 +384,7 @@ export const subscriptionService = {
 
   async getAdminCoupons(adminEmail: string): Promise<{ coupons: Coupon[]; redemptions: CouponRedemption[] }> {
     const res = await fetch('/api/admin/coupons', {
-      headers: { 'x-admin-email': adminEmail },
+      headers: this.getAdminHeaders(adminEmail),
     });
     const json = await res.json();
     if (!res.ok || !json.success) {
@@ -288,7 +401,7 @@ export const subscriptionService = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-admin-email': adminEmail,
+        ...this.getAdminHeaders(adminEmail),
       },
       body: JSON.stringify(payload),
     });
@@ -302,7 +415,7 @@ export const subscriptionService = {
   async toggleCouponActive(adminEmail: string, couponId: string): Promise<Coupon> {
     const res = await fetch(`/api/admin/coupons/${couponId}/toggle`, {
       method: 'PATCH',
-      headers: { 'x-admin-email': adminEmail },
+      headers: this.getAdminHeaders(adminEmail),
     });
     const json = await res.json();
     if (!res.ok || !json.success) {
@@ -321,7 +434,7 @@ export const subscriptionService = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-admin-email': adminEmail,
+        ...this.getAdminHeaders(adminEmail),
       },
       body: JSON.stringify({ planId, monthlyPrice, yearlyPrice }),
     });
@@ -334,7 +447,7 @@ export const subscriptionService = {
 
   async getAdminAuditLogs(adminEmail: string): Promise<AdminAuditLog[]> {
     const res = await fetch('/api/admin/audit-logs', {
-      headers: { 'x-admin-email': adminEmail },
+      headers: this.getAdminHeaders(adminEmail),
     });
     const json = await res.json();
     if (!res.ok || !json.success) {
@@ -351,7 +464,7 @@ export const subscriptionService = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-admin-email': adminEmail,
+        ...this.getAdminHeaders(adminEmail),
       },
       body: JSON.stringify(config),
     });

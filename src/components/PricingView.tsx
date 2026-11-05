@@ -23,18 +23,21 @@ import {
   MerchantPaymentConfig,
 } from '../types';
 import { subscriptionService } from '../lib/subscriptionService';
+import { storage } from '../lib/storage';
 import { UpiPaymentModal } from './UpiPaymentModal';
 
 interface PricingViewProps {
   onBackToDashboard: () => void;
   userProfile: UserProfile;
   onNavigateToMySubscription: () => void;
+  onProfileUpdated?: (updatedProfile: UserProfile) => void;
 }
 
 export const PricingView: React.FC<PricingViewProps> = ({
   onBackToDashboard,
   userProfile,
   onNavigateToMySubscription,
+  onProfileUpdated,
 }) => {
   const [billingCycle, setBillingCycle] = useState<BillingDuration>('monthly');
   const [plans, setPlans] = useState<PlanConfig[]>([]);
@@ -45,6 +48,7 @@ export const PricingView: React.FC<PricingViewProps> = ({
   // Modal checkout state
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
   const [checkoutTargetPlan, setCheckoutTargetPlan] = useState<SubscriptionTier>('plus');
+  const [checkoutInitialCoupon, setCheckoutInitialCoupon] = useState<string>('');
 
   // Coupon inline input
   const [quickCoupon, setQuickCoupon] = useState('');
@@ -77,6 +81,7 @@ export const PricingView: React.FC<PricingViewProps> = ({
 
   const handleOpenCheckout = (planId: SubscriptionTier) => {
     setCheckoutTargetPlan(planId);
+    setCheckoutInitialCoupon('');
     setCheckoutModalOpen(true);
   };
 
@@ -88,20 +93,32 @@ export const PricingView: React.FC<PricingViewProps> = ({
     try {
       const val = await subscriptionService.validateCoupon(code, userProfile.email || 'student@oryqen.ai');
       if (!val || !val.isValid) {
-        setCouponStatus({ success: false, message: val?.reason || 'Invalid coupon code.' });
+        setCouponStatus({ success: false, message: val?.reason || val?.error || 'Invalid or expired coupon code.' });
       } else {
-        // If it's a 100% free plan coupon, redeem immediately
-        if (val.freePlan) {
+        // If it's a 100% free plan coupon, activate immediately
+        if (val.isFreeAccess || val.freePlan) {
           const res = await subscriptionService.redeemCoupon(code, userProfile.email || 'student@oryqen.ai', userProfile.name);
-          setCouponStatus({ success: true, message: `🎉 Activated ${res.planGranted?.toUpperCase()} plan for ${res.durationDaysGranted} days!` });
-          loadSubscriptionData();
+          const grantedPlan = res.planGranted || val.freePlan || 'plus';
+          setCouponStatus({
+            success: true,
+            message: `🎉 Success! Activated ${grantedPlan.toUpperCase()} plan for ${res.durationDaysGranted || val.durationDays || 30} days!`,
+          });
+          setQuickCoupon('');
+          await loadSubscriptionData();
+          if (onProfileUpdated) {
+            onProfileUpdated({ ...userProfile, subscriptionTier: grantedPlan });
+          }
         } else {
-          // It's a discount coupon, open checkout with it
-          setCouponStatus({ success: true, message: `Coupon ${code} validated! Opening checkout...` });
+          // If it's a discount coupon, open checkout with it
+          setCheckoutInitialCoupon(code);
+          setCouponStatus({
+            success: true,
+            message: `🎉 Discount coupon ${code} verified (${val.discountPercent ? `${val.discountPercent}% OFF` : `₹${val.discountAmount} OFF`})! Opening checkout...`,
+          });
           setTimeout(() => {
             setCheckoutTargetPlan('plus');
             setCheckoutModalOpen(true);
-          }, 800);
+          }, 600);
         }
       }
     } catch (err: unknown) {
@@ -411,10 +428,10 @@ export const PricingView: React.FC<PricingViewProps> = ({
               </div>
               <div>
                 <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                  Have a Special Friend or Study Club Coupon Code?
+                  Have an Access Voucher, Scholarship Pass, or Referral Code?
                 </h4>
                 <p className="text-xs text-slate-600 dark:text-slate-300">
-                  Redeem codes like <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">ORYQENFRIEND</span>, <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">WELCOME20</span>, or <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">ORYQENPRO</span> for immediate free access or checkout discounts.
+                  Enter your promotional voucher, institutional scholarship code, or friend study pass for immediate free access or checkout discounts.
                 </p>
               </div>
             </div>
@@ -422,10 +439,10 @@ export const PricingView: React.FC<PricingViewProps> = ({
             <form onSubmit={handleApplyQuickCoupon} className="flex flex-col sm:flex-row items-center gap-2.5 w-full md:w-auto">
               <input
                 type="text"
-                placeholder="Enter Coupon Code"
+                placeholder="Enter Promo or Voucher Code"
                 value={quickCoupon}
                 onChange={e => setQuickCoupon(e.target.value.toUpperCase())}
-                className="w-full sm:w-48 px-3.5 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-xs"
+                className="w-full sm:w-56 px-3.5 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-xs"
               />
               <button
                 type="submit"
@@ -564,10 +581,13 @@ export const PricingView: React.FC<PricingViewProps> = ({
         userProfile={userProfile}
         initialPlan={checkoutTargetPlan}
         initialDuration={billingCycle}
+        initialCouponCode={checkoutInitialCoupon}
         plans={displayPlans}
         merchantConfig={merchantConfig}
         onSuccess={() => {
           loadSubscriptionData();
+          const updated = storage.getProfile();
+          if (onProfileUpdated) onProfileUpdated(updated);
         }}
         onNavigateToMySubscription={onNavigateToMySubscription}
       />

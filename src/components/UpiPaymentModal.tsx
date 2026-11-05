@@ -31,6 +31,7 @@ interface UpiPaymentModalProps {
   userProfile: UserProfile;
   initialPlan?: SubscriptionTier;
   initialDuration?: BillingDuration;
+  initialCouponCode?: string;
   plans: PlanConfig[];
   merchantConfig?: MerchantPaymentConfig;
   onSuccess: () => void;
@@ -43,6 +44,7 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
   userProfile,
   initialPlan = 'plus',
   initialDuration = 'monthly',
+  initialCouponCode,
   plans,
   merchantConfig,
   onSuccess,
@@ -91,7 +93,11 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
     if (initialDuration) setSelectedDuration(initialDuration);
     if (userProfile.email) setStudentEmail(userProfile.email);
     if (userProfile.name) setStudentName(userProfile.name);
-  }, [initialPlan, initialDuration, userProfile, isOpen]);
+    if (initialCouponCode) {
+      setCouponCode(initialCouponCode);
+      handleApplyCoupon(initialCouponCode);
+    }
+  }, [initialPlan, initialDuration, userProfile, isOpen, initialCouponCode]);
 
   if (!isOpen) return null;
 
@@ -140,26 +146,39 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
     setTimeout(() => setCopiedUpi(false), 2000);
   };
 
-  const handleApplyCoupon = async () => {
-    const code = couponCode.trim().toUpperCase();
+  const handleApplyCoupon = async (codeToUse?: string) => {
+    const code = (codeToUse || couponCode).trim().toUpperCase();
     if (!code) return;
 
     setValidatingCoupon(true);
     setCouponError(null);
 
     try {
-      const val = await subscriptionService.validateCoupon(code, studentEmail, selectedPlan);
+      const val = await subscriptionService.validateCoupon(code, studentEmail);
       if (!val || !val.isValid) {
-        setCouponError(val?.reason || 'Invalid or expired coupon code.');
+        setCouponError(val?.reason || val?.error || 'Invalid or expired coupon code.');
         setAppliedCoupon(null);
       } else {
+        const freePlan =
+          val.freePlan ||
+          val.freePlanGranted ||
+          (val.coupon?.type === 'free_pro' ? 'pro' : val.coupon?.type === 'free_plus' ? 'plus' : undefined);
+
+        if (freePlan) {
+          setSelectedPlan(freePlan);
+        }
+
         setAppliedCoupon({
-          code: val.coupon.code,
+          code: val.coupon?.code || code,
           discountPercent: val.discountPercent,
           discountAmount: val.discountAmount,
-          freePlan: val.freePlan,
-          durationDays: val.durationDays,
-          description: val.coupon.description,
+          freePlan: freePlan,
+          durationDays: val.durationDays || val.coupon?.durationDays,
+          description:
+            val.coupon?.description ||
+            (freePlan
+              ? `100% Free ${freePlan.toUpperCase()} access for ${val.durationDays || 30} days`
+              : 'Discount coupon applied'),
         });
         setCouponError(null);
       }
@@ -176,7 +195,7 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('Screenshot file size must be under 5MB.');
+      setSubmitError('Screenshot file size must be under 5MB.');
       return;
     }
 
@@ -199,12 +218,13 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
         appliedCoupon.code,
         studentEmail,
         studentName,
-        selectedPlan
+        appliedCoupon.freePlan || selectedPlan
       );
+      const planGranted = res.planGranted || appliedCoupon.freePlan || selectedPlan;
       setSubmissionSuccess({
         requestId: `CPN-${appliedCoupon.code}`,
         status: 'approved',
-        plan: res.planGranted || selectedPlan,
+        plan: planGranted,
         amount: 0,
       });
       onSuccess();
@@ -446,14 +466,14 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="e.g. ORYQENFRIEND, WELCOME20, ORYQENPRO"
+                  placeholder="Enter promo, pass, or scholarship code"
                   value={couponCode}
                   onChange={e => setCouponCode(e.target.value.toUpperCase())}
                   className="flex-1 px-3 py-2 text-xs uppercase font-mono tracking-wider bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <button
                   type="button"
-                  onClick={handleApplyCoupon}
+                  onClick={() => handleApplyCoupon()}
                   disabled={validatingCoupon || !couponCode.trim()}
                   className="px-4 py-2 text-xs font-bold bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 disabled:opacity-50 transition-colors cursor-pointer"
                 >

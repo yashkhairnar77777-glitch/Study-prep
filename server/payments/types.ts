@@ -97,7 +97,15 @@ export interface AdminAuditLog {
   id: string;
   timestamp: number;
   adminEmail: string;
-  action: 'approve_payment' | 'reject_payment' | 'create_coupon' | 'toggle_coupon' | 'update_plan_price' | 'manual_subscription_grant' | 'update_merchant_config';
+  action:
+    | 'approve_payment'
+    | 'reject_payment'
+    | 'create_coupon'
+    | 'toggle_coupon'
+    | 'update_plan_price'
+    | 'manual_subscription_grant'
+    | 'update_merchant_config'
+    | 'admin_password_login';
   targetUserEmail?: string;
   details: string;
   metadata?: Record<string, any>;
