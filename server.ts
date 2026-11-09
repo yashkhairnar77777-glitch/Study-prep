@@ -58,6 +58,11 @@ app.get('/api/subscription/plans', (_req: Request, res: Response) => {
         merchantUpiId: merchantConfig.merchantUpiId,
         merchantName: merchantConfig.merchantName,
         merchantBank: merchantConfig.merchantBank,
+        accountNumber: merchantConfig.accountNumber,
+        ifscCode: merchantConfig.ifscCode,
+        accountType: merchantConfig.accountType,
+        branchName: merchantConfig.branchName,
+        qrImageUrl: merchantConfig.qrImageUrl,
         instructions: merchantConfig.instructions,
       },
     });
@@ -84,6 +89,11 @@ app.get('/api/subscription/status', (req: Request, res: Response) => {
         merchantUpiId: merchantConfig.merchantUpiId,
         merchantName: merchantConfig.merchantName,
         merchantBank: merchantConfig.merchantBank,
+        accountNumber: merchantConfig.accountNumber,
+        ifscCode: merchantConfig.ifscCode,
+        accountType: merchantConfig.accountType,
+        branchName: merchantConfig.branchName,
+        qrImageUrl: merchantConfig.qrImageUrl,
         instructions: merchantConfig.instructions,
       },
     });

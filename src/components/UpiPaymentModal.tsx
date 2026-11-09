@@ -248,7 +248,7 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
     }
 
     if (!payerUpiId.trim() || !payerUpiId.includes('@')) {
-      setSubmitError('Please enter a valid Payer UPI ID (e.g. name@okhdfcbank).');
+      setSubmitError('Please enter a valid Payer UPI ID (e.g. name@upi or mobile@upi).');
       return;
     }
 
@@ -717,7 +717,7 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
                       <input
                         type="text"
                         required
-                        placeholder="e.g. yourname@okhdfcbank"
+                        placeholder="e.g. name@upi or mobile@upi"
                         value={payerUpiId}
                         onChange={e => setPayerUpiId(e.target.value)}
                         className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"

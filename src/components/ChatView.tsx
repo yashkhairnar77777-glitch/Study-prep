@@ -666,10 +666,10 @@ Please tutor me on this chapter:
               onChange={e => setPreferredProvider(e.target.value as any)}
               className="text-xs px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 outline-none"
             >
-              <option value="auto">Auto Fallback</option>
-              <option value="gemini">Gemini (Built-in)</option>
-              <option value="groq">Groq (Llama / Qwen)</option>
-              <option value="openrouter">OpenRouter</option>
+              <option value="auto">Auto (Gemini → Groq → OpenRouter)</option>
+              <option value="gemini">Gemini (Primary AI)</option>
+              <option value="groq">Groq (2nd Fallback)</option>
+              <option value="openrouter">OpenRouter (3rd Fallback)</option>
             </select>
           </div>
         </div>

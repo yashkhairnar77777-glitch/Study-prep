@@ -86,6 +86,11 @@ export interface DocumentAnalysisPayload {
 }
 
 export interface ProviderStatusInfo {
+  gemini: {
+    configured: boolean;
+    model: string;
+    hasVision: boolean;
+  };
   groq: {
     configured: boolean;
     model: string;
@@ -97,13 +102,9 @@ export interface ProviderStatusInfo {
     model: string;
     hasVision: boolean;
   };
-  gemini: {
-    configured: boolean;
-    model: string;
-    hasVision: boolean;
-  };
-  primary: 'groq' | 'openrouter' | 'gemini' | 'none';
-  secondary: 'openrouter' | 'gemini' | 'none';
+  primary: 'gemini' | 'groq' | 'openrouter' | 'none';
+  secondary: 'groq' | 'openrouter' | 'gemini' | 'none';
+  tertiary?: 'openrouter' | 'groq' | 'gemini' | 'none';
 }
 
 export type StudyGeneratorOutputType =

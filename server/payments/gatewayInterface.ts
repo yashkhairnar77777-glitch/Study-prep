@@ -50,8 +50,8 @@ export class ManualUpiGateway implements PaymentGateway {
   public readonly isManual = true;
 
   constructor(
-    private merchantUpiId: string = 'oryqen.study@okhdfcbank',
-    private merchantName: string = 'ORYQEN STUDY AI'
+    private merchantUpiId: string = '9922321046@mbk',
+    private merchantName: string = 'Archana Prakash Khairnar'
   ) {}
 
   public async createPaymentOrder(params: PaymentOrderParams): Promise<PaymentOrderResult> {

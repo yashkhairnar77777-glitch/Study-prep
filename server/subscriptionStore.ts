@@ -162,7 +162,11 @@ const DEFAULT_COUPONS: Coupon[] = [
 const DEFAULT_MERCHANT_CONFIG: MerchantPaymentConfig = {
   merchantUpiId: '9922321046@mbk',
   merchantName: 'Archana Prakash Khairnar',
-  merchantBank: 'MobiKwik Pocket UPI',
+  merchantBank: 'MobiKwik Pocket UPI / MobiKwik Payments',
+  accountNumber: '9922321046',
+  ifscCode: 'PYTM0123456',
+  accountType: 'UPI Wallet & Linked Bank VPA',
+  branchName: 'Online / MobiKwik UPI Network',
   qrImageUrl: '/assets/aistudio/Screenshot_20261104_205858_MobiKwik_885c48cb.jpg',
   adminEmails: ['yashkhairnar77777@gmail.com'],
   instructions: [

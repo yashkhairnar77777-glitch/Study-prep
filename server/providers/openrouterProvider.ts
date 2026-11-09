@@ -23,7 +23,14 @@ export class OpenRouterProvider {
 
   private getModel(): string {
     const model = (process.env.OPENROUTER_MODEL || '').trim().replace(/^["']|["']$/g, '');
-    if (!model || model.startsWith('sk-') || model.length > 60) {
+    if (
+      !model ||
+      model.startsWith('sk-') ||
+      model.startsWith('gsk_') ||
+      model.startsWith('AIza') ||
+      model.length > 60 ||
+      (!model.includes('/') && !model.includes('-'))
+    ) {
       return 'meta-llama/llama-3.3-70b-instruct:free';
     }
     return model;

@@ -899,7 +899,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                               type="text"
                               value={payerUpiId}
                               onChange={e => setPayerUpiId(e.target.value)}
-                              placeholder="e.g. yourname@okhdfcbank"
+                              placeholder="e.g. yourname@upi"
                               className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 text-xs outline-none focus:ring-2 focus:ring-indigo-500/20"
                             />
                           </div>

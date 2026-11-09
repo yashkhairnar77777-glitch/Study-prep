@@ -315,12 +315,21 @@ export interface MerchantPaymentConfig {
   merchantUpiId: string;
   merchantName: string;
   merchantBank?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  accountType?: string;
+  branchName?: string;
   qrImageUrl?: string;
   adminEmails: string[];
   instructions: string[];
 }
 
 export interface ProviderStatus {
+  gemini: {
+    configured: boolean;
+    model: string;
+    hasVision: boolean;
+  };
   groq: {
     configured: boolean;
     model: string;
@@ -332,13 +341,9 @@ export interface ProviderStatus {
     model: string;
     hasVision: boolean;
   };
-  gemini: {
-    configured: boolean;
-    model: string;
-    hasVision: boolean;
-  };
-  primary: 'groq' | 'openrouter' | 'gemini' | 'none';
-  secondary: 'openrouter' | 'gemini' | 'none';
+  primary: 'gemini' | 'groq' | 'openrouter' | 'none';
+  secondary: 'groq' | 'openrouter' | 'gemini' | 'none';
+  tertiary?: 'openrouter' | 'groq' | 'gemini' | 'none';
 }
 
 export type PomodoroMode = 'focus' | 'short_break' | 'long_break';

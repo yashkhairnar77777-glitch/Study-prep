@@ -2,54 +2,73 @@ import { GoogleGenAI } from '@google/genai';
 import { ChatMessage, ProviderResponse } from './types.js';
 
 export class GeminiProvider {
-  private getApiKey(): string | undefined {
-    const raw = (process.env.GEMINI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
-    if (!raw || raw === 'undefined' || raw === 'null' || raw.includes('MY_GEMINI_API_KEY')) {
-      return undefined;
+  private getResolvedCredentials() {
+    let rawApiKey = (process.env.GEMINI_API_KEY || process.env.API_KEY || '').trim().replace(/^["']|["']$/g, '');
+    let rawModel = (process.env.GEMINI_MODEL || '').trim().replace(/^["']|["']$/g, '');
+
+    // If GEMINI_MODEL was accidentally populated with an API key (starts with 'AIza' or long token)
+    if (rawModel.startsWith('AIza') || (rawModel.length > 30 && !rawModel.includes('-') && !rawModel.includes('/'))) {
+      if (!rawApiKey.startsWith('AIza')) {
+        rawApiKey = rawModel;
+      }
+      rawModel = '';
     }
-    return raw;
+
+    // If GEMINI_API_KEY was accidentally set to a model name
+    if (rawApiKey.startsWith('gemini-') || rawApiKey.startsWith('models/')) {
+      if (!rawModel) {
+        rawModel = rawApiKey;
+      }
+      rawApiKey = '';
+    }
+
+    const cleanModel = rawModel.replace(/^models\//, '');
+    let finalModel = 'gemini-3.8-flash';
+    if (
+      cleanModel &&
+      !cleanModel.startsWith('AIza') &&
+      !cleanModel.startsWith('gemini-1.') &&
+      !cleanModel.startsWith('gemini-2.') &&
+      !cleanModel.includes('2.5') &&
+      !cleanModel.includes('2.0') &&
+      !cleanModel.includes('1.5') &&
+      !cleanModel.includes('1.0') &&
+      cleanModel.length < 40
+    ) {
+      finalModel = cleanModel;
+    }
+
+    const apiKey =
+      rawApiKey && rawApiKey !== 'undefined' && rawApiKey !== 'null' && !rawApiKey.includes('MY_GEMINI_API_KEY')
+        ? rawApiKey
+        : undefined;
+
+    return {
+      apiKey,
+      model: finalModel,
+    };
+  }
+
+  private getApiKey(): string | undefined {
+    return this.getResolvedCredentials().apiKey;
   }
 
   private getModel(): string {
-    const raw = (process.env.GEMINI_MODEL || '').trim().replace(/^["']|["']$/g, '');
-    const clean = raw.replace(/^models\//, '');
-    // Strictly prevent obsolete / deprecated models from failing API requests
-    if (
-      !clean ||
-      clean.startsWith('gemini-1.') ||
-      clean.startsWith('gemini-2.') ||
-      clean.includes('2.5') ||
-      clean.includes('2.0') ||
-      clean.includes('1.5') ||
-      clean.includes('1.0') ||
-      clean.includes('pro-vision')
-    ) {
-      return 'gemini-3.8-flash';
-    }
-    return clean;
+    return this.getResolvedCredentials().model;
   }
 
   private getCandidateModels(): string[] {
-    const raw = (process.env.GEMINI_MODEL || '').trim().replace(/^["']|["']$/g, '');
-    const clean = raw.replace(/^models\//, '');
-
-    // If user provided a specific custom model other than known high-demand models
-    if (
-      clean &&
-      clean !== 'gemini-3.8-flash' &&
-      !clean.startsWith('gemini-1.') &&
-      !clean.startsWith('gemini-2.')
-    ) {
-      return [clean, 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest'];
-    }
-
-    // High availability production order (active without 503 high demand errors)
-    return [
+    const { model } = this.getResolvedCredentials();
+    const defaults = [
+      'gemini-3.8-flash',
       'gemini-3.5-flash',
       'gemini-3.1-flash-lite',
-      'gemini-flash-lite-latest',
-      'gemini-3.8-flash',
+      'gemini-flash-latest',
     ];
+    if (model && !defaults.includes(model)) {
+      return [model, ...defaults];
+    }
+    return defaults;
   }
 
   public isConfigured(): boolean {
@@ -128,8 +147,15 @@ export class GeminiProvider {
     let lastError: Error | null = null;
 
     for (const model of candidateModels) {
+      let timeoutId: NodeJS.Timeout | undefined;
       try {
-        const response = await ai.models.generateContent({
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          timeoutId = setTimeout(() => {
+            reject(new Error(`Timeout: Gemini request exceeded 45s on model ${model}`));
+          }, 45000);
+        });
+
+        const apiPromise = ai.models.generateContent({
           model,
           contents: normalizedContents,
           config: {
@@ -138,6 +164,9 @@ export class GeminiProvider {
             maxOutputTokens: options?.maxTokens ?? 3500,
           },
         });
+
+        const response = await Promise.race([apiPromise, timeoutPromise]);
+        if (timeoutId) clearTimeout(timeoutId);
 
         const text =
           response.text ||
@@ -152,6 +181,7 @@ export class GeminiProvider {
           };
         }
       } catch (err: unknown) {
+        if (timeoutId) clearTimeout(timeoutId);
         lastError = err instanceof Error ? err : new Error(String(err));
         console.warn(`[GeminiProvider] Model ${model} failed (${lastError.message}). Attempting next candidate...`);
       }
@@ -164,7 +194,9 @@ export class GeminiProvider {
         msg = parsed.error.message;
       }
     } catch {}
-    if (msg.includes('503') || msg.toLowerCase().includes('high demand')) {
+    if (msg.includes('429') || msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('resource_exhausted')) {
+      msg = 'Gemini rate limit or quota exceeded (429).';
+    } else if (msg.includes('503') || msg.toLowerCase().includes('high demand')) {
       msg = 'Gemini model is currently experiencing temporary high demand (503).';
     }
     throw new Error(`Gemini provider error: ${msg}`);
@@ -194,8 +226,15 @@ export class GeminiProvider {
     let lastError: Error | null = null;
 
     for (const model of candidateModels) {
+      let timeoutId: NodeJS.Timeout | undefined;
       try {
-        const response = await ai.models.generateContent({
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          timeoutId = setTimeout(() => {
+            reject(new Error(`Timeout: Gemini vision request exceeded 45s on model ${model}`));
+          }, 45000);
+        });
+
+        const apiPromise = ai.models.generateContent({
           model,
           contents: {
             parts: [
@@ -216,6 +255,9 @@ export class GeminiProvider {
           },
         });
 
+        const response = await Promise.race([apiPromise, timeoutPromise]);
+        if (timeoutId) clearTimeout(timeoutId);
+
         const text =
           response.text ||
           response.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') ||
@@ -229,11 +271,16 @@ export class GeminiProvider {
           };
         }
       } catch (err: unknown) {
+        if (timeoutId) clearTimeout(timeoutId);
         lastError = err instanceof Error ? err : new Error(String(err));
         console.warn(`[GeminiProvider Vision] Model ${model} failed (${lastError.message}). Attempting next candidate...`);
       }
     }
 
-    throw new Error(`Gemini Vision error: ${lastError?.message || 'Failed to analyze image'}`);
+    let msg = lastError?.message || 'Failed to analyze image';
+    if (msg.includes('429') || msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('resource_exhausted')) {
+      msg = 'Gemini rate limit or quota exceeded (429).';
+    }
+    throw new Error(`Gemini Vision error: ${msg}`);
   }
 }

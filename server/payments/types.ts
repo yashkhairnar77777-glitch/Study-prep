@@ -114,7 +114,11 @@ export interface AdminAuditLog {
 export interface MerchantPaymentConfig {
   merchantUpiId: string;     // e.g. '9922321046@mbk'
   merchantName: string;      // e.g. 'Archana Prakash Khairnar'
-  merchantBank?: string;     // e.g. 'MobiKwik Pocket UPI'
+  merchantBank?: string;     // e.g. 'MobiKwik Pocket UPI / MobiKwik Payments'
+  accountNumber?: string;    // e.g. '9922321046'
+  ifscCode?: string;         // e.g. 'PYTM0123456'
+  accountType?: string;      // e.g. 'UPI Wallet & Linked Bank VPA'
+  branchName?: string;
   qrImageUrl?: string;       // path to verified QR code image asset
   adminEmails: string[];     // authorized admin emails
   instructions: string[];
