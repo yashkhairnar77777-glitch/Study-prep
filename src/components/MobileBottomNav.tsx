@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   LayoutDashboard,
+  BookOpen,
   Sparkles,
   MessageSquare,
   Layers,
@@ -27,10 +28,10 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
   const navItems = [
     { id: 'dashboard' as const, label: 'Home', icon: LayoutDashboard },
+    { id: 'ncert_hub' as const, label: 'NCERT', icon: BookOpen },
     { id: 'generator' as const, label: 'Generator', icon: Sparkles },
     { id: 'chat' as const, label: 'Tutor', icon: MessageSquare },
     { id: 'revision' as const, label: 'Cards', icon: Layers },
-    { id: 'exam' as const, label: 'Exams', icon: Award },
   ];
 
   return (

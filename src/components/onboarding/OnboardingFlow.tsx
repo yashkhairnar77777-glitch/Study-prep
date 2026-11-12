@@ -419,7 +419,11 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     'Economics & Commerce',
     'General Science',
     'Japanese',
+    'Hindi',
+    'Marathi',
+    'Sanskrit',
     'Foundation & Olympiads',
+    'UPSC General Studies',
   ];
 
   return (

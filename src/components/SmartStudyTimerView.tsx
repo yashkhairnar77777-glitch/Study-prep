@@ -55,7 +55,12 @@ const ALL_SUBJECTS: SubjectCategory[] = [
   'History & Social Studies',
   'Economics & Commerce',
   'General Science',
+  'Japanese',
+  'Hindi',
+  'Marathi',
+  'Sanskrit',
   'Foundation & Olympiads',
+  'UPSC General Studies',
 ];
 
 const PRESETS = [

@@ -347,6 +347,185 @@ export const cbseClass12: SyllabusClassInfo = {
           ]
         }
       ]
+    },
+    {
+      id: 'cbse-12-biology',
+      name: 'Biology',
+      category: 'Biology',
+      curricula: ['NCERT Biology Class 12', 'CBSE Class 12 Senior Secondary Biology', 'NEET-UG Target'],
+      chapters: [
+        {
+          id: 'ch-12-b-1',
+          name: 'Sexual Reproduction in Flowering Plants',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 1',
+          syllabusTopics: ['Flower structure: stamen, microsporangium, pollen grain development (microsporogenesis)', 'Pistil, megasporangium (ovule), embryo sac development (megasporogenesis: 7-celled, 8-nucleate structure)', 'Pollination types (autogamy, geitonogamy, xenogamy); wind, water, animal pollinators; outbreeding devices', 'Pollen-pistil interaction, double fertilization (syngamy + triple fusion $\\to$ 3n primary endosperm nucleus)', 'Post-fertilization: endosperm development (free nuclear vs cellular), embryo development, seed and fruit formation; apomixis and polyembryony'],
+          learningObjectives: ['Describe microsporogenesis and megasporogenesis with labeled diagrammatic sequences', 'Explain significance of double fertilization unique to angiosperms']
+        },
+        {
+          id: 'ch-12-b-2',
+          name: 'Human Reproduction',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 2',
+          syllabusTopics: ['Male reproductive system: testes, seminiferous tubules, Leydig cells, accessory ducts and glands (seminal vesicles, prostate, bulbourethral)', 'Female reproductive system: ovaries, fallopian tubes, uterus, cervix, vagina, mammary glands', 'Gametogenesis: Spermatogenesis (spermatogonia, primary/secondary spermatocytes, spermatids, spermatozoa; hormonal control by GnRH, LH, FSH) and Oogenesis', 'Menstrual cycle: follicular phase, ovulatory surge (LH surge), luteal phase (corpus luteum, progesterone), menstruation', 'Fertilization and implantation: acrosome reaction, cortical reaction preventing polyspermy, blastocyst formation and trophoblast attachment', 'Pregnancy and embryonic development: placenta functions (hCG, hPL, relaxin), germ layers; parturition (foetal ejection reflex, oxytocin) and lactation (prolactin, colostrum)'],
+          learningObjectives: ['Trace hormonal regulation of spermatogenesis and ovarian/uterine phases of the menstrual cycle', 'Describe the steps from fertilization in ampulla to blastocyst implantation in endometrium']
+        },
+        {
+          id: 'ch-12-b-3',
+          name: 'Reproductive Health',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 3',
+          syllabusTopics: ['Reproductive health: problems and strategies; population stabilization and birth control', 'Contraceptive methods: natural/traditional, barrier methods (condoms, diaphragms), IUDs (Copper-T, LNG-20), oral contraceptives (Saheli - non-steroidal), injectables, surgical sterilization (vasectomy, tubectomy)', 'Medical Termination of Pregnancy (MTP Act 2021 amendments)', 'Sexually Transmitted Infections (STIs: syphilis, gonorrhea, genital herpes, chlamydiasis, Hepatitis B, HIV)', 'Infertility and Assisted Reproductive Technologies (ART): IVF-ET (test tube baby), ZIFT, GIFT, ICSI, AI, surrogacy'],
+          learningObjectives: ['Evaluate mechanisms and efficacy of various modern contraceptive methods', 'Explain indications and methodologies of assisted reproductive techniques (IVF, ICSI, GIFT)']
+        },
+        {
+          id: 'ch-12-b-4',
+          name: 'Principles of Inheritance and Variation',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 4',
+          syllabusTopics: ['Mendel’s laws of inheritance: Law of Segregation (monohybrid cross 3:1 / 1:2:1), Law of Independent Assortment (dihybrid cross 9:3:3:1)', 'Deviations from Mendelism: Incomplete dominance (*Antirrhinum* 1:2:1), Codominance (ABO blood groups - multiple alleles), Pleiotropy, Polygenic inheritance (human skin color)', 'Chromosomal Theory of Inheritance (Sutton & Boveri); Morgan’s linkage and recombination experiments in *Drosophila*', 'Sex determination: XX-XY (humans), XX-XO (grasshoppers), ZZ-ZW (birds), haplo-diploidy (honeybees)', 'Mutation and pedigree analysis (autosomal dominant, autosomal recessive, X-linked recessive)', 'Genetic disorders: Mendelian disorders (Hemophilia, Sickle-cell anemia - point mutation $GAG \\to GUG$, Phenylketonuria, Thalassemia) and Chromosomal disorders (Down syndrome, Klinefelter syndrome, Turner syndrome)'],
+          learningObjectives: ['Construct and interpret multi-generation human genetic pedigree charts', 'Analyze molecular pathology of sickle-cell anemia and chromosomal aneuploidies']
+        },
+        {
+          id: 'ch-12-b-5',
+          name: 'Molecular Basis of Inheritance',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 5',
+          syllabusTopics: ['Structure of DNA double helix (Watson & Crick model, Chargaff’s rules); packaging of DNA helix (histone octamer, nucleosome, euchromatin, heterochromatin)', 'Search for genetic material: Griffith’s transformation experiment, Avery-MacLeod-McCarty, Hershey-Chase bacteriophage experiment', 'DNA replication: semi-conservative proof by Meselson & Stahl, replication fork, DNA polymerases, Okazaki fragments, continuous and discontinuous synthesis', 'Transcription in prokaryotes and eukaryotes: promoter, structural gene, terminator, RNA polymerases I, II, III; post-transcriptional modifications (capping, tailing, splicing - introns & exons)', 'Genetic Code: properties (triplet, universal, degenerate, non-overlapping, start codon AUG, stop codons UAA, UAG, UGA)', 'Translation: tRNA adapter molecule (cloverleaf model), aminoacylation of tRNA, ribosomal initiation, elongation, peptide bond formation, termination', 'Regulation of gene expression: Lac Operon model of Jacob & Monod (promoter, operator, regulator $i$ gene, $z, y, a$ structural genes, role of allolactose as inducer)', 'Human Genome Project (goals, methodologies ESTs & sequence annotation, salient features) and DNA Fingerprinting (VNTRs, Southern blot)'],
+          learningObjectives: ['Detail the enzymatic machinery of semi-conservative DNA replication and eukaryotic transcription', 'Explain the on/off switching mechanism of the Lac Operon under glucose vs lactose availability']
+        },
+        {
+          id: 'ch-12-b-6',
+          name: 'Evolution',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 6',
+          syllabusTopics: ['Origin of life: Big Bang theory, Oparin-Haldane chemical evolution hypothesis, Miller-Urey experimental simulation ($CH_4, NH_3, H_2, H_2O$ producing amino acids)', 'Evidences of evolution: Paleontological (fossils), Comparative anatomy (homologous organs - divergent evolution vs analogous organs - convergent evolution), Embryological, Biochemical evidence', 'Adaptive radiation (Darwin’s finches in Galapagos, Australian marsupials)', 'Theories of evolution: Lamarckism, Darwinian natural selection (survival of the fittest), Hugo de Vries Mutation Theory (saltation)', 'Hardy-Weinberg Principle: genetic equilibrium ($p^2 + 2pq + q^2 = 1$), factors affecting equilibrium (gene migration, genetic drift - Founder effect & bottleneck, mutation, recombination, natural selection: stabilizing, directional, disruptive)', 'Brief account of evolution: geological time scale; Origin and evolution of man (*Dryopithecus, Ramapithecus, Australopithecus, Homo habilis, Homo erectus, Neanderthal, Homo sapiens*)'],
+          learningObjectives: ['Apply the Hardy-Weinberg equation to calculate allele and genotype frequencies in populations', 'Distinguish homologous structures (divergent evolution) from analogous structures (convergent evolution)']
+        },
+        {
+          id: 'ch-12-b-7',
+          name: 'Human Health and Disease',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 7',
+          syllabusTopics: ['Common infectious diseases in humans: Typhoid (*Salmonella typhi*, Widal test), Pneumonia, Common cold, Malaria (*Plasmodium vivax* life cycle in human and mosquito), Amoebiasis, Ascariasis, Ringworm', 'Immunity: Innate immunity (physical, physiological, cellular, cytokine barriers) and Acquired immunity (active vs passive, humoral B-cells vs cell-mediated T-cells)', 'Antibody structure: $H_2L_2$ immunoglobulins (IgG, IgA in colostrum, IgM, IgE in allergies, IgD)', 'Vaccination and immunization; Autoimmune disorders (Rheumatoid arthritis)', 'Acquired Immuno Deficiency Syndrome (AIDS): Human Immunodeficiency Virus (HIV) structure, reverse transcription in macrophages and $T_H$ helper cell destruction, ELISA diagnostic test, ART therapy', 'Cancer: characteristics of cancer cells (loss of contact inhibition, metastasis), oncogenes, carcinogens, diagnosis and treatment (surgery, radiotherapy, chemotherapy, immunotherapy - alpha-interferon)', 'Drugs and alcohol abuse: Opioids (morphine, heroin), Cannabinoids, Cocaine, hallucinogens; addiction, withdrawal symptoms, adolescent prevention'],
+          learningObjectives: ['Diagram the complex multi-host life cycle of *Plasmodium* falciparum', 'Explain the cellular mechanism of HIV entry and helper T-cell destruction leading to AIDS']
+        },
+        {
+          id: 'ch-12-b-8',
+          name: 'Microbes in Human Welfare',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 8',
+          syllabusTopics: ['Microbes in household products: *Lactobacillus* in curd, dough fermentation by baker’s yeast (*Saccharomyces cerevisiae*), cheese making (*Propionibacterium sharmanii* for Swiss cheese, *Penicillium roqueforti*)', 'Microbes in industrial products: Fermented beverages, Antibiotics (*Penicillium notatum* by Fleming, Florey, Chain), Chemicals, Enzymes, Bioactive molecules (Citric acid - *Aspergillus niger*, Lactic acid, Butyric acid; Cyclosporin A - *Trichoderma polysporum*, Statins - *Monascus purpureus*)', 'Microbes in sewage treatment: Primary settling vs Secondary biological treatment (aerobic activated sludge, Biochemical Oxygen Demand - BOD), anaerobic sludge digesters producing biogas', 'Microbes in production of biogas (Methanogens: *Methanobacterium* in cattle rumen, Gobar gas plant structure)', 'Microbes as biocontrol agents (*Bacillus thuringiensis* Bt, *Trichoderma*, Baculoviruses / *Nucleopolyhedrovirus*)', 'Microbes as biofertilizers: Rhizobium, Azotobacter, Azospirillum, Mycorrhiza (*Glomus*), Cyanobacteria (*Anabaena, Nostoc*)'],
+          learningObjectives: ['Explain sewage treatment steps and the inverse relationship between BOD and water purity', 'Identify bioactive molecules (Statins, Cyclosporin A, Streptokinase) and their clinical uses']
+        },
+        {
+          id: 'ch-12-b-9',
+          name: 'Biotechnology: Principles and Processes',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 9',
+          syllabusTopics: ['Principles of biotechnology: Genetic engineering (recombinant DNA technology) and chemical engineering bioprocesses', 'Tools of recombinant DNA technology: Restriction enzymes (molecular scissors - EcoRI sticky ends, palindromic recognition sequences)', 'Cloning vectors: characteristics of ideal plasmid vector (pBR322: origin of replication *ori*, selectable markers $amp^R, tet^R$, insertional inactivation of $\\beta$-galactosidase)', 'Competent host transformation: heat shock, microinjection, gene gun (biolistics), *Agrobacterium tumefaciens* disarmed Ti plasmid vector', 'Processes of r-DNA technology: Isolation of genetic material (DNA), restriction digestion, agarose gel electrophoresis, PCR (Polymerase Chain Reaction: Denaturation, Annealing, Extension using *Taq* polymerase), ligation, insertion, bioreactors (stirred-tank & sparged), downstream processing'],
+          learningObjectives: ['Illustrate the three cycles of PCR and describe the utility of thermostable *Taq* polymerase', 'Explain insertional inactivation for screening recombinant from non-recombinant colonies']
+        },
+        {
+          id: 'ch-12-b-10',
+          name: 'Biotechnology and its Applications',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 10',
+          syllabusTopics: ['Biotechnological applications in agriculture: Genetically Modified Organisms (GMOs), Bt crops (Bt cotton, *cryIAc*, *cryIIAb* against bollworms, *cryIAb* against corn borer), RNA interference (RNAi) silencing in tobacco roots against nematode *Meloidogyne incognita*', 'Biotechnological applications in medicine: Genetically engineered insulin (Humulin - Eli Lilly company, chains A and B linked by disulphide bonds), Gene therapy (ADA adenosine deaminase deficiency in SCID girl), Molecular diagnosis (ELISA, PCR detection of pathogens)', 'Transgenic animals: production of alpha-1-antitrypsin for emphysema, transgenic cow Rosie producing human protein-enriched milk (alpha-lactalbumin), safety testing of vaccines and chemical toxicity', 'Ethical issues, biopiracy (Basmati rice, neem, turmeric exploitation), GEAC (Genetic Engineering Appraisal Committee)'],
+          learningObjectives: ['Describe recombinant human insulin synthesis without C-peptide pro-hormone', 'Detail the RNA interference (RNAi) gene silencing pathway in nematode control']
+        },
+        {
+          id: 'ch-12-b-11',
+          name: 'Organisms and Populations',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 11',
+          syllabusTopics: ['Organism and its environment: abiotic factors (temperature, water, light, soil), responses to abiotic factors (regulators, conformers, partial regulators, migration, suspension/hibernation/diapause)', 'Adaptations: morphological, physiological, and behavioral adaptations (Kangaroo rat water conservation, desert xerophytic adaptations, Allen’s rule, altitude sickness acclimatization)', 'Populations: population attributes (birth rate, death rate, sex ratio, age pyramids: expanding, stable, declining)', 'Population growth models: Exponential growth ($dN/dt = rN$) and Logistic growth ($dN/dt = rN(1 - N/K)$ - carrying capacity)', 'Population interactions: Mutualism, Competition (Gause’s Competitive Exclusion Principle, resource partitioning), Predation, Parasitism (brood parasitism in cuckoo), Commensalism, Amensalism'],
+          learningObjectives: ['Differentiate exponential J-shaped from logistic sigmoid growth curves mathematically', 'Explain population interaction matrices (+, -, 0) with ecological biological examples'],
+          coreFormulas: ['\\frac{dN}{dt} = rN \\left(\\frac{K - N}{K}\\right)', 'N_t = N_0 e^{rt}']
+        },
+        {
+          id: 'ch-12-b-12',
+          name: 'Ecosystem',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 12',
+          syllabusTopics: ['Ecosystem structure and function: productivity (Gross Primary Productivity GPP, Net Primary Productivity $NPP = GPP - R$), decomposition processes (fragmentation, leaching, catabolism, humification, mineralization)', 'Energy flow in ecosystems: Lindeman’s 10% law of trophic efficiency, food chains (grazing vs detritus), food web', 'Ecological pyramids: pyramid of numbers, pyramid of biomass (inverted in sea), pyramid of energy (always upright)', 'Ecological succession: primary vs secondary succession, hydrarch and xerarch succession stages leading to stable climax community'],
+          learningObjectives: ['Apply Lindeman’s 10% law to multi-trophic energy transfers', 'Explain why the pyramid of energy is always strictly upright in terrestrial and aquatic ecosystems']
+        },
+        {
+          id: 'ch-12-b-13',
+          name: 'Biodiversity and Conservation',
+          textbookRef: 'NCERT Class 12 Biology — Chapter 13',
+          syllabusTopics: ['Levels of biodiversity: genetic, species, and ecological diversity; global species diversity estimates (Robert May’s estimate $\\approx 7$ million species)', 'Patterns of biodiversity: latitudinal gradients (tropics have highest diversity), Species-Area relationship by Alexander von Humboldt ($\\log S = \\log C + Z \\log A$)', 'Importance of species diversity to ecosystem stability: David Tilman’s experiments, Paul Ehrlich’s "Rivet Popper hypothesis"', 'Loss of biodiversity: The Evil Quartet (Habitat loss and fragmentation, Over-exploitation, Alien species invasions - Nile perch, Parthenium, Water hyacinth, Co-extinctions)', 'Biodiversity conservation: in-situ conservation (National Parks, Sanctuaries, Biosphere Reserves, Sacred Groves) vs ex-situ conservation (Zoological parks, Botanical gardens, Cryopreservation, Seed banks, In-vitro fertilization); International conventions (Earth Summit Rio 1992, World Summit Johannesburg 2002)'],
+          learningObjectives: ['Interpret Alexander von Humboldt’s species-area log equation and significance of $Z$ slope value', 'Evaluate in-situ vs ex-situ conservation strategies with specific Indian nature reserves'],
+          coreFormulas: ['\\log S = \\log C + Z\\log A']
+        }
+      ]
+    },
+    {
+      id: 'cbse-12-english',
+      name: 'English Core (Flamingo & Vistas)',
+      category: 'English & Languages',
+      curricula: ['NCERT Flamingo & Vistas Class 12', 'CBSE Class 12 English Core Board Exam'],
+      chapters: [
+        {
+          id: 'ch-12-e-1',
+          name: 'The Last Lesson (Flamingo)',
+          textbookRef: 'NCERT Flamingo Class 12 — Prose Chapter 1',
+          syllabusTopics: ['Alphonse Daudet’s story set in Franco-Prussian War (1870-71)', 'Prussian order enforcing German instruction in Alsace and Lorraine schools', 'M. Hamel’s final French class, linguistic chauvinism, and love for mother tongue ("Vive La France!")'],
+          learningObjectives: ['Analyze themes of cultural identity, patriotism, and linguistic imperialism']
+        },
+        {
+          id: 'ch-12-e-2',
+          name: 'Lost Spring: Stories of Stolen Childhood',
+          textbookRef: 'NCERT Flamingo Class 12 — Prose Chapter 2',
+          syllabusTopics: ['Anees Jung’s poignant investigative report', 'Saheb-e-Alam: ragpickers of Seemapuri living in desperate squalor', 'Mukesh of Firozabad: child labor in hazardous bangle-making glass furnaces', 'Vicious circle of sahukars, middlemen, policemen, and politicians'],
+          learningObjectives: ['Examine socio-economic deprivation, child labor, and entrenched systemic poverty']
+        },
+        {
+          id: 'ch-12-e-3',
+          name: 'Deep Water (Flamingo)',
+          textbookRef: 'NCERT Flamingo Class 12 — Prose Chapter 3',
+          syllabusTopics: ['William Douglas’ autobiographical narrative of overcoming hydrophobia', 'Near-drowning experience at the YMCA swimming pool in Yakima', 'Rigorous step-by-step swimming training and psychological conquer of terror ("All we have to fear is fear itself")'],
+          learningObjectives: ['Analyze psychological trauma, self-determination, and the process of overcoming deep-seated fear']
+        },
+        {
+          id: 'ch-12-e-4',
+          name: 'The Rattrap (Flamingo)',
+          textbookRef: 'NCERT Flamingo Class 12 — Prose Chapter 4',
+          syllabusTopics: ['Selma Lagerlöf’s philosophical fairy tale', 'The world as a giant rattrap with riches and pleasures as cheese bait', 'The peddler’s betrayal of the old crofter, refuge at Ramsjö ironworks, and redemption through Edla Willmansson’s compassionate unconditional kindness'],
+          learningObjectives: ['Evaluate themes of human empathy, moral redemption, and the transforming power of unconditional trust']
+        },
+        {
+          id: 'ch-12-e-5',
+          name: 'Indigo (Flamingo)',
+          textbookRef: 'NCERT Flamingo Class 12 — Prose Chapter 5',
+          syllabusTopics: ['Louis Fischer’s biographical chronicle of Mahatma Gandhi at Champaran (1917)', 'Sharecropping crisis: British landlords forcing farmers to grow indigo on 15% land and demanding synthetic indigo compensation', 'Civil disobedience, legal advocacy, peasant mobilization, and Gandhi’s first major national victory'],
+          learningObjectives: ['Understand Gandhi’s non-violent civil disobedience methodology and grassroots leadership']
+        },
+        {
+          id: 'ch-12-e-6',
+          name: 'My Mother at Sixty-Six & Keeping Quiet (Poems)',
+          textbookRef: 'NCERT Flamingo Class 12 — Poetry',
+          syllabusTopics: ['Kamala Das’ "My Mother at Sixty-Six": aging, fear of maternal loss, juxtaposed against merry children and sprinting trees', 'Pablo Neruda’s "Keeping Quiet": call for 12 seconds of global silence, introspection, cessation of war and destruction, and mutual peace'],
+          learningObjectives: ['Analyze poetic imagery, enjambment, and universal themes of mortality and universal tranquility']
+        },
+        {
+          id: 'ch-12-e-7',
+          name: 'A Thing of Beauty & Aunt Jennifer’s Tigers (Poems)',
+          textbookRef: 'NCERT Flamingo Class 12 — Poetry',
+          syllabusTopics: ['John Keats’ "A Thing of Beauty": eternal joy of art and nature relieving human despondence', 'Adrienne Rich’s "Aunt Jennifer’s Tigers": feminist critique of patriarchal oppression in marriage vs embroidered proud, fearless tigers'],
+          learningObjectives: ['Critique romantic aesthetic philosophy and feminist poetic symbolism of immortal artistic expression']
+        },
+        {
+          id: 'ch-12-e-8',
+          name: 'The Third Level & The Tiger King (Vistas)',
+          textbookRef: 'NCERT Vistas Class 12 — Chapters 1 & 2',
+          syllabusTopics: ['Jack Finney’s "The Third Level": Grand Central Station time-slip to Galesburg 1894 as psychological escapism from modern war anxiety', 'Kalki’s "The Tiger King": satirical parody of the Maharaja of Pratibandhapuram trying to outwit astrological death prophecy by hunting 100 tigers, only to perish from a wooden toy tiger splinter'],
+          learningObjectives: ['Analyze science-fiction escapism and dramatic irony satirizing tyrannical monarchical hubris']
+        },
+        {
+          id: 'ch-12-e-9',
+          name: 'Journey to the End of the Earth & The Enemy (Vistas)',
+          textbookRef: 'NCERT Vistas Class 12 — Chapters 3 & 4',
+          syllabusTopics: ['Tishani Doshi’s Antarctica expedition: climate change, ozone depletion, and planetary geological past and future', 'Pearl S. Buck’s "The Enemy": Dr. Sadao Hoki treating a wounded American prisoner of war in wartime Japan, balancing medical ethics and humanitarian compassion against nationalistic duty'],
+          learningObjectives: ['Evaluate ecological urgency in polar regions and ethical conflicts between professional oath and patriotism']
+        },
+        {
+          id: 'ch-12-e-10',
+          name: 'On the Face of It & Memories of Childhood (Vistas)',
+          textbookRef: 'NCERT Vistas Class 12 — Chapters 5 & 6',
+          syllabusTopics: ['Susan Hill’s play "On the Face of It": Derry’s acid-burned face and bitter isolation healed by Mr. Lamb’s open-minded wisdom and tin leg', 'Zitkala-Sa’s "The Cutting of My Long Hair" (Native American cultural assimilation) and Bama’s "We Too are Human Beings" (caste discrimination and Dalit empowerment through education)'],
+          learningObjectives: ['Analyze disability psychology, physical alienation, and autobiographical narratives of racial and caste resistance']
+        }
+      ]
     }
   ]
 };

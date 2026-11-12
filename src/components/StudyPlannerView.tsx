@@ -86,7 +86,11 @@ export const StudyPlannerView: React.FC<StudyPlannerViewProps> = ({
     'Economics & Commerce',
     'General Science',
     'Japanese',
+    'Hindi',
+    'Marathi',
+    'Sanskrit',
     'Foundation & Olympiads',
+    'UPSC General Studies',
   ];
 
   return (

@@ -8,6 +8,7 @@ import {
   Award,
   Layers,
   LayoutDashboard,
+  BookOpen,
   Calendar,
   BookMarked,
   BarChart3,
@@ -93,6 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const mainNav = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'ncert_hub' as const, label: 'NCERT Hub (5–10)', icon: BookOpen },
     { id: 'generator' as const, label: 'Study Generator', icon: Sparkles },
     { id: 'chat' as const, label: 'AI Tutor', icon: MessageSquare },
     { id: 'photo' as const, label: 'Photo Solver', icon: Camera },

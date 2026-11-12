@@ -578,6 +578,26 @@ export const ChatView: React.FC<ChatViewProps> = ({
       'Explain the relationship between roots of a quadratic equation using Vieta’s formulas.',
       'Solve this NTSE number series problem with pattern step-by-step logic.',
     ],
+    Hindi: [
+      'प्रेमचंद की कहानी "दो बैलों की कथा" का मूल संदेश और मुख्य पात्रों का चरित्र-चित्रण समझाइए।',
+      'सूरदास के पद और तुलसीदास के "राम-लक्ष्मण-परशुराम संवाद" के काव्य-सौंदर्य की व्याख्या कीजिए।',
+      'हिंदी व्याकरण: संधि, समास और मुहावरे के व्यावहारिक नियम उदाहरण सहित बताइए।',
+    ],
+    Marathi: [
+      'संतवाणी "अंकिला मी दास तुझा" (संत नामदेव) या अभंगाचा भावार्थ स्पष्ट करा.',
+      'पु. ल. देशपांडे यांच्या "उपास" पाठातील विनोदी प्रसंग व मध्यवर्ती कल्पना सांगा.',
+      'मराठी व्याकरण: काळ, समास, वाक्प्रचार आणि म्हणी यांचा सविस्तर अभ्यास कसा करावा?',
+    ],
+    Sanskrit: [
+      'NCERT रुचिरा / शेमुषी: अकारान्त, आकारान्त आणि अस्मद्-युष्मद् सर्वनाम रूपांची सोपी ट्रिक सांगा.',
+      'संस्कृत सन्धि (स्वर, व्यञ्जन, विसर्ग) आणि समास (द्वन्द्व, तत्पुरुष, कर्मधारय) उदाहरणांसह समजावून सांगा.',
+      'सुभाषितानि: "विद्या ददाति विनयं विनयाद्याति पात्रताम्" या श्लोकाचा अन्वय व भावार्थ स्पष्ट करा.',
+    ],
+    'UPSC General Studies': [
+      'Explain the doctrine of Basic Structure of the Indian Constitution with landmark Supreme Court judgements.',
+      'Analyze the impact of climate change on Indian monsoon patterns and agrarian distress (GS Paper I & III).',
+      'Discuss the ethical dilemmas faced by civil servants in balancing political neutrality and proactive public welfare (GS IV).',
+    ],
   };
 
   const currentSuggestions = suggestedQuestions[conversation.subject] || suggestedQuestions.Mathematics;

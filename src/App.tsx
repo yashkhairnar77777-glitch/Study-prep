@@ -22,6 +22,7 @@ import { PricingView } from './components/PricingView';
 import { StudentSubscriptionView } from './components/StudentSubscriptionView';
 import { AdminPaymentDashboard } from './components/AdminPaymentDashboard';
 import { SmartStudyTimerView } from './components/SmartStudyTimerView';
+import { NcertLearningHubView } from './components/NcertLearningHubView';
 import { LandingPage } from './components/LandingPage';
 import { ProfileModal } from './components/ProfileModal';
 import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
@@ -634,6 +635,17 @@ What question, topic, or problem would you like to explore today?`;
                 <SmartStudyTimerView
                   profile={profile}
                   onNavigate={setCurrentView}
+                />
+              )}
+
+              {currentView === 'ncert_hub' && (
+                <NcertLearningHubView
+                  profile={profile}
+                  providerStatus={providerStatus}
+                  onNavigate={setCurrentView}
+                  onSaveAsNote={handleSaveAsNote}
+                  onCreateFlashcard={handleCreateFlashcard}
+                  onStartMockTest={handleStartMockTest}
                 />
               )}
             </motion.div>

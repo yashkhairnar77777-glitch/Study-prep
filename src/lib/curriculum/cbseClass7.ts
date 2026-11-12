@@ -366,6 +366,280 @@ export const cbseClass7: SyllabusClassInfo = {
           learningObjectives: ['Test formal logical syllogisms using Venn intersection circles', 'Decode substitution cipher problems under competitive time constraints']
         }
       ]
+    },
+    {
+      id: 'cbse-7-hindi',
+      name: 'Hindi (वसंत भाग 2)',
+      category: 'Hindi',
+      curricula: ['NCERT Vasant Class 7', 'CBSE Hindi Course A & B'],
+      chapters: [
+        {
+          id: 'ch-7-h-1',
+          name: 'हम पंछी उन्मुक्त गगन के',
+          textbookRef: 'NCERT वसंत भाग 2 — पाठ 1',
+          syllabusTopics: ['शिवमंगल सिंह "सुमन" की प्रसिद्ध कविता', 'स्वतंत्रता की चाह और पिंजरे की पराधीनता का दर्द', 'कनक-कटोरी की मैदा बनाम कड़वी निबौरी', 'काव्य-सौंदर्य और रूपक अलंकार'],
+          learningObjectives: ['स्वाधीनता के अनमोल मूल्य को समझना', 'जीव-जंतुओं की प्राकृतिक आजादी का सम्मान करना'],
+        },
+        {
+          id: 'ch-7-h-2',
+          name: 'दादी माँ',
+          textbookRef: 'NCERT वसंत भाग 2 — पाठ 2',
+          syllabusTopics: ['शिवप्रसाद सिंह की आत्मकथात्मक कहानी', 'स्नेह, ममता और त्याग की प्रतिमूर्ति दादी माँ', 'गाँव का जीवन, महामारी में सेवा, रामी की चाची का कर्ज माफ करना', 'संस्मरण शैली'],
+          learningObjectives: ['बुजुर्गों के अनुभव, मार्गदर्शन व पारिवारिक महत्व को समझना'],
+        },
+        {
+          id: 'ch-7-h-3',
+          name: 'हिमालय की बेटियां',
+          textbookRef: 'NCERT वसंत भाग 2 — पाठ 3',
+          syllabusTopics: ['नागार्जुन का ललित निबंध', 'हिमालय से निकलने वाली नदियाँ (गंगा, यमुना, सतलुज) का मानवीकरण', 'नदियों का बाल्यकाल, उल्लास और समुद्र से मिलन', 'मानवीकरण अलंकार'],
+          learningObjectives: ['नदियों के प्राकृतिक एवं सांस्कृतिक स्वरूप को पहचानना', 'मानवीकरण शैली का अध्ययन'],
+        },
+        {
+          id: 'ch-7-h-4',
+          name: 'कठपुतली',
+          textbookRef: 'NCERT वसंत भाग 2 — पाठ 4',
+          syllabusTopics: ['भवानीप्रसाद मिश्र की कविता', 'धागों में बँधी कठपुतली का विद्रोह और आजादी की माँग', 'अन्य कठपुतलियों की आजादी की जिम्मेदारी का अहसास'],
+          learningObjectives: ['आत्मनिर्भरता और स्वतंत्रता के साथ उत्तरदायित्व की भावना समझना'],
+        },
+        {
+          id: 'ch-7-h-5',
+          name: 'मिठाईवाला',
+          textbookRef: 'NCERT वसंत भाग 2 — पाठ 5',
+          syllabusTopics: ['भगवतीप्रसाद वाजपेयी की मार्मिक कहानी', 'खिलौनेवाला, मुरलीवाला और मिठाईवाला बनकर बच्चों में अपने बिछुड़े बच्चों की खोज', 'सहानुभूति और निःस्वार्थ प्रेम'],
+          learningObjectives: ['मानवीय संवेदनाओं और त्याग की गहराई को महसूस करना'],
+        },
+        {
+          id: 'ch-7-h-6',
+          name: 'रक्त और हमारा शरीर',
+          textbookRef: 'NCERT वसंत भाग 2 — पाठ 6',
+          syllabusTopics: ['यतीश अग्रवाल का विज्ञानपरक निबंध', 'रक्त के दो भाग: प्लाज्मा और बिम्बाणु (RBC, WBC, प्लेटलेट्स)', 'एनीमिया, हीमोग्लोबिन और संतुलित आहार', 'ब्लड बैंक और रक्तदान'],
+          learningObjectives: ['शरीर में रक्त के घटकों और रक्तदान के सामाजिक महत्व को समझना'],
+        },
+        {
+          id: 'ch-7-h-7',
+          name: 'पापा खो गए',
+          textbookRef: 'NCERT वसंत भाग 2 — पाठ 7',
+          syllabusTopics: ['विजय तेंदुलकर का प्रसिद्ध नाटक (मराठी अनुवाद)', 'खंभा, नाचने वाली लड़की, लेटरबॉक्स और कौए का संवाद', 'अपहृत बच्ची को उसके पिता से मिलवाने की सामूहिक युक्ति'],
+          learningObjectives: ['नाट्याभिनय कौशल और बाल सुरक्षा के प्रति जागरूकता'],
+        },
+        {
+          id: 'ch-7-h-8',
+          name: 'शाम-एक किसान',
+          textbookRef: 'NCERT वसंत भाग 2 — पाठ 8',
+          syllabusTopics: ['सर्वेश्वर दयाल सक्सेना की कविता', 'जाड़े की शाम का किसान के रूप में अद्वितीय मानवीकरण', 'पहाड़ का साफा, बहती नदी की चादर, पलाश के जंगल की अँगीठी', 'दृश्य-बिंब विधान'],
+          learningObjectives: ['काव्य में दृश्य-बिंबों (Visual Imagery) की पहचान और व्याख्या'],
+        },
+        {
+          id: 'ch-7-h-9',
+          name: 'रहीम के दोहे',
+          textbookRef: 'NCERT वसंत भाग 2 — पाठ 9',
+          syllabusTopics: ['भक्तिकाल के कवि रहीम के नीतिपरक दोहे', 'सच्चे मित्र की पहचान (कहि रहीम संपति सगे)', 'जाल परे जल जात बहि, तरुवर फल नहिं खात है', 'जीवन मूल्य और सदाचार'],
+          learningObjectives: ['नीतिपरक दोहों का भावार्थ और व्यावहारिक जीवन में उपयोग'],
+        },
+        {
+          id: 'ch-7-h-10',
+          name: 'नीलकंठ',
+          textbookRef: 'NCERT वसंत भाग 2 — पाठ 10',
+          syllabusTopics: ['महादेवी वर्मा का रेखाचित्र', 'नखास कोने से लाए गए मोर (नीलकंठ) और मोरनी (राधा) का पालन-पोषण', 'कुब्जा की ईर्ष्या और नीलकंठ का दुखद अंत', 'पशु-पक्षी प्रेम'],
+          learningObjectives: ['जीव-जंतुओं के व्यवहार का सूक्ष्म मनोवैज्ञानिक चित्रण समझना'],
+        }
+      ]
+    },
+    {
+      id: 'cbse-7-marathi',
+      name: 'Marathi (सुलभभारती / अक्षरभारती इयत्ता ७ वी)',
+      category: 'Marathi',
+      curricula: ['Maharashtra State / NCERT Marathi Class 7', 'सुलभभारती इयत्ता सातवी'],
+      chapters: [
+        {
+          id: 'ch-7-mr-1',
+          name: 'प्रार्थना (कविता)',
+          textbookRef: 'सुलभभारती इयत्ता ७ वी — पाठ १',
+          syllabusTopics: ['ज्ञान, शील, नम्रता व सद्गुणांची उपासना', 'मानवतेची सेवा आणि नैतिक मूल्यांची जोपासना'],
+          learningObjectives: ['सत्प्रवृत्ती व आत्मिक शांततेचा संदेश आत्मसात करणे'],
+        },
+        {
+          id: 'ch-7-mr-2',
+          name: 'श्यामचे बंधुप्रेम',
+          textbookRef: 'सुलभभारती इयत्ता ७ वी — पाठ २',
+          syllabusTopics: ['साने गुरुजींच्या "श्यामची आई" कादंबरीतील हृदयस्पर्शी प्रसंग', 'दापोलीहून पावसापाण्यातून धाकट्या भावासाठी नवीन कोट शिवून आणणे', 'बंधुप्रेम व कौटुंबिक जिव्हाळा'],
+          learningObjectives: ['भावंडांमधील निस्वार्थ प्रेम व त्यागाचे आदर्श समजणे'],
+        },
+        {
+          id: 'ch-7-mr-3',
+          name: 'माझ्या अंगणात (कविता)',
+          textbookRef: 'सुलभभारती इयत्ता ७ वी — पाठ ३',
+          syllabusTopics: ['ज्ञानेश्वर कोळी यांची निसर्गकविता', 'शेतकऱ्याच्या अंगणातील मोत्यासारखे पिकलेले दाणे', 'पाखरांचे थवे आणि दाणे टिपण्याचा आनंद'],
+          learningObjectives: ['शेतकऱ्यांचे श्रम आणि ग्रामीण समृद्धीचा आदर करणे'],
+        },
+        {
+          id: 'ch-7-mr-4',
+          name: 'गोपाळचे शौर्य',
+          textbookRef: 'सुलभभारती इयत्ता ७ वी — पाठ ४',
+          syllabusTopics: ['लक्ष्मीकांत देशमुख यांची शौर्यकथा', 'कर्नाळा गडाच्या पायथ्याशी लागलेला वणवा (Wildfire)', 'शाळकरी गोपाळने दाखवलेले प्रसंगावधान व धाडसाने आग विझवणे'],
+          learningObjectives: ['संकटाच्या वेळी पुढाकार घेऊन धैर्याने सामोरे जाण्याची प्रेरणा'],
+        },
+        {
+          id: 'ch-7-mr-5',
+          name: 'दादास पत्र',
+          textbookRef: 'सुलभभारती इयत्ता ७ वी — पाठ ५',
+          syllabusTopics: ['माळढोक (Great Indian Bustard) अभयारण्याला भेट', 'संकटात सापडलेला माळढोक पक्षी व त्याचे संवर्धन', 'पक्षी निरीक्षणाचा आनंद आणि पत्रलेखन'],
+          learningObjectives: ['पर्यावरण संवर्धन व दुर्मीळ पक्ष्यांचे रक्षण करण्याचे महत्त्व जाणणे'],
+        },
+        {
+          id: 'ch-7-mr-6',
+          name: 'टप् टप् पडती (कविता)',
+          textbookRef: 'सुलभभारती इयत्ता ७ वी — पाठ ६',
+          syllabusTopics: ['मंगेश पाडगावकर यांची निसर्गकविता', 'प्राजक्ताच्या फुलांचा सडा, हिरवे तृण आणि झुळझुळणारे वारे', 'आनंदाचे मुक्त उधळण'],
+          learningObjectives: ['लयबद्ध काव्यास्वाद घेणे व निसर्गाचा आनंद अनुभवणे'],
+        },
+        {
+          id: 'ch-7-mr-7',
+          name: 'आजारी पडण्याचा प्रयोग',
+          textbookRef: 'सुलभभारती इयत्ता ७ वी — पाठ ७',
+          syllabusTopics: ['द. मा. मिरासदार यांची विनोदी कथा', 'घरातील प्रत्येकाला आजारी पडताना मिळणारी औषधे व फळे पाहून मुलाला आजारी पडण्याची झालेली इच्छा', 'डॉक्टरांच्या दवाखान्यातील धमाल प्रसंग'],
+          learningObjectives: ['उत्कृष्ट मराठी विनोदी साहित्याचा आस्वाद घेणे'],
+        },
+        {
+          id: 'ch-7-mr-8',
+          name: 'सलाम-नमस्ते!',
+          textbookRef: 'सुलभभारती इयत्ता ७ वी — पाठ ८',
+          syllabusTopics: ['सुधा मूर्ती यांचा हृदयस्पर्शी पाठ', 'शेख महंमद आणि त्यांची कर्करोगग्रस्त बहीण जुबेदा', 'प्रामाणिकपणा, सचोटी आणि अडचणीतही स्वतःची मूल्ये जपणे'],
+          learningObjectives: ['माणुसकी, संवेदनशीलता आणि सामाजिक दायित्वाची भावना अंगी बाणवणे'],
+        }
+      ]
+    },
+    {
+      id: 'cbse-7-english',
+      name: 'English (Honeycomb & An Alien Hand)',
+      category: 'English & Languages',
+      curricula: ['NCERT Honeycomb Class 7', 'NCERT An Alien Hand Supplementary'],
+      textbookName: 'Honeycomb & An Alien Hand (NCERT Class 7)',
+      edition: '2025–2026 NEP Edition',
+      chapters: [
+        {
+          id: 'ch-7-en-1',
+          name: 'Three Questions',
+          textbookRef: 'NCERT Honeycomb Class 7 — Unit 1',
+          syllabusTopics: ['Leo Tolstoy’s philosophical parable', 'The king’s quest for three answers: right time, right people, most important thing', 'Encounter with the hermit and the wounded enemy', 'The present moment as the only time over which humans have power'],
+          learningObjectives: ['Analyze moral parables and understanding the supreme value of the present action']
+        },
+        {
+          id: 'ch-7-en-2',
+          name: 'A Gift of Chappals',
+          textbookRef: 'NCERT Honeycomb Class 7 — Unit 2',
+          syllabusTopics: ['Vasantha Surya’s story set in Madras (Chennai)', 'Mridu, Ravi, Meena and the secret kitten Mahendran', 'Giving away the music master’s chappals to the blistered beggar out of pure compassion'],
+          learningObjectives: ['Appreciate uncorrupted childhood empathy and contrast it with adult social pretenses']
+        },
+        {
+          id: 'ch-7-en-3',
+          name: 'Gopal and the Hilsa Fish',
+          textbookRef: 'NCERT Honeycomb Class 7 — Unit 3',
+          syllabusTopics: ['Comic strip narrative of the Raja and witty courtier Gopal', 'The challenge to bring a giant Hilsa to palace without anyone asking about it', 'Gopal’s half-shaven face, rags, and smear of ash creating diversion'],
+          learningObjectives: ['Enjoy wit, humor, and non-linear visual storytelling techniques']
+        },
+        {
+          id: 'ch-7-en-4',
+          name: 'The Ashes That Made Trees Bloom',
+          textbookRef: 'NCERT Honeycomb Class 7 — Unit 4',
+          syllabusTopics: ['Japanese folk tale adapted by William Elliot Griffis', 'Kind old couple, their beloved pet dog Muko, and cruel neighbors', 'Virtue and kindness rewarded by blossoming cherry trees, wickedness punished'],
+          learningObjectives: ['Understand international folklore motifs and karmic moral retribution']
+        },
+        {
+          id: 'ch-7-en-5',
+          name: 'Quality',
+          textbookRef: 'NCERT Honeycomb Class 7 — Unit 5',
+          syllabusTopics: ['John Galsworthy’s classic tribute to true craftsmanship', 'Mr. Gessler, the German bootmaker in London who refuses to compromise quality', 'The tragedy of master artisanal craft driven to starvation by commercial mass production'],
+          learningObjectives: ['Critique industrialized consumerism versus devoted artisanal excellence']
+        },
+        {
+          id: 'ch-7-en-6',
+          name: 'Expert Detectives',
+          textbookRef: 'NCERT Honeycomb Class 7 — Unit 6',
+          syllabusTopics: ['Sharada Dwivedi’s adventure from "The Broken Flute"', 'Nishad (Seven) and Maya investigating their enigmatic tenant Mr. Nath', 'Maya’s suspicious detective theories vs Nishad’s genuine human sympathy for a lonely man'],
+          learningObjectives: ['Analyze how prejudices can cloud objective perception of fellow human beings']
+        },
+        {
+          id: 'ch-7-en-7',
+          name: 'The Invention of Vita-Wonk',
+          textbookRef: 'NCERT Honeycomb Class 7 — Unit 7',
+          syllabusTopics: ['Roald Dahl’s fantastical excerpt from "Charlie and the Great Glass Elevator"', 'Mr. Willy Wonka creating Vita-Wonk to reverse Wonka-Vite age effects', 'Collecting ancient ingredients: bristles from 51-year-old horse, pint of sap from 4000-year-old Bristlecone pine'],
+          learningObjectives: ['Explore hyperbole, fantasy vocabulary, and whimsical scientific absurdity']
+        },
+        {
+          id: 'ch-7-en-8',
+          name: 'The Rebel & The Shed (Poems)',
+          textbookRef: 'NCERT Honeycomb Class 7 — Poetry',
+          syllabusTopics: ['D.J. Enright’s "The Rebel": psychological portrait of adolescent non-conformity', 'Frank Flynn’s "The Shed": confronting irrational childhood fears of ghosts and spiders'],
+          learningObjectives: ['Appreciate gentle social satire and psychological growth through poetic form']
+        }
+      ]
+    },
+    {
+      id: 'cbse-7-sanskrit',
+      name: 'Sanskrit (रुचिरा द्वितीयो भागः)',
+      category: 'Sanskrit',
+      curricula: ['NCERT Ruchira Class 7', 'CBSE Sanskrit Course'],
+      textbookName: 'रुचिरा द्वितीयो भागः (NCERT Class 7)',
+      edition: '2025–2026 NEP Edition',
+      chapters: [
+        {
+          id: 'ch-7-sk-1',
+          name: 'सुभाषितानि',
+          textbookRef: 'NCERT रुचिरा भाग २ — पाठ १',
+          syllabusTopics: ['पृथिव्यां त्रीणि रत्नानि जलमन्नं सुभाषितम्', 'सत्येन धार्यते पृथ्वी सत्येन तपते रविः', 'सदैव सद्विः सहासीत सद्विः कुर्वीत संगतिम्'],
+          learningObjectives: ['संस्कृत सुभाषितानां शुद्धं गायनम् जीवनमूल्यानां ग्रहणं च']
+        },
+        {
+          id: 'ch-7-sk-2',
+          name: 'दुर्बुद्धिः विनश्यति',
+          textbookRef: 'NCERT रुचिरा भाग २ — पाठ २',
+          syllabusTopics: ['पञ्चतन्त्रकथा — संकट-विकटौ हंसौ कम्बुग्रीवः कूर्मश्च', 'मित्रवचनम् अनभिनन्दन् कूर्मः पतित्वा विनष्टः', 'अकाले मौनस्य महत्ता'],
+          learningObjectives: ['कथावाचनम् अहितोपदेशस्य च त्यागः']
+        },
+        {
+          id: 'ch-7-sk-3',
+          name: 'स्वावलम्बनम्',
+          textbookRef: 'NCERT रुचिरा भाग २ — पाठ ३',
+          syllabusTopics: ['कृष्णमूर्तिः श्रीकण्ठश्च द्वे मित्रे', 'संख्यावाचिनः शब्दाः (विंशतिः, त्रिंशत्, चत्वारिंशत्)', 'कर्मकराणां परमुखापेक्षितायाः अपेक्षया स्वावलम्बनं सुखम्'],
+          learningObjectives: ['आत्मनिर्भरतायाः गौरवम् संस्कृत संख्याज्ञानम्']
+        },
+        {
+          id: 'ch-7-sk-4',
+          name: 'पण्डिता रमाबाई',
+          textbookRef: 'NCERT रुचिरा भाग २ — पाठ ४',
+          syllabusTopics: ['स्त्रीशिक्षायाः अग्रगण्या पण्डिता रमाबाई', 'शारदा-सदनस्य स्थापना, मुम्बई नगरे मुद्रण-यन्त्रालयः', 'संस्कृत विदुषी पदवी, सामाजिक संकीर्णतायाः विरोधः'],
+          learningObjectives: ['नारीसशक्तिकरणस्य ऐतिहासिक प्रेरणा']
+        },
+        {
+          id: 'ch-7-sk-5',
+          name: 'सङ्कल्पः सिद्धिदायकः',
+          textbookRef: 'NCERT रुचिरा भाग २ — पाठ ५',
+          syllabusTopics: ['पार्वती-शिवयोः संवादः (नाट्यांशः)', 'कठोर तपस्यायाः बलेन शिवं पत्युपेण प्राप्तुं पार्वती-संकल्पः', 'वटुरूपधरेण शिवेन सह विनोदपूर्णः संवादः'],
+          learningObjectives: ['दृढसंकल्पस्य फलसिद्धिः नाट्याभिनयश्च']
+        },
+        {
+          id: 'ch-7-sk-6',
+          name: 'त्रिवर्णः ध्वजः',
+          textbookRef: 'NCERT रुचिरा भाग २ — पाठ ६',
+          syllabusTopics: ['भारतीय राष्ट्रध्वजस्य स्वरूपम् (केसर-श्वेत-हरितवर्णाः)', 'अशोकचक्रस्य २४ अराः (प्रगतेः न्यायस्य च प्रतीकम्)', '२२ जुलाई १९४७ दिने संविधानसभायां ध्वजस्वीकरणम्'],
+          learningObjectives: ['राष्ट्रचिह्नानां ज्ञानं देशभक्तेः संवर्धनं च']
+        },
+        {
+          id: 'ch-7-sk-7',
+          name: 'विश्वबन्धुत्वम्',
+          textbookRef: 'NCERT रुचिरा भाग २ — पाठ ७',
+          syllabusTopics: ['उत्सवे व्यसने दुर्भिक्षे राष्ट्रविप्लवे च यः सहायं करोति स बान्धवः', 'अयं निजः परो वेति गणना लघुचेतसाम् (उदारचरितानां वसुधैव कुटुम्बकम्)'],
+          learningObjectives: ['वैश्विकशान्तेः भ्रातृभावस्य च सिद्धान्तज्ञानम्']
+        },
+        {
+          id: 'ch-7-sk-8',
+          name: 'अमृतं संस्कृतम्',
+          textbookRef: 'NCERT रुचिरा भाग २ — पाठ ८',
+          syllabusTopics: ['संस्कृतभाषा विश्वस्य सर्वासु भाषासु प्राचीना', 'संगणकस्य कृते सर्वोत्तमभाषा', 'वेदाः, उपनिषदः, कौटिल्यस्य अर्थशास्त्रम्, आर्यभटस्य खगोलविज्ञानम्'],
+          learningObjectives: ['संस्कृतस्य वैज्ञानिकतायाः समृद्धसाहित्यस्य च परिचयः']
+        }
+      ]
     }
   ]
 };

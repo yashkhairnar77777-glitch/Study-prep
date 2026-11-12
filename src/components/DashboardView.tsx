@@ -244,6 +244,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="pt-2 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
+                  onClick={() => onNavigate('ncert_hub')}
+                  className="px-4.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-bold text-xs flex items-center gap-2 shadow-md shadow-emerald-500/25 cursor-pointer transition-transform active:scale-95"
+                >
+                  <BookOpen className="w-4 h-4 text-emerald-100" />
+                  <span>NCERT Classes 5–10 Platform</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => onNavigate('generator')}
                   className="px-4.5 py-2.5 clay-btn-primary font-bold text-xs flex items-center gap-2 shadow-sm"
                 >
@@ -726,7 +735,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            {/* NCERT Classes 5-10 Hub */}
+            <div
+              onClick={() => onNavigate('ncert_hub')}
+              className="clay-card clay-card-hover p-5 rounded-2xl cursor-pointer flex flex-col justify-between border-emerald-500/40 dark:border-emerald-500/30 bg-gradient-to-b from-emerald-50/60 to-white dark:from-emerald-950/20 dark:to-[#0d1527] ring-1 ring-emerald-500/20"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-xs">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-600/10 text-emerald-600 dark:text-emerald-400 border border-emerald-600/20 text-[10px] font-bold">
+                    Classes 5–10
+                  </span>
+                </div>
+                <h3 className="font-display font-bold text-base text-slate-900 dark:text-white">
+                  NCERT Learning Hub
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Foundation (5–8) & Secondary (9–10) modes, all subjects, verified textbooks, flashcards & AI tutor.
+                </p>
+              </div>
+              <div className="pt-4 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                <span>Explore Curriculum</span>
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            </div>
+
             {/* 0. Core Study Generator */}
             <div
               onClick={() => onNavigate('generator')}

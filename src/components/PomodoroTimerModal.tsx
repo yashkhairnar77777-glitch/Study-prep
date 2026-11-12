@@ -41,7 +41,11 @@ const ALL_SUBJECTS: SubjectCategory[] = [
   'Economics & Commerce',
   'General Science',
   'Japanese',
+  'Hindi',
+  'Marathi',
+  'Sanskrit',
   'Foundation & Olympiads',
+  'UPSC General Studies',
 ];
 
 export const PomodoroTimerModal: React.FC<PomodoroTimerModalProps> = ({

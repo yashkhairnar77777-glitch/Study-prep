@@ -64,6 +64,7 @@ import {
 } from '../types';
 import {
   SYLLABUS_REGISTRY,
+  getAllBoards,
   SyllabusBoardInfo,
   SyllabusClassInfo,
   SyllabusSubjectInfo,
@@ -1088,12 +1089,11 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
                       onChange={e => handleBoardChange(e.target.value as EducationBoard)}
                       className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
                     >
-                      <option value="CBSE">CBSE / NCERT (National India & International)</option>
-                      <option value="ICSE">ICSE / CISCE (CISCE Council India)</option>
-                      <option value="MSBSHSE">Maharashtra State Board (Balbharati)</option>
-                      <option value="Cambridge">Cambridge International (CAIE - IGCSE & A-Level)</option>
-                      <option value="IB">International Baccalaureate (IB MYP & DP)</option>
-                      <option value="Custom">Custom / University / Exam Syllabus</option>
+                      {getAllBoards().map(b => (
+                        <option key={b.id} value={b.id}>
+                          {b.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 

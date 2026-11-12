@@ -209,7 +209,11 @@ ${ch.topics
     'Economics & Commerce',
     'General Science',
     'Japanese',
+    'Hindi',
+    'Marathi',
+    'Sanskrit',
     'Foundation & Olympiads',
+    'UPSC General Studies',
   ];
 
   // Concise view extracts top bullet points or headings

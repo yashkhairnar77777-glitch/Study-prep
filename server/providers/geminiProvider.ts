@@ -23,7 +23,7 @@ export class GeminiProvider {
     }
 
     const cleanModel = rawModel.replace(/^models\//, '');
-    let finalModel = 'gemini-3.8-flash';
+    let finalModel = 'gemini-3.5-flash';
     if (
       cleanModel &&
       !cleanModel.startsWith('AIza') &&
@@ -60,10 +60,10 @@ export class GeminiProvider {
   private getCandidateModels(): string[] {
     const { model } = this.getResolvedCredentials();
     const defaults = [
-      'gemini-3.8-flash',
       'gemini-3.5-flash',
       'gemini-3.1-flash-lite',
       'gemini-flash-latest',
+      'gemini-3.8-flash',
     ];
     if (model && !defaults.includes(model)) {
       return [model, ...defaults];
@@ -151,8 +151,8 @@ export class GeminiProvider {
       try {
         const timeoutPromise = new Promise<never>((_, reject) => {
           timeoutId = setTimeout(() => {
-            reject(new Error(`Timeout: Gemini request exceeded 45s on model ${model}`));
-          }, 45000);
+            reject(new Error(`Timeout: Gemini request exceeded 15s on model ${model}`));
+          }, 15000);
         });
 
         const apiPromise = ai.models.generateContent({
@@ -230,8 +230,8 @@ export class GeminiProvider {
       try {
         const timeoutPromise = new Promise<never>((_, reject) => {
           timeoutId = setTimeout(() => {
-            reject(new Error(`Timeout: Gemini vision request exceeded 45s on model ${model}`));
-          }, 45000);
+            reject(new Error(`Timeout: Gemini vision request exceeded 15s on model ${model}`));
+          }, 15000);
         });
 
         const apiPromise = ai.models.generateContent({

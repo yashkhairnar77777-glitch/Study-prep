@@ -699,9 +699,17 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 <option value="Physics">Physics</option>
                 <option value="Chemistry">Chemistry</option>
                 <option value="Biology">Biology</option>
-                <option value="History">History & Social Studies</option>
-                <option value="Computer Science">Computer Science / Coding</option>
                 <option value="General Science">General Science</option>
+                <option value="History & Social Studies">History & Social Studies (SST)</option>
+                <option value="Hindi">Hindi (हिंदी)</option>
+                <option value="Marathi">Marathi (मराठी)</option>
+                <option value="Sanskrit">Sanskrit (संस्कृतम्)</option>
+                <option value="Japanese">Japanese (日本語)</option>
+                <option value="English & Languages">English & Languages</option>
+                <option value="Computer Science">Computer Science / Coding</option>
+                <option value="Foundation & Olympiads">Foundation & Olympiads (IIT-JEE / NEET)</option>
+                <option value="UPSC General Studies">UPSC General Studies</option>
+                <option value="Economics & Commerce">Economics & Commerce</option>
               </select>
             </div>
 

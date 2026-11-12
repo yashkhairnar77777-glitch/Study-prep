@@ -213,11 +213,17 @@ export const ExamGeneratorView: React.FC<ExamGeneratorViewProps> = ({
                   <option value="Physics">Physics</option>
                   <option value="Chemistry">Chemistry</option>
                   <option value="Biology">Biology</option>
-                  <option value="Computer Science">Computer Science</option>
-                  <option value="English & Languages">English & Languages</option>
-                  <option value="History & Social Studies">History & Social Studies</option>
-                  <option value="Economics & Commerce">Economics & Commerce</option>
                   <option value="General Science">General Science</option>
+                  <option value="History & Social Studies">History & Social Studies</option>
+                  <option value="Hindi">Hindi (हिंदी)</option>
+                  <option value="Marathi">Marathi (मराठी)</option>
+                  <option value="Sanskrit">Sanskrit (संस्कृतम्)</option>
+                  <option value="Japanese">Japanese (日本語)</option>
+                  <option value="English & Languages">English & Languages</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Economics & Commerce">Economics & Commerce</option>
+                  <option value="Foundation & Olympiads">Foundation & Olympiads (IIT-JEE / NEET)</option>
+                  <option value="UPSC General Studies">UPSC General Studies</option>
                 </select>
               </div>
             </div>

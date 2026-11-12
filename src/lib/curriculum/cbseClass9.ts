@@ -445,6 +445,273 @@ export const cbseClass9: SyllabusClassInfo = {
           coreFormulas: ['PT^2 = PA \\cdot PB \\text{ (Power of a Point)}']
         }
       ]
+    },
+    {
+      id: 'cbse-9-hindi',
+      name: 'Hindi (क्षितिज भाग 1 एवं स्पर्श)',
+      category: 'Hindi',
+      curricula: ['NCERT Kshitij & Sparsh Class 9', 'CBSE Hindi Course A & B'],
+      chapters: [
+        {
+          id: 'ch-9-h-1',
+          name: 'दो बैलों की कथा',
+          textbookRef: 'NCERT क्षितिज भाग 1 — पाठ 1',
+          syllabusTopics: ['मुंशी प्रेमचंद की कालजयी कहानी', 'हीरा और मोती की अटूट मित्रता और स्वाभिमान', 'गया के घर से भागना, कांजीहौस में पशुओं को मुक्त कराना', 'पशुओं में मूक भाषा और स्वतंत्रता के लिए संघर्ष'],
+          learningObjectives: ['स्वाधीनता के मूल्य और मूक पशुओं के संवेगात्मक लगाव को समझना', 'प्रेमचंद की आदर्शोन्मुख यथार्थवादी शैली का अध्ययन'],
+        },
+        {
+          id: 'ch-9-h-2',
+          name: 'ल्हासा की ओर',
+          textbookRef: 'NCERT क्षितिज भाग 1 — पाठ 2',
+          syllabusTopics: ['राहुल सांकृत्यायन का यात्रा वृत्तांत', 'तिब्बत की राजधानी ल्हासा की दुर्गम व रोमांचक यात्रा (1929-30)', 'डाँडा थोङ्ला, भिक्षु के छद्मवेश में यात्रा, सुमति का साथ', 'तिब्बती समाज, जागीरदारी प्रथा और बौद्ध धर्म'],
+          learningObjectives: ['यात्रा साहित्य की विशेषताओं और तिब्बती भौगोलिक परिवेश की जानकारी पाना'],
+        },
+        {
+          id: 'ch-9-h-3',
+          name: 'उपभोक्तावाद की संस्कृति',
+          textbookRef: 'NCERT क्षितिज भाग 1 — पाठ 3',
+          syllabusTopics: ['श्यामाचरण दुबे का समाजशास्त्रीय निबंध', 'दिखावे की संस्कृति, विज्ञापनों का अंधानुकरण', 'उपभोग को ही चरम सुख मान बैठना और सामाजिक मर्यादाओं का क्षरण'],
+          learningObjectives: ['उपभोक्तावादी संस्कृति के दुष्प्रभावों के प्रति तार्किक व सतर्क दृष्टि अपनाना'],
+        },
+        {
+          id: 'ch-9-h-4',
+          name: 'साँवले सपनों की याद',
+          textbookRef: 'NCERT क्षितिज भाग 1 — पाठ 4',
+          syllabusTopics: ['जाबिर हुसैन का संस्मरण', 'प्रसिद्ध पक्षी विज्ञानी सालिम अली की स्मृति', 'साइलेंट वैली को रेगिस्तानी हवाओं से बचाने की मुहिम, बर्ड वॉचिंग'],
+          learningObjectives: ['पर्यावरण संरक्षण और पक्षियों के प्रति गहन संवेदना का विकास'],
+        },
+        {
+          id: 'ch-9-h-5',
+          name: 'प्रेमचंद के फटे जूते',
+          textbookRef: 'NCERT क्षितिज भाग 1 — पाठ 5',
+          syllabusTopics: ['हरिशंकर परसाई का व्यंग्य निबंध', 'प्रेमचंद के फटे जूते से झाँकती उँगली और उनकी सादगी', 'दिखावे की झूठी शान पर करारा कटाक्ष, सामाजिक विसंगतियों से टकराने का प्रतीक'],
+          learningObjectives: ['सच्चे साहित्यकार की अंतर्दृष्टि और पाखंड-विरोधी व्यंग्य का अध्ययन'],
+        },
+        {
+          id: 'ch-9-h-6',
+          name: 'साखियाँ एवं सबद',
+          textbookRef: 'NCERT क्षितिज भाग 1 — काव्य खंड',
+          syllabusTopics: ['कबीरदास की साखियाँ व पद', 'मानसरोवर सुभर जल, मानुष प्रेम की कसौटी', 'मोको कहाँ ढूँढे रे बंदे मैं तो तेरे पास में', 'निर्गुण भक्ति और पाखंड-खंडन'],
+          learningObjectives: ['मध्यकालीन निर्गुण भक्ति काव्य की दार्शनिक गहराई को समझना'],
+        },
+        {
+          id: 'ch-9-h-7',
+          name: 'सवैये',
+          textbookRef: 'NCERT क्षितिज भाग 1 — काव्य खंड',
+          syllabusTopics: ['रसखान के ब्रजभाषा सवैये', 'मानुष हौं तो वही रसखानि बसौं ब्रज गोकुल गाँव के ग्वारन', 'कृष्ण की लाठी, कामरिया और मोरपंख के प्रति अनन्य समर्पण'],
+          learningObjectives: ['सगुण कृष्ण भक्ति की माधुर्यमयी अनुभूति और ब्रजभाषा सौंदर्य'],
+        },
+        {
+          id: 'ch-9-h-8',
+          name: 'कैदी और कोकिला',
+          textbookRef: 'NCERT क्षितिज भाग 1 — काव्य खंड',
+          syllabusTopics: ['माखनलाल चतुर्वेदी की राष्ट्रीय भावना से ओतप्रोत कविता', 'ब्रिटिश जेल में स्वतंत्रता सेनानियों पर होने वाले अमानवीय अत्याचार', 'कोयल की आधी रात की हूक और स्वाधीनता संग्राम की दावानल'],
+          learningObjectives: ['स्वाधीनता सेनानियों के अदम्य बलिदान और देशप्रेम की भावना को आत्मसात करना'],
+        },
+        {
+          id: 'ch-9-h-9',
+          name: 'बच्चे काम पर जा रहे हैं',
+          textbookRef: 'NCERT क्षितिज भाग 1 — काव्य खंड',
+          syllabusTopics: ['राजेश जोशी की संवेदनशील कविता', 'कोहरे से ढकी सड़क पर बच्चों का मजदूरी के लिए जाना', 'बाल श्रम की त्रासदी और समाज के प्रति तीखा सवालिया निशान'],
+          learningObjectives: ['बाल अधिकारों के हनन और बाल श्रम उन्मूलन के प्रति सामाजिक चेतना जाग्रत करना'],
+        }
+      ]
+    },
+    {
+      id: 'cbse-9-marathi',
+      name: 'Marathi (कुमारभारती / अक्षरभारती इयत्ता ९ वी)',
+      category: 'Marathi',
+      curricula: ['Maharashtra State / NCERT Marathi Class 9', 'कुमारभारती इयत्ता नववी'],
+      chapters: [
+        {
+          id: 'ch-9-mr-1',
+          name: 'संतवाणी (भेटीलागी जीवा / धरिला जीव्हाळा)',
+          textbookRef: 'कुमारभारती इयत्ता ९ वी — पाठ १',
+          syllabusTopics: ['संत तुकाराम महाराज व संत चोखामेळा यांचे विठ्ठलभक्तीपर अभंग', 'विठ्ठलदर्शनाची आर्त ओढ, चकोर पक्षी आणि पौर्णिमेच्या चंद्राचा दृष्टांत'],
+          learningObjectives: ['वारकरी संतांची भक्तीपरंपरा, रूपके व अभंग रचनेचे सौंदर्य समजणे'],
+        },
+        {
+          id: 'ch-9-mr-2',
+          name: 'कीर्तीचा कठिया',
+          textbookRef: 'कुमारभारती इयत्ता ९ वी — पाठ २',
+          syllabusTopics: ['म्हाइंभट विरचित "लीळाचरित्र" (मराठीतील पहिला गद्य ग्रंथ)', 'सर्वज्ञ श्री चक्रधर स्वामींची लीळा', 'कीर्तीच्या हव्यासाने मानवाचे होणारे पतन'],
+          learningObjectives: ['प्राचीन मराठी गद्य भाषा आणि निस्पृहतेचे मूल्य समजणे'],
+        },
+        {
+          id: 'ch-9-mr-3',
+          name: 'व्यायामाचे महत्त्व',
+          textbookRef: 'कुमारभारती इयत्ता ९ वी — पाठ ३',
+          syllabusTopics: ['राष्ट्रसंत तुकडोजी महाराज यांची विचाररचना', 'आरोग्य हीच खरी संपत्ती, व्यायामाने रक्तभिसरण व प्रतिकारशक्ती वाढणे', 'आळसाचा नाश'],
+          learningObjectives: ['नियमित व्यायाम व निरोगी जीवनशैलीचा अंगीकार करणे'],
+        },
+        {
+          id: 'ch-9-mr-4',
+          name: 'ऑलिंपिक वर्तुळांचा गोफ',
+          textbookRef: 'कुमारभारती इयत्ता ९ वी — पाठ ४',
+          syllabusTopics: ['बाळ ज. पंडित यांचा माहितीपर पाठ', 'ऑलिंपिक सामन्यांचा इतिहास, पाच खंडांची एकात्मता दर्शवणारी पाच वर्तुळे', 'विश्वबंधुत्व, निकोप स्पर्धा व क्रीडा भावना'],
+          learningObjectives: ['आंतरराष्ट्रीय क्रीडा स्पर्धांचे महत्त्व व क्रीडासंस्कृतीची ओळख करून घेणे'],
+        },
+        {
+          id: 'ch-9-mr-5',
+          name: 'दिव्याच्या शोधामागचे दिव्य',
+          textbookRef: 'कुमारभारती इयत्ता ९ वी — पाठ ५',
+          syllabusTopics: ['महान संशोधक थॉमस अल्वा एडिसन यांच्या विजेच्या दिव्याच्या शोधाचा संघर्ष', 'हजारो अयशस्वी प्रयोगांनंतरही न खचता घेतलेले अथक परिश्रम'],
+          learningObjectives: ['चिकाटी, वैज्ञानिक कुतूहल आणि ध्येयनिष्ठेचा आदर्श घेणे'],
+        },
+        {
+          id: 'ch-9-mr-6',
+          name: 'सखू आजी',
+          textbookRef: 'कुमारभारती इयत्ता ९ वी — पाठ ६',
+          syllabusTopics: ['राजन गवस यांचा व्यक्तिचित्रणात्मक पाठ', 'गावातील सखू आजीची बोलकी भाषा, निसर्गाशी नातं आणि तिच्या मृत्यूनंतर निर्माण झालेली पोकळी'],
+          learningObjectives: ['ग्रामीण संस्कृतीतील वडीलधाऱ्या माणसांचे महत्त्व व व्यक्तिचित्रण शैली'],
+        },
+        {
+          id: 'ch-9-mr-7',
+          name: 'हास्यचित्रांतली मुलं',
+          textbookRef: 'कुमारभारती इयत्ता ९ वी — पाठ ७',
+          syllabusTopics: ['मधुकर धर्मापुरीकर यांचा कलाविषयक पाठ', 'व्यंग्यचित्र आणि हास्यचित्र यांतील भेद', 'चिंटू, मारिओ, लँगडन यांच्या चित्रांमधील मुलांची निरागसता'],
+          learningObjectives: ['चित्रकलेतील आणि व्यंग्यचित्रातील सूक्ष्म बारकावे व विनोद समजून घेणे'],
+        },
+        {
+          id: 'ch-9-mr-8',
+          name: 'तिफन (कविता)',
+          textbookRef: 'कुमारभारती इयत्ता ९ वी — पाठ ८',
+          syllabusTopics: ['विठ्ठल वाघ यांची प्रसिद्ध शेतकरी कविता', 'मृग नक्षत्राचा पाऊस, काळ्या मातीत तिफन चालवणे, बियाणे पेरणे आणि शेतकऱ्यांची हिरवी स्वप्ने'],
+          learningObjectives: ['ग्रामीण कृषीजीवन, मातीचा गंध आणि लयबद्ध बोलीभाषेचा आस्वाद घेणे'],
+        }
+      ]
+    },
+    {
+      id: 'cbse-9-english',
+      name: 'English (Beehive & Moments)',
+      category: 'English & Languages',
+      curricula: ['NCERT Beehive Class 9', 'NCERT Moments Supplementary'],
+      textbookName: 'Beehive & Moments (NCERT Class 9)',
+      edition: '2025–2026 NEP Edition',
+      chapters: [
+        {
+          id: 'ch-9-en-1',
+          name: 'The Fun They Had',
+          textbookRef: 'NCERT Beehive Class 9 — Unit 1',
+          syllabusTopics: ['Isaac Asimov’s classic science-fiction story set in year 2157', 'Margie and Tommy discovering an ancient printed paper book', 'Mechanical teacher with screen and punch-code tests vs human teacher and school building with classmates'],
+          learningObjectives: ['Critique technological isolation versus social collaborative schooling']
+        },
+        {
+          id: 'ch-9-en-2',
+          name: 'The Sound of Music (Parts I & II)',
+          textbookRef: 'NCERT Beehive Class 9 — Unit 2',
+          syllabusTopics: ['Deborah Cowley’s account of Evelyn Glennie sensing sound through her body vibrations without hearing', 'Ustad Bismillah Khan bringing the Shehnai from royal naubatkhana to international classical stage', 'Secular syncretism at Varanasi Ganga ghats and Dumraon'],
+          learningObjectives: ['Draw inspiration from overcoming sensory disability and study Indian musical traditions']
+        },
+        {
+          id: 'ch-9-en-3',
+          name: 'The Little Girl',
+          textbookRef: 'NCERT Beehive Class 9 — Unit 3',
+          syllabusTopics: ['Katherine Mansfield’s psychological narrative of Kezia and her strict, imposing father', 'Accidental tearing of father’s speech papers for birthday pincushion gift leading to punishment', 'Mother taken ill, nightmare, and discovering father’s tender protective heart under stern exterior'],
+          learningObjectives: ['Analyze child-parent dynamics, fear, and empathetic emotional reconciliation']
+        },
+        {
+          id: 'ch-9-en-4',
+          name: 'A Truly Beautiful Mind',
+          textbookRef: 'NCERT Beehive Class 9 — Unit 4',
+          syllabusTopics: ['Biographical sketch of Albert Einstein: rebellious Munich school years, patent office in Bern, 1905 Annus Mirabilis papers on relativity', 'Letter to Roosevelt warning about atomic bomb, Hiroshima tragedy, and lifelong crusade for world government and peace'],
+          learningObjectives: ['Evaluate the moral responsibility of scientists and Einstein’s pacifist world vision']
+        },
+        {
+          id: 'ch-9-en-5',
+          name: 'My Childhood',
+          textbookRef: 'NCERT Beehive Class 9 — Unit 5',
+          syllabusTopics: ['Dr. A.P.J. Abdul Kalam’s memoir excerpted from "Wings of Fire"', 'Growing up in Rameshwaram with parents Jainulabdeen and Ashiamma', 'Communal harmony among Hindu and Muslim friends (Ramanadha Sastry), confrontation with orthodox teacher, and science teacher Sivasubramania Iyer breaking social barriers'],
+          learningObjectives: ['Appreciate interfaith tolerance, humility, and family values shaping scientific destiny']
+        },
+        {
+          id: 'ch-9-en-6',
+          name: 'Reach for the Top (Parts I & II)',
+          textbookRef: 'NCERT Beehive Class 9 — Unit 6',
+          syllabusTopics: ['Santosh Yadav: conquering Mount Everest twice and environmental cleanup of 500 kg trash from Himalayas', 'Maria Sharapova: enduring grueling tennis sacrifice in Florida, mental toughness, and reaching World No. 1 ranking at age 18'],
+          learningObjectives: ['Examine women empowerment, grit, discipline, and perseverance under adversity']
+        },
+        {
+          id: 'ch-9-en-7',
+          name: 'The Road Not Taken & Wind (Poems)',
+          textbookRef: 'NCERT Beehive Class 9 — Poetry',
+          syllabusTopics: ['Robert Frost’s "The Road Not Taken": decision making, divergence in yellow wood, choices that make all the difference', 'Subramania Bharati’s "Wind": destructive force of wind blowing away weaklings, building inner resilience to make adversity our friend'],
+          learningObjectives: ['Analyze universal metaphors of life choices and mental toughness in modern poetry']
+        },
+        {
+          id: 'ch-9-en-8',
+          name: 'The Lost Child (Moments)',
+          textbookRef: 'NCERT Moments Class 9 — Chapter 1',
+          syllabusTopics: ['Mulk Raj Anand’s masterpiece of childhood desire and primal security', 'Spring fair: toys, dragonflies, burfi, gulmohar garland, rainbow balloons, roundabout', 'Separation from parents: the sudden realization that all materialistic attractions are utterly worthless without parents'],
+          learningObjectives: ['Evaluate emotional hierarchies, parental bonds, and psychological panic of loss']
+        }
+      ]
+    },
+    {
+      id: 'cbse-9-sanskrit',
+      name: 'Sanskrit (शेमुषी प्रथमो भागः)',
+      category: 'Sanskrit',
+      curricula: ['NCERT Shemushi Class 9', 'CBSE Class 9 Sanskrit Board Course'],
+      textbookName: 'शेमुषी प्रथमो भागः (NCERT Class 9)',
+      edition: '2025–2026 NEP Edition',
+      chapters: [
+        {
+          id: 'ch-9-sk-1',
+          name: 'भारतीवसन्तगीतिः',
+          textbookRef: 'NCERT शेमुषी भाग १ — पाठ १',
+          syllabusTopics: ['पं. जानकीवल्लभ शास्त्रिणः "काकली" गीतसङ्ग्रहात् उद्धृतम्', 'निनादय नवीनामये वाणि वीणाम्', 'मृदुं गाय गीतिं ललितनीतिलीनाम्, वसन्ते लसन्तीह सरसा रसालाः'],
+          learningObjectives: ['राष्ट्रचेतनायाः वीणावादनस्य च काव्यानुभूतिः']
+        },
+        {
+          id: 'ch-9-sk-2',
+          name: 'स्वर्णकाकः',
+          textbookRef: 'NCERT शेमुषी भाग १ — पाठ २',
+          syllabusTopics: ['श्रीपद्मशास्त्रिणः "विश्वकथाशतकम्" (बर्मी लोककथा)', 'विनम्रायाः निर्धनायाः बालिकायाः स्वर्णकाकेन सह व्यवहारः', 'लुब्धायाः बालिकायाः लोभस्य दुष्परिणामः, तण्डुलानां मूल्यम्'],
+          learningObjectives: ['लोभस्य हानिकरत्वं सन्तोषस्य च श्रेष्ठता']
+        },
+        {
+          id: 'ch-9-sk-3',
+          name: 'गोदोहनम्',
+          textbookRef: 'NCERT शेमुषी भाग १ — पाठ ३',
+          syllabusTopics: ['चतुर्व्यूहम् इति पुस्तकात् सङ्क्षिप्तम् (नाट्यांशः)', 'चन्दनस्य मल्लिकायाश्च मासपर्यन्तं धेनोः अदोहनम्', 'मासान्ते दुग्धदोहने धेनोः पादप्रहारः, "कार्यमद्यतनीयं यत्तदद्यैव विधीयताम्"'],
+          learningObjectives: ['समयपालनेन कार्यसमापनस्य महत्त्वम्, हास्यनाट्याभिनयः']
+        },
+        {
+          id: 'ch-9-sk-4',
+          name: 'कल्पतरुः',
+          textbookRef: 'NCERT शेमुषी भाग १ — पाठ ४',
+          syllabusTopics: ['वेतालपञ्चविंशतिः कथाग्रन्थात्', 'जीमूतवाहनस्य परोपकाराय कल्पवृक्षस्य याचना', 'स्वार्थत्यागः, सर्वभूतानुकम्पा, परोपकाराय फलं सस्यं च'],
+          learningObjectives: ['परोपकारस्य अमरत्वम् त्यागभावस्य च जागरणम्']
+        },
+        {
+          id: 'ch-9-sk-5',
+          name: 'सूक्तिमौक्तिकम्',
+          textbookRef: 'NCERT शेमुषी भाग १ — पाठ ५',
+          syllabusTopics: ['मनुस्मृति-विदुरनीति-हितोपदेशेभ्यः सुभाषितानि', 'वृत्तं यत्नेन संरक्षेद् वित्तमेति च याति च', 'यथा ह्येकेन चक्रेण न रथस्य गतिर्भवेत् (कर्मणः महत्त्वम्)'],
+          learningObjectives: ['सदाचारस्य नैतिकमूल्यानां च कण्ठस्थीकरणम्']
+        },
+        {
+          id: 'ch-9-sk-6',
+          name: 'भ्रान्तो बालः',
+          textbookRef: 'NCERT शेमुषी भाग १ — पाठ ६',
+          syllabusTopics: ['क्रीडासक्तस्य अलसस्य बालकस्य कथा', 'मधुकरः, श्वानः, चटकश्च सर्वैः स्वकार्यव्यापृतत्वं दर्शितम्', 'बालकस्य ज्ञानोदयः विद्याभ्यासे प्रवृत्तिश्च'],
+          learningObjectives: ['आलस्यत्यागः स्वकर्तव्यपालनस्य च प्रेरणा']
+        },
+        {
+          id: 'ch-9-sk-7',
+          name: 'सिकतासेतुः',
+          textbookRef: 'NCERT शेमुषी भाग १ — पाठ ७',
+          syllabusTopics: ['सोमदेवस्य "कथासरित्सागरः" सप्तमांशः', 'तपोदत्तस्य विद्याभ्यासं विना केवलं तपसा विद्याप्राप्तये यत्नः', 'इन्द्रेण वालुकाभिः (सिकताभिः) नद्यां सेतुनिर्माणस्य दृष्टान्तेन प्रबोधनम्'],
+          learningObjectives: ['परिश्रमेण अभ्यासेन च एव विद्या सिध्यति इति बोधः']
+        },
+        {
+          id: 'ch-9-sk-8',
+          name: 'जटायोः शौर्यम्',
+          textbookRef: 'NCERT शेमुषी भाग १ — पाठ ८',
+          syllabusTopics: ['वाल्मीकिरामायणस्य अरण्यकाण्डात् पद्यानि', 'रावणेन सीतायाः अपहरणे वृद्धस्य जटायुषः अदम्यं शौर्यम्', 'धर्मरक्षायै प्राणत्यागः, अन्यायस्य प्रतिरोधः'],
+          learningObjectives: ['वृद्धावस्थायामपि अन्यायरोधे वीरतायाः आदर्शः']
+        }
+      ]
     }
   ]
 };

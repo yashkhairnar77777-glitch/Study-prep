@@ -82,6 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
     my_subscription: 'My Subscription',
     admin_payments: 'Payment Management',
     timer: 'Smart AI Study Timer',
+    ncert_hub: 'NCERT Hub (Classes 5–10)',
   };
 
   return (

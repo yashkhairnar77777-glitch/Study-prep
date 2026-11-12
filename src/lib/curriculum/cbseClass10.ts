@@ -491,6 +491,564 @@ export const cbseClass10: SyllabusClassInfo = {
           learningObjectives: ['Determine whether given data sets are sufficient to answer logical queries without superfluous calculation', 'Solve NTSE National Stage 2 puzzle matrices under strict time limits']
         }
       ]
+    },
+    {
+      id: 'cbse-10-hindi',
+      name: 'Hindi (क्षितिज भाग 2 एवं स्पर्श)',
+      category: 'Hindi',
+      curricula: ['NCERT Kshitij & Sparsh Class 10', 'CBSE Class 10 Hindi Board Exam (Course A & B)'],
+      chapters: [
+        {
+          id: 'ch-10-h-1',
+          name: 'सूरदास के पद',
+          textbookRef: 'NCERT क्षितिज भाग 2 — काव्य खंड पाठ 1',
+          syllabusTopics: ['सूरसागर के भ्रमरगीत से संकलित चार पद', 'उद्धव-गोपी संवाद: निर्गुण ज्ञान योग पर सगुण प्रेम की विजय', 'गोपियों का उपालंभ, विरह वेदना और राजधर्म (प्रजा न जाहिं सताए)'],
+          learningObjectives: ['भ्रमरगीत की व्यंग्यात्मक व वाग्विदग्धता शैली का अध्ययन', 'सूरदास की ब्रजभाषा माधुर्य और वात्सल्य-श्रृंगार रस की व्याख्या'],
+        },
+        {
+          id: 'ch-10-h-2',
+          name: 'राम-लक्ष्मण-परशुराम संवाद',
+          textbookRef: 'NCERT क्षितिज भाग 2 — काव्य खंड पाठ 2',
+          syllabusTopics: ['तुलसीदास विरचित रामचरितमानस (बालकांड) से उद्धृत प्रसंग', 'शिवधनुष टूटने पर परशुराम का क्रोध और लक्ष्मण का तीखा हास्य-व्यंग्य', 'राम की विनयशीलता, लक्ष्मण के वीर रस युक्त वचन और परशुराम का फरसा', 'चौपाई और दोहा छंद विधान'],
+          learningObjectives: ['अवधी भाषा के साहित्यिक सौंदर्य और तुलसीदास की संवाद योजना का विश्लेषण', 'क्रोध बनाम विवेक के नैतिक द्वंद्व को समझना'],
+        },
+        {
+          id: 'ch-10-h-3',
+          name: 'उत्साह और अट नहीं रही है',
+          textbookRef: 'NCERT क्षितिज भाग 2 — काव्य खंड पाठ 3',
+          syllabusTopics: ['सूर्यकांत त्रिपाठी "निराला" के दो छायावादी गीत', '"उत्साह" — बादलों को क्रांति और नूतन चेतना के प्रतीक के रूप में आह्वान', '"अट नहीं रही है" — फागुन मास के असीम प्राकृतिक सौंदर्य का उल्लास'],
+          learningObjectives: ['छायावादी काव्य शैली, लाक्षणिकता और बिंब-विधान का मूल्यांकन'],
+        },
+        {
+          id: 'ch-10-h-4',
+          name: 'यह दंतुरित मुस्कान और फसल',
+          textbookRef: 'NCERT क्षितिज भाग 2 — काव्य खंड पाठ 4',
+          syllabusTopics: ['नागार्जुन की दो प्रसिद्ध कविताएं', 'शिशु की नन्हीं दाँतदार मुस्कान का पाषाण-हृदय पिघलाने वाला प्रभाव', 'फसल: नदियों के पानी का जादू, हाथों के स्पर्श की गरिमा और धरती का रूप-रूपांतरण'],
+          learningObjectives: ['श्रम की महत्ता, प्रकृति और मानव सह-अस्तित्व का काव्यात्मक बोध'],
+        },
+        {
+          id: 'ch-10-h-5',
+          name: 'संगतकार',
+          textbookRef: 'NCERT क्षितिज भाग 2 — काव्य खंड पाठ 5',
+          syllabusTopics: ['मंगेश डबराल की कविता', 'मुख्य गायक के साथ सुर साधने वाले सहयोगी कलाकार (संगतकार) का मौन समर्पण', 'संगतकार की मनुष्यता: अपनी आवाज को मुख्य गायक से नीचा रखना कमजोरी नहीं समर्पण है'],
+          learningObjectives: ['पर्दे के पीछे कार्य करने वाले सहयोगियों के योगदान और मानवीय संवेदना का सम्मान'],
+        },
+        {
+          id: 'ch-10-h-6',
+          name: 'नेताजी का चश्मा',
+          textbookRef: 'NCERT क्षितिज भाग 2 — गद्य खंड पाठ 1',
+          syllabusTopics: ['स्वयं प्रकाश की प्रसिद्ध कहानी', 'हालदार साहब की कस्बे से नियमित यात्रा और चौराहे पर सुभाषचंद्र बोस की मूर्ति', 'कैप्टन चश्मेवाले का मूर्ति पर बार-बार नया चश्मा लगाना', 'सच्ची देशभक्ति: सीमाओं पर लड़ने तक सीमित न होकर कर्म में प्रकट होना'],
+          learningObjectives: ['देशभक्ति के व्यावहारिक व रचनात्मक स्वरूप को समझना', 'चरित्र-चित्रण और कथानक का विवेचन'],
+        },
+        {
+          id: 'ch-10-h-7',
+          name: 'बालगोबिन भगत',
+          textbookRef: 'NCERT क्षितिज भाग 2 — गद्य खंड पाठ 2',
+          syllabusTopics: ['रामवृक्ष बेनीपुरी का सजीव रेखाचित्र', 'कबीरपंथी साधु बालगोबिन भगत का गृहस्थ होकर भी सन्यासियों जैसा निष्काम जीवन', 'बेटे की मृत्यु पर उत्सव और बहू का पुनर्विवाह कराने का क्रांतिकारी कदम', 'रूढ़ियों का विरोध'],
+          learningObjectives: ['कबीर दर्शन और बाह्य आडंबरों से परे आंतरिक शुचिता के आदर्श को पहचानना'],
+        },
+        {
+          id: 'ch-10-h-8',
+          name: 'लखनवी अंदाज़',
+          textbookRef: 'NCERT क्षितिज भाग 2 — गद्य खंड पाठ 3',
+          syllabusTopics: ['यशपाल का व्यंग्य प्रधान निबंध', 'ट्रेन के सेकंड क्लास में नवाब साहब का खीरा काटने, सूंघने और खिड़की से बाहर फेंकने का ढोंग', 'सामंती दिखावे की बनावटी संस्कृति पर करारा प्रहार'],
+          learningObjectives: ['व्यंग्य विधा की सूक्ष्म अंतर्दृष्टि और पाखंड-विरोधी तार्किक दृष्टिकोण अपनाना'],
+        },
+        {
+          id: 'ch-10-h-9',
+          name: 'एक कहानी यह भी',
+          textbookRef: 'NCERT क्षितिज भाग 2 — गद्य खंड पाठ 4',
+          syllabusTopics: ['मन्नू भंडारी की आत्मकथ्य शैली', 'पिता के क्रोधी व शक्की स्वभाव से टकराहट और स्वाधीनता संग्राम में कॉलेज के दिनों की भागीदारी', 'प्राध्यापिका शीला अग्रवाल का प्रभाव और साहित्यिक व्यक्तित्व का निर्माण'],
+          learningObjectives: ['आत्मकथात्मक गद्य का अध्ययन और स्वतंत्रता आंदोलन में स्त्रियों की सक्रियता'],
+        },
+        {
+          id: 'ch-10-h-10',
+          name: 'नौबतखाने में इबादत',
+          textbookRef: 'NCERT क्षितिज भाग 2 — गद्य खंड पाठ 5',
+          syllabusTopics: ['यतीन्द्र मिश्र का व्यक्तिचित्र', 'भारतरत्न उस्ताद बिस्मिल्ला खाँ की शहनाई साधना, काशी की मिली-जुली गंगा-जमुनी संस्कृति', 'बालाजी मंदिर पर रियाज़ और संगीत को खुदा की इबादत मानना'],
+          learningObjectives: ['भारतीय शास्त्रीय संगीत परंपरा और सांप्रदायिक सद्भाव की पहचान'],
+        }
+      ]
+    },
+    {
+      id: 'cbse-10-marathi',
+      name: 'Marathi (कुमारभारती / अक्षरभारती इयत्ता १० वी)',
+      category: 'Marathi',
+      curricula: ['Maharashtra State / NCERT Marathi Class 10', 'कुमारभारती इयत्ता दहावी Board Exam'],
+      chapters: [
+        {
+          id: 'ch-10-mr-1',
+          name: 'जय जय हे भारत देशा (गीत)',
+          textbookRef: 'कुमारभारती इयत्ता १० वी — पाठ १',
+          syllabusTopics: ['मंगेश पाडगावकर यांचे राष्ट्रीय एकात्मतेचे स्फूर्तिगीत', 'विविधतेत एकता, संतांची भूमी आणि स्वतंत्र भारताचा उज्ज्वल भविष्यकाळ'],
+          learningObjectives: ['मातृभूमीबद्दल निष्ठा, कृतज्ञता व राष्ट्रीय गौरव अंगी बाणवणे'],
+        },
+        {
+          id: 'ch-10-mr-2',
+          name: 'संतवाणी (अंकिला मी दास तुझा / योगी सर्वकाळ सुखदाता)',
+          textbookRef: 'कुमारभारती इयत्ता १० वी — पाठ २',
+          syllabusTopics: ['संत नामदेव महाराज — आई, पाडस, पिल्लू यांच्या दृष्टांतातून परमेश्वराकडे मांडलेली शरणागती', 'संत एकनाथ महाराज — पाण्याचे जलसुख आणि योग्याचे आंतरिक ज्ञानसुख यांतील श्रेष्ठता'],
+          learningObjectives: ['मध्ययुगीन संतकविता, दृष्टांत अलंकार व भक्तीरसाचे आकलन'],
+        },
+        {
+          id: 'ch-10-mr-3',
+          name: 'शाल',
+          textbookRef: 'कुमारभारती इयत्ता १० वी — पाठ ३',
+          syllabusTopics: ['रा. ग. जाधव यांचा संस्मरणपर पाठ', 'पु. ल. देशपांडे यांनी दिलेली शाल आणि सन्मानाचे खरे मूल्य', 'मासे पकडणाऱ्या गरीब महिलेच्या थंडीने कुडकुडणाऱ्या बाळाला शाल दान करणे', 'शालीनता आणि दानत'],
+          learningObjectives: ['सन्मानापेक्षा संवेदनशीलता व गरिबांप्रती भूतदया अधिक मोलाची असते हे शिकणे'],
+        },
+        {
+          id: 'ch-10-mr-4',
+          name: 'उपास',
+          textbookRef: 'कुमारभारती इयत्ता १० वी — पाठ ४',
+          syllabusTopics: ['पु. ल. देशपांडे यांची अजरामर विनोदी कथा', 'पंत यांचा चाळीत जाहीर केलेला वजन कमी करण्याचा निश्चय', 'आहारतज्ज्ञांचे सल्ले, दोरीच्या उड्या, साखर सोडणे आणि चाळकरी लोकांची चेष्टा-मस्करी'],
+          learningObjectives: ['उत्कृष्ट मराठी विनोदी साहित्यातील भाषिक सौंदर्य व जीवनदृष्टी अनुभवणे'],
+        },
+        {
+          id: 'ch-10-mr-5',
+          name: 'दोन दिवस (कविता)',
+          textbookRef: 'कुमारभारती इयत्ता १० वी — पाठ ५',
+          syllabusTopics: ['नारायण सुर्वे यांची वास्तववादी कामगार कविता', '"दोन दिवस वाट पाहण्यात गेले, दोन दुःखात गेले"', 'भाकरीचा चंद्र शोधण्यातच जिणे बरबाद झालेले श्रमिकांचे दारुण वास्तव'],
+          learningObjectives: ['श्रमिकांचे दुःख आणि जगण्याच्या धगधगत्या वास्तवाचे भान ठेवणे'],
+        },
+        {
+          id: 'ch-10-mr-6',
+          name: 'चुडीवाला',
+          textbookRef: 'कुमारभारती इयत्ता १० वी — पाठ ६',
+          syllabusTopics: ['जयश्री रुईकर यांचा हृदयस्पर्शी पाठ', 'अब्दुल चुडीवाला — दापोलीतील कुष्ठरोग्यांच्या आश्रमात जाऊन संक्रांतीला व ज्येष्ठ पौर्णिमेला मोफत बांगड्या भरणे', 'समाजाने बहिष्कृत केलेल्या कुष्ठरोग्यांच्या चेहऱ्यावर आनंद फुलवण्याचे समाधान'],
+          learningObjectives: ['जात-धर्मापलीकडे जाऊन दीनदुबळ्यांची केलेली निस्वार्थ सेवा आत्मसात करणे'],
+        },
+        {
+          id: 'ch-10-mr-7',
+          name: 'फूटप्रिंट्स',
+          textbookRef: 'कुमारभारती इयत्ता १० वी — पाठ ७',
+          syllabusTopics: ['डॉ. प्रदीप आवटे यांची पर्यावरणवादी विज्ञानकथा', 'सुमितचे ॲप — अभिषेक आणि रेखा मावशींच्या पावलांची तपासणी', 'कार्बन फूटप्रिंट्स (Carbon Footprints) आणि वृक्षलागवडीचे वैश्विक महत्त्व'],
+          learningObjectives: ['पर्यावरण प्रदूषण रोखणे आणि स्वतःचा कार्बन फूटप्रिंट कमी करण्याची जाणीव'],
+        },
+        {
+          id: 'ch-10-mr-8',
+          name: 'ऊर्जाशक्तीचा जागर',
+          textbookRef: 'कुमारभारती इयत्ता १० वी — पाठ ८',
+          syllabusTopics: ['डॉ. रघुनाथ माशेलकर यांचा आत्मकथात्मक पाठ', 'मुंबईतील गिरगावच्या फुटपाथवरील वाचन, आईने घेतलेले अपार कष्ट आणि गरिबीवर मात करून जागतिक कीर्तीचे वैज्ञानिक होणे'],
+          learningObjectives: ['प्रतिकूल परिस्थितीवर मात करण्याची जिद्द आणि आईच्या संस्कारांचे मोल जाणणे'],
+        },
+        {
+          id: 'ch-10-mr-9',
+          name: 'खरे नागरिक',
+          textbookRef: 'कुमारभारती इयत्ता १० वी — पाठ ९',
+          syllabusTopics: ['सुहास बारटक्के यांची कथा', 'निरंजनने नागरिकशास्त्राच्या परीक्षेला जाताना रेल्वे रुळाला पडलेले भगदाड (घातपात) पाहणे', 'स्वतःच्या परीक्षेचा विचार न करता स्टेशन मास्तरांना कळवून शेकडो प्रवाशांचे प्राण वाचवणे'],
+          learningObjectives: ['पुस्तकी ज्ञानापेक्षा प्रत्यक्ष संकटात दाखवलेले कर्तव्यपरायण नागरिकत्व श्रेष्ठ असते'],
+        }
+      ]
+    },
+    {
+      id: 'cbse-10-english',
+      name: 'English (First Flight & Footprints Without Feet)',
+      category: 'English & Languages',
+      curricula: ['NCERT First Flight Class 10', 'NCERT Footprints Without Feet Class 10', 'CBSE Class 10 English Language & Literature'],
+      textbookName: 'NCERT First Flight & Footprints Without Feet',
+      edition: '2025–2026 Academic Edition',
+      subjectCode: '184',
+      sourceAvailable: true,
+      chapters: [
+        {
+          id: 'ch-10-eng-1',
+          name: 'A Letter to God & Dust of Snow, Fire and Ice',
+          textbookRef: 'NCERT First Flight — Chapter 1 & Poems',
+          syllabusTopics: [
+            'Lencho’s absolute faith in God destroyed by hailstorm',
+            'Postmaster’s benevolence and 70 pesos collection',
+            'Irony: Calling post office employees "a bunch of crooks"',
+            'Robert Frost poems: Dust of Snow (nature’s healing power) & Fire and Ice (desire and hatred)'
+          ],
+          learningObjectives: [
+            'Analyze dramatic irony and thematic contrast between faith and suspicion',
+            'Interpret Frost’s symbolic use of hemlock tree, crow, fire, and ice'
+          ],
+          overviewSummary: 'Lencho is a hardworking farmer whose cornfield is ruined by a sudden hailstorm. With unwavering faith, he writes to God requesting 100 pesos. The kind postmaster pools 70 pesos, but Lencho suspects the postal workers stole the rest.',
+          importantDefinitions: [
+            'Irony: A situation where the outcome is opposite of what is expected.',
+            'Metaphor: Comparing two unrelated things (e.g., hailstones as new silver coins).'
+          ],
+          keyConcepts: [
+            'Unconditional faith vs human suspicion',
+            'Subtle kindness in unsung civil servants',
+            'Frostian symbolism of transformation through small moments'
+          ],
+          competencyQuestions: [
+            'How does Lencho’s reaction upon counting the money reveal the limits of his understanding of human nature?',
+            'Compare the destructive potential of "Fire" (passion) and "Ice" (cold hatred) in human civilizations.'
+          ],
+          caseBasedQuestions: [
+            'Read the excerpt: "God," he wrote, "if you don\'t help me, my family and I will go hungry this year." Explain how the postmaster exemplifies true empathy.'
+          ]
+        },
+        {
+          id: 'ch-10-eng-2',
+          name: 'Nelson Mandela: Long Walk to Freedom & A Tiger in the Zoo',
+          textbookRef: 'NCERT First Flight — Chapter 2 & Poem',
+          syllabusTopics: [
+            'Inauguration ceremony at Union Buildings amphitheatre, Pretoria (10 May 1994)',
+            'Extraordinary human disaster of Apartheid and victory of human dignity',
+            'Twin obligations: To family and to country/community',
+            'Mandela’s definition of courage: Not the absence of fear, but triumph over it',
+            'Poem: Leslie Norris - A Tiger in the Zoo (vivid contrast of captivity vs natural wilderness)'
+          ],
+          learningObjectives: [
+            'Comprehend the historical struggle against racial segregation and Apartheid in South Africa',
+            'Examine Norris’s critique of human cruelty confining wild animals in concrete cages'
+          ],
+          overviewSummary: 'Nelson Mandela reflects on the historic oath-taking ceremony marking the end of Apartheid. He honors freedom fighters, elucidates that the oppressor is as much a prisoner as the oppressed, and redefines courage.',
+          importantDefinitions: [
+            'Apartheid: A political and social system of institutionalised racial discrimination.',
+            'Emancipation: The fact or process of being set free from legal, social, or political restrictions.'
+          ],
+          keyConcepts: [
+            'Freedom is indivisible; oppressor and oppressed both lack freedom',
+            'True courage is triumph over fear, not lack of fear',
+            'Captivity stifles majesty and instinct (Tiger in the Zoo)'
+          ],
+          competencyQuestions: [
+            'What "twin obligations" does Mandela describe, and why could a Black South African not fulfill them under Apartheid?',
+            'How does Leslie Norris employ sensory imagery to depict the tiger’s quiet rage?'
+          ]
+        },
+        {
+          id: 'ch-10-eng-3',
+          name: 'Two Stories about Flying & How to Tell Wild Animals',
+          textbookRef: 'NCERT First Flight — Chapter 3 & Poem',
+          syllabusTopics: [
+            'Part I: His First Flight (Liam O’Flaherty) - Young seagull overcoming fear of flight compelled by hunger',
+            'Part II: Black Aeroplane (Frederick Forsyth) - Dakota pilot guided through black storm clouds by mysterious pilot',
+            'Poem: Carolyn Wells - How to Tell Wild Animals (humorous guide to identifying jungle beasts)'
+          ],
+          learningObjectives: [
+            'Understand psychological barriers of fear and necessity prompting courage',
+            'Analyze mystery and open-ended narrative techniques in Forsyth’s story'
+          ],
+          overviewSummary: 'Two distinct perspectives on flight: a young seagull that takes its plunge out of extreme hunger, and a pilot lost inside monstrous storm clouds rescued by an enigmatic unmarked black aeroplane.',
+          importantDefinitions: [
+            'Parental motivation: Harsh love designed to force self-reliance.',
+            'Open ending: A conclusion leaving interpretation to the reader.'
+          ],
+          competencyQuestions: [
+            'Was the mysterious black aeroplane a supernatural intervention or a projection of the pilot’s own subconscious survival instinct?',
+            'How does the young seagull’s mother use food as a strategic catalyst for his maiden flight?'
+          ]
+        },
+        {
+          id: 'ch-10-eng-4',
+          name: 'From the Diary of Anne Frank & The Ball Poem',
+          textbookRef: 'NCERT First Flight — Chapter 4 & Poem',
+          syllabusTopics: [
+            'Anne Frank’s need for a true friend; naming her diary "Kitty"',
+            'Her bond with grandmother and affection for Montessori teachers',
+            'Mr. Keesing’s math essays: "A Chatterbox", "An Incorrigible Chatterbox", "Quack, Quack, Quack"',
+            'Poem: John Berryman - The Ball Poem (epistemology of loss and first lesson in growing up)'
+          ],
+          learningObjectives: [
+            'Examine Anne Frank’s wit, perceptiveness, and emotional maturity under Nazi persecution',
+            'Understand Berryman’s exploration of grief, material impermanence, and resilience'
+          ],
+          overviewSummary: 'Thirteen-year-old Anne Frank chronicles her school life and relationship with teachers in occupied Amsterdam, cleverly turning punishment essays into sparkling poetry. The Ball Poem reflects on a boy losing his beloved ball, confronting the harsh reality of loss.',
+          importantDefinitions: [
+            'Epistemology of Loss: Understanding what it means to lose something cherished and continuing to live.',
+            'Chatterbox: A person who talks continuously.'
+          ],
+          competencyQuestions: [
+            'Why did Anne Frank say "Paper has more patience than people"?',
+            'In The Ball Poem, why does the poet refuse to offer money or a new ball to the boy?'
+          ]
+        },
+        {
+          id: 'ch-10-eng-5',
+          name: 'Glimpses of India & The Trees',
+          textbookRef: 'NCERT First Flight — Chapter 5 & Poem',
+          syllabusTopics: [
+            'Part I: A Baker from Goa (Lucio Rodrigues) - Pader tradition, bol, kabai, and nostalgic village life',
+            'Part II: Coorg (Lokesh Abrol) - Coffee country, Kodavus, martial traditions, General Cariappa, Kaveri river',
+            'Part III: Tea from Assam (Arup Kumar Datta) - Rajvir and Pranjol, legend of Bodhidharma, tea bushes of Dhekiabari',
+            'Poem: Adrienne Rich - The Trees (feminist allegory of trees breaking free from interior confines into the forest)'
+          ],
+          learningObjectives: [
+            'Appreciate the cultural, historical, and geographical diversity of Indian regions',
+            'Deconstruct Adrienne Rich’s ecological and feminist metaphors of liberation'
+          ],
+          overviewSummary: 'A vivid travelogue across Portuguese-influenced Goa with its morning bread bakers, the misty rolling hills and valor of Coorg, and the emerald green tea gardens of Assam, paired with Adrienne Rich’s symbolic liberation of nature.',
+          keyConcepts: [
+            'Goan cultural heritage preserved in the culinary art of baking',
+            'Kodava independence and brave heritage in Indian Army',
+            'Assam’s economic lifelines and origins of tea culture',
+            'Rich’s poem as an ode to women breaking societal barriers'
+          ]
+        },
+        {
+          id: 'ch-10-eng-6',
+          name: 'Madam Rides the Bus & The Tale of Custard the Dragon',
+          textbookRef: 'NCERT First Flight — Chapter 7 & Poem',
+          syllabusTopics: [
+            'Valli’s meticulous planning: saving 60 paise, calculating timings (1:00 PM to 2:45 PM)',
+            'Her self-respect: refusing conductor’s free drink or patronizing help',
+            'The tragic reality: Running cow earlier vibrant, now dead by roadside',
+            'Poem: Ogden Nash - The Tale of Custard the Dragon (humorous ballad on real vs boastful bravery)'
+          ],
+          learningObjectives: [
+            'Explore childhood innocence meeting the mature realities of life and mortality',
+            'Analyze Ogden Nash’s whimsical rhyme scheme and satire on empty bragging'
+          ],
+          overviewSummary: 'Eight-year-old Valliammai (Valli) orchestrates her maiden bus journey to the nearby town with remarkable independence. The journey turns profound when she witnesses a dead cow, introducing her to mortality.',
+          competencyQuestions: [
+            'How did Valli demonstrate adult-like financial discipline and determination in planning her bus journey?',
+            'What makes Custard the Dragon the true hero during the pirate attack despite being mocked as a coward?'
+          ]
+        },
+        {
+          id: 'ch-10-eng-7',
+          name: 'The Sermon at Benares & The Proposal',
+          textbookRef: 'NCERT First Flight — Chapters 8 & 9',
+          syllabusTopics: [
+            'Gautama Buddha’s enlightenment under Bodhi tree at Gaya; first sermon at Benares',
+            'Kisa Gotami’s dead son and search for a handful of mustard seeds from a death-free house',
+            'Universal truth: Death is common to all mortals like ripe fruit falling early',
+            'The Proposal (Anton Chekhov): Farce set in 19th-century Russia; Lomov, Chubukov, and Natalya arguing over Oxen Meadows and dogs (Guess vs Squeezer)'
+          ],
+          learningObjectives: [
+            'Internalize Buddhist philosophical teachings on overcoming grief and attachment',
+            'Evaluate Chekhov’s satire of marriage of convenience among wealthy Russian gentry'
+          ],
+          overviewSummary: 'Gautama Buddha guides the grief-stricken Kisa Gotami to understand that life is fleeting and suffering is universal. In stark theatrical contrast, Chekhov’s one-act play humorously lampoons matrimonial negotiations dominated by pride and petty property feuds.',
+          keyConcepts: [
+            'Mortality as an inescapable cosmic law; inner peace comes through acceptance',
+            'Chekhovian satire of economic marriages masquerading as romance'
+          ]
+        },
+        {
+          id: 'ch-10-eng-8',
+          name: 'Footprints: A Triumph of Surgery & The Thief’s Story',
+          textbookRef: 'NCERT Footprints Without Feet — Chapters 1 & 2',
+          syllabusTopics: [
+            'A Triumph of Surgery (James Herriot): Tricki the overfed pampered dog of Mrs. Pumphrey, cured by natural fasting and exercise',
+            'The Thief’s Story (Ruskin Bond): Hari Singh (15-year-old thief) and Anil (generous struggling writer)',
+            'Transformation through unconditional trust and literacy; return of the stolen 600 rupees'
+          ],
+          learningObjectives: [
+            'Contrast well-meaning indulgent pampering with practical medical common sense',
+            'Appreciate the power of trust and education in reforming a criminal heart'
+          ],
+          overviewSummary: 'Herriot treats Tricki not with surgical tools but with disciplined diet and canine socialization. In Bond’s masterclass, Hari Singh steals Anil’s money but chooses to return it because the prospect of becoming educated and respected outweighs instant illicit wealth.',
+          competencyQuestions: [
+            'Why does Hari Singh state that stealing from an unsuspecting, careless person like Anil takes all the pleasure out of the job?',
+            'Critique Mrs. Pumphrey’s lifestyle choices for Tricki in terms of animal welfare.'
+          ]
+        },
+        {
+          id: 'ch-10-eng-9',
+          name: 'Footprints: Footprints Without Feet & The Necklace',
+          textbookRef: 'NCERT Footprints Without Feet — Chapters 5 & 7',
+          syllabusTopics: [
+            'Footprints Without Feet (H.G. Wells): Griffin the brilliant but lawless scientist discovering invisibility, Drury Lane burglary, and Iping village chaos',
+            'The Necklace (Guy de Maupassant): Mathilde Loisel’s vanity, the borrowed diamond necklace from Mme Forestier, losing it at the ball, ten years of crushing debt, and the climactic reveal that it was fake paste worth 500 francs'
+          ],
+          learningObjectives: [
+            'Analyze science divorced from ethics through Griffin’s lawless descent',
+            'Examine how vanity, false pride, and silence led the Loisels into ruinous poverty'
+          ],
+          overviewSummary: 'Wells cautions against scientific breakthroughs weaponized without moral conscience. Maupassant tells the tragic twist-in-the-tail story of Mathilde Loisel whose yearning to seem rich costs her ten years of grueling poverty.',
+          competencyQuestions: [
+            'Griffin was a brilliant scientist but not a true gentleman or good citizen. Justify with textual evidence.',
+            'Could Mathilde Loisel have saved herself and her husband ten years of suffering if she had spoken honestly to Mme Forestier?'
+          ]
+        },
+        {
+          id: 'ch-10-eng-10',
+          name: 'Footprints: Bholi & The Book That Saved the Earth',
+          textbookRef: 'NCERT Footprints Without Feet — Chapters 9 & 10',
+          syllabusTopics: [
+            'Bholi (K.A. Abbas): Sulekha’s neglect after childhood smallpox and brain injury; teacher’s transformative encouragement',
+            'Bishamber Nath’s dowry demand of 5,000 rupees; Bholi’s courageous refusal and decision to teach in school',
+            'The Book That Saved the Earth (Claire Boiko): 25th century Martian invasion led by Think-Tank thwarted by Mother Goose nursery rhymes interpreted literally'
+          ],
+          learningObjectives: [
+            'Celebrate the empowerment of girl children through education against archaic dowry customs',
+            'Enjoy science fiction satire highlighting the absurdity of pompous conquerors'
+          ],
+          overviewSummary: 'Bholi transforms from a neglected, stammering girl into an articulate, dignified woman who rejects a greedy groom to serve her parents and teach in her village school. Claire Boiko’s play shows how a silly book of nursery rhymes saved Earth from Martian invasion.',
+          competencyQuestions: [
+            'How did Bholi’s teacher play a pivotal role in rewriting her destiny and self-worth?',
+            'What comical misunderstandings arose from Think-Tank’s literal reading of "Humpty Dumpty"?'
+          ]
+        }
+      ]
+    },
+    {
+      id: 'cbse-10-sanskrit',
+      name: 'Sanskrit (शेमुषी द्वितीयो भागः)',
+      category: 'Sanskrit',
+      curricula: ['NCERT शेमुषी द्वितीयो भागः कक्षा १०', 'CBSE Class 10 Sanskrit Code 122', 'CBSE Board Curriculum'],
+      textbookName: 'NCERT शेमुषी द्वितीयो भागः',
+      edition: '2025–2026 Academic Edition',
+      subjectCode: '122',
+      sourceAvailable: true,
+      chapters: [
+        {
+          id: 'ch-10-sk-1',
+          name: 'प्रथमः पाठः — शुचिपर्यावरणम्',
+          textbookRef: 'NCERT शेमुषी भाग २ — पाठ १ (हरिदत्त शर्मणः लसल्लतिकातः)',
+          syllabusTopics: [
+            'महानगरेषु अयन-जालं, धूमं मुञ्चति शतशकटीयानम्',
+            'वायुमण्डलं भृशं दूषितं, कुत्सितवस्तुमिश्रितं भक्ष्यम्',
+            'हरिततरूणां ललितलतानां माला रमणीया — प्रकृतिरेव शरणम्',
+            'अन्वयः, सन्धि-विच्छेदः (प्रकृतिरेव = प्रकृतिः + एव, संचरणम् = सम् + चरणम्)'
+          ],
+          learningObjectives: [
+            'महानगरीय-प्रदूषणस्य दुष्परिणामान् ज्ञात्वा पर्यावरणसंरक्षणस्य सङ्कल्पः',
+            'श्लोकानां सस्वरवाचनम्, अन्वयलेखनं च'
+          ],
+          overviewSummary: 'अयम् पाठः आधुनिक-संस्कृत-कवेः प्रो. हरिदत्त-शर्मणः "लसल्लतिका" इति रचनासङ्ग्रहात् सङ्कलितोऽस्ति। अत्र महानगराणां यन्त्रबाहुल्येन प्रवर्धित-प्रदूषणस्योपरि चिन्ता व्यक्तास्ति। कविः शुद्धपर्यावरणाय प्रकृतेः शरणं गन्तुम् इच्छति।',
+          importantDefinitions: [
+            'कालायसचक्रम: लोहे का पहिया (Iron wheel / machinery)',
+            'अनन्ताः: जिसका कोई अंत न हो (Endless)'
+          ],
+          keyConcepts: [
+            'महानगरेषु जीवनं संचरणं च दुर्भरं जातम्',
+            'शुद्धं पर्यावरणमेव अस्माकं जीवनस्य आधारः अस्ति'
+          ]
+        },
+        {
+          id: 'ch-10-sk-2',
+          name: 'द्वितीयः पाठः — बुद्धिर्बलवती सदा',
+          textbookRef: 'NCERT शेमुषी भाग २ — पाठ २ (शुकसप्तति ग्रन्थतः)',
+          syllabusTopics: [
+            'बुद्धिमती स्वपुत्रद्वयेन सह पितुर्गृहं प्रति चलिता',
+            'व्याघ्रं दृष्ट्वा धार्ष्ट्यात् पुत्रौ चपेटया प्रहृत्य व्याघ्रभक्षणाय कलहप्रदर्शनम्',
+            'व्याघ्रस्य भयम — "इयं व्याघ्रमारी काचिदिति मत्वा पलायितः"',
+            'जम्बुक-व्याघ्रयोः संवादः, गले बद्ध्वा पुनरागमनं, बुद्धिमत्याः प्रत्युत्पन्नमतित्वात् रक्षा'
+          ],
+          learningObjectives: [
+            'सङ्कटकाले बुद्धेः धैर्यस्य च प्राधान्यम् अवबोधनम्',
+            'कथायाः माध्यमेन प्रत्युत्पन्नमतित्वस्य विकासः'
+          ],
+          overviewSummary: 'प्रस्तुतोऽयं पाठः "शुकसप्ततिः" इति कथाग्रन्थात् सम्पादितः। अत्र दर्शितं यत् सङ्कटकाले धैर्यं बुद्धिं च अवलम्ब्य मनुष्यः महतः महासङ्कटात् अपि मुक्तो भवति। बुद्धिमती नाम स्त्री स्वबुद्ध्या व्याघ्रं पलायितुं विवशं करोति।',
+          keyConcepts: [
+            'बुद्धिर्यस्य बलं तस्य',
+            'प्रत्युत्पन्नमतित्वेन विषमपरिस्थितावपि विजयः सम्भवः'
+          ]
+        },
+        {
+          id: 'ch-10-sk-3',
+          name: 'तृतीयः पाठः — शिशुलालनम्',
+          textbookRef: 'NCERT शेमुषी भाग २ — पाठ ३ (कुन्दमाला नाटकात्)',
+          syllabusTopics: [
+            'रामस्य राजसभायां लव-कुशयोः आगमनम्',
+            'रामेण कुश-लवयोः सिंहासने उपवेशनाय आग्रहः',
+            'लवकुशयोः विनम्रोक्तिः: "अतिसौजन्यम्"',
+            'बालभावात् हिमकरोऽपि पशुपतिमस्तककेतकीच्छदत्वम्'
+          ],
+          learningObjectives: [
+            'संस्कृतनाटकानां सम्भाषणशैलीम् अवगच्छेयुः',
+            'पितृपुत्रयोः वात्सल्यभावस्य च आदरस्य च दर्शनम्'
+          ],
+          overviewSummary: 'अयम् पाठः दिङ्नाग-रचितस्य "कुन्दमाला" इति नाटकस्य पञ्चमाङ्कात् सम्पादितः। अत्र श्रीरामः स्वपुत्रौ लवं कुशं च सिंहासने उपवेशयितुं इच्छति, परं तौ विनयेन अस्वीकुरुतः। श्रीरामेण तयोः सौन्दर्यं दृष्ट्वा वात्सल्यं प्रकटीक्रियते।'
+        },
+        {
+          id: 'ch-10-sk-4',
+          name: 'चतुर्थः पाठः — जननी तुल्यवत्सला',
+          textbookRef: 'NCERT शेमुषी भाग २ — पाठ ४ (महाभारतस्य वनपर्वणः)',
+          syllabusTopics: [
+            'कश्चित् कृषकः बलीवर्दाभ्यां क्षेत्रकर्षणं कुर्वन्नासीत्',
+            'एकः बलीवर्दः दुर्बलः भूमौ पपात; सुरभेः (कामधेनोः) नेत्राभ्याम् अश्रूणि आविर्भूतानि',
+            'इन्द्रेण पृष्टे सति सुरभेः उत्तरम्: दुर्बले सुते मातुः अभ्यधिका कृपा भवति',
+            'सर्वेष्वपत्येषु जननी तुल्यवत्सला, किन्तु दीने पुत्रे विशेषकृपा'
+          ],
+          learningObjectives: [
+            'मातृस्नेहस्य सार्वभौमिकतां दुर्बलानां प्रति सहानुभूतिभावं च ज्ञास्यन्ति',
+            'महाभारतस्य आदर्शकथायाः नैतिकमूल्यग्रहणम्'
+          ],
+          overviewSummary: 'महाभारतस्य वनपर्वणः इयं कथा। अत्र सुरभी-इन्द्रयोः संवादमाध्यमेन प्रतिपादितं यत् मातुः स्नेहाः सर्वेष्वपत्येषु समानो भवति, तथापि दुर्बले दीने च पुत्रे मातुः सहजैव अधिकः स्नेहः जायते।'
+        },
+        {
+          id: 'ch-10-sk-5',
+          name: 'पञ्चमः पाठः — सुभाषितानि',
+          textbookRef: 'NCERT शेमुषी भाग २ — पाठ ५ (नीतिग्रन्थेभ्यः सङ्ग्रहः)',
+          syllabusTopics: [
+            'आलस्यं हि मनुष्याणां शरीरस्थो महान् रिपुः',
+            'गुणी गुणं वेत्ति न वेत्ति निर्गुणः, बली बलं वेत्ति न वेत्ति निर्बलः',
+            'निमित्तमुद्दिश्य हि यः प्रकुप्यति ध्रुवं स तस्यापगमे प्रसीदति',
+            'उदीरितोऽर्थः पशुनापि गृह्यते; हयाश्च नागाश्च वहन्ति बोधिताः',
+            'विचित्रे खलु संसारे नास्ति किञ्चिन् निरर्थकम्; अश्वश्चेद् धावने वीरः भारस्य वहने खरः'
+          ],
+          learningObjectives: [
+            'नीतिश्लोकानां सार्थकतां जीवनव्यवहारे प्रयोक्तुं शिक्षेरन्',
+            'परिश्रमस्य विवेकस्य च महत्त्वं जानीयुः'
+          ],
+          overviewSummary: 'सुभाषितानि इति पद्यपाठे संस्कृतस्य विविधग्रन्थेभ्यः सुभाषितरत्नानि सङ्कलितानि सन्ति। एते श्लोकाः आलस्यत्यागस्य, गुणग्राहकतायाः, क्रोधत्यागस्य, बुद्धिचातुर्यस्य च शिक्षां प्रयच्छन्ति।'
+        },
+        {
+          id: 'ch-10-sk-6',
+          name: 'षष्ठः पाठः — सौहार्दं प्रकृतेः शोभा',
+          textbookRef: 'NCERT शेमुषी भाग २ — पाठ ६',
+          syllabusTopics: [
+            'वनस्य दृश्यम्: सिंहः विश्राम्यति, वानराः तस्य पुच्छं धुनन्ति',
+            'पशुपक्षिणां मध्ये राजपदप्राप्तये कलहः: काकः, पिकः, मयूरः, बकः, वानरः',
+            'प्रकृतिमातुः साक्षात् आगमनम्: सर्वेषां परस्परं महत्त्वमस्ति',
+            'एकतायाः सन्देशः: "परस्परं विवदमानाः आत्मविनाशं कुर्वन्ति"'
+          ],
+          learningObjectives: [
+            'सर्वेषां प्राणिनां परस्परनिर्भरतां जैवविविधतायाः महत्त्वं च अवगच्छेयुः',
+            'अहङ्कारत्यागस्य पर्यावरणसौहार्दस्य च प्रेरणा'
+          ],
+          overviewSummary: 'अस्मिन् नाटकांशे दर्शितं यत् वने सर्वे पशुपक्षिणः आत्मानं श्रेष्ठं मत्वा परस्परं विवदन्ते। अन्ते प्रकृतिमाता आगम्य शिक्षयति यत् सर्वेषां समयानुकूलं महत्त्वमस्ति, सर्वे प्राणिनां परस्परस्नेह एव प्रकृतेः वास्तविकं सौन्दर्यम्।'
+        },
+        {
+          id: 'ch-10-sk-7',
+          name: 'सप्तमः पाठः — विचित्रः साक्षी',
+          textbookRef: 'NCERT शेमुषी भाग २ — पाठ ७ (न्यायाधीशबंकिमचन्द्रचटर्जीकथा)',
+          syllabusTopics: [
+            'निर्धनजनस्य स्वपुत्रं द्रष्टुं पदातिरेव गमनम्',
+            'रात्रौ कस्मिंश्चित् गृहे आश्रयः, चौरस्य गृहाभ्यन्तरप्रवेशः, मञ्जूषाहरणम्',
+            'ग्रामारक्षिणा एव निर्दोषस्य अतिथेः चौर इति कृत्वा कारागारे प्रक्षेपः',
+            'न्यायाधीशेन बंकिमचन्द्रेण शवं साक्षिणं कृत्वा सत्योद्घाटनम्'
+          ],
+          learningObjectives: [
+            'न्यायाधीशस्य विवेकचातुर्येण सत्यस्य विजयः कथमभूत् इति ज्ञातव्यम्',
+            'न्यायिकप्रक्रियायां युक्तेः महत्त्वम्'
+          ],
+          overviewSummary: 'अयम् पाठः प्रसिद्ध-वङ्गसाहित्यकारस्य बंकिमचन्द्र-चटर्जी-महोदयस्य न्यायप्रणालीविषयक-कथायाः अनुवादोऽस्ति। अत्र न्यायाधीशेन् एकेन शवेन सह नाटकमिव रचयित्वा वास्तविकं चौरम् आरक्षिणं दण्डितं कृतम्।'
+        },
+        {
+          id: 'ch-10-sk-8',
+          name: 'अष्टमः पाठः — सूक्तयः',
+          textbookRef: 'NCERT शेमुषी भाग २ — पाठ ८ (तिरुक्कुरल् ग्रन्थात्)',
+          syllabusTopics: [
+            'पिता यच्छति पुत्राय बाल्ये विद्याधनं महत्; पितास्य किं तपस्तेपे इत्युक्तिस्तत्कृतज्ञता',
+            'अवक्रता यथा चित्ते तथा वाचि भवेद् यदि',
+            'त्यक्त्वा धर्मप्रदां वाचं परुषां योऽभ्युदीरयेत्; परित्यज्य फलं पक्वं भुङ्क्तेऽपक्वं विमूढधीः',
+            'विद्वांस एव लोकेऽस्मिन् चक्षुष्मन्तः प्रकीर्तिताः; अन्येषां वदने ये तु ते चक्षुर्नामनी मते'
+          ],
+          learningObjectives: [
+            'तमिलभाषायाः प्रसिद्धनीतिग्रन्थस्य "तिरुक्कुरल्" इत्यस्य सूक्तीनां संस्कृतरूपम् अवगच्छेयुः',
+            'विद्या, सत्यवाणि, कृतज्ञतादिगुणानाम् अभ्यासः'
+          ],
+          overviewSummary: 'प्रस्तुतोऽयं पाठः तमिलभाषायाः नीतिग्रन्थात् "तिरुक्कुरल्" इत्यस्मात् उद्धृतः। अत्र पितुः कृतज्ञता, सरलता, मधुरवाणी, विद्वत्ता च इत्यादिगुणानां वर्णनं वर्तते।'
+        },
+        {
+          id: 'ch-10-sk-9',
+          name: 'नवमः पाठः — भूकम्पविभीषिका & दशमः पाठः — प्राणेभ्योऽपि प्रियः सुहृद्',
+          textbookRef: 'NCERT शेमुषी भाग २ — पाठ ९ व १०',
+          syllabusTopics: [
+            '२००१ ख्रिस्ताब्दे गुजरातराज्यस्य कच्छमण्डले जातस्य भीषणभूकम्पस्य विदारकचित्राणि',
+            'प्रकृतेः प्रकोपात् त्राणाय भवननिर्माणनियमानां पालनम्, वृक्षारोपणम्',
+            'विशाखदत्तस्य मुद्राराक्षसनाटकात् चन्दनदासस्य चाणक्येन सह संवादः',
+            'सुहृदर्थे स्वप्राणानामपि समर्पणम्: प्राणेभ्योऽपि प्रियः सुहृद्'
+          ],
+          learningObjectives: [
+            'आपत्प्रबन्धने भूकम्पसम्बद्धसावधानतान् जानीयुः',
+            'मित्रतायाः निष्ठां चन्दनदासस्य उदाहरणेन आचरेयुः'
+          ],
+          overviewSummary: 'भूकम्पविभीषिका पाठे २००१ तमे वर्षे कच्छभूकम्पस्य विनाशलीलां वर्णिता तथा च भूकम्पात् रक्षायाः उपायाः दर्शिताः। दशमे पाठे मित्रस्य अमात्यराक्षसस्य रक्षार्थं स्वप्राणान् अपि तृणाय मन्वानस्य चन्दनदासस्य आदर्शमैत्री निरूपिता।'
+        }
+      ]
     }
   ]
 };
+

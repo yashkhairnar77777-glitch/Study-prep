@@ -18,7 +18,11 @@ export type SubjectCategory =
   | 'Economics & Commerce'
   | 'General Science'
   | 'Japanese'
-  | 'Foundation & Olympiads';
+  | 'Hindi'
+  | 'Marathi'
+  | 'Sanskrit'
+  | 'Foundation & Olympiads'
+  | 'UPSC General Studies';
 
 export type ExplanationStyle = 'quick' | 'step_by_step' | 'exam_ready' | 'basics';
 
@@ -183,6 +187,7 @@ export interface AppNotification {
 export type AppView =
   | 'landing'
   | 'dashboard'
+  | 'ncert_hub'
   | 'generator'
   | 'chat'
   | 'photo'
@@ -425,7 +430,10 @@ export type EducationBoard =
   | 'MSBSHSE'
   | 'Cambridge'
   | 'IB'
-  | 'Custom';
+  | 'Custom'
+  | 'JEE'
+  | 'NEET'
+  | 'UPSC';
 
 export type StudyGeneratorOutputType =
   | 'flashcards'

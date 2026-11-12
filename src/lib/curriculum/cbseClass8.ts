@@ -386,6 +386,280 @@ export const cbseClass8: SyllabusClassInfo = {
           coreFormulas: ['\\theta = |30H - 5.5M|']
         }
       ]
+    },
+    {
+      id: 'cbse-8-hindi',
+      name: 'Hindi (वसंत भाग 3)',
+      category: 'Hindi',
+      curricula: ['NCERT Vasant Class 8', 'CBSE Hindi Course A & B'],
+      chapters: [
+        {
+          id: 'ch-8-h-1',
+          name: 'ध्वनि',
+          textbookRef: 'NCERT वसंत भाग 3 — पाठ 1',
+          syllabusTopics: ['सूर्यकांत त्रिपाठी "निराला" की आशावादी कविता', 'अभी न होगा मेरा अंत, मृदुल वसंत का आगमन', 'युवा पीढ़ी में नव-उत्साह और आलस्य का त्याग', 'प्रतीकात्मकता'],
+          learningObjectives: ['निराला के आशावादी जीवन-दर्शन को समझना', 'काव्य में प्रकृति प्रतीकों की व्याख्या करना'],
+        },
+        {
+          id: 'ch-8-h-2',
+          name: 'लाख की चूड़ियाँ',
+          textbookRef: 'NCERT वसंत भाग 3 — पाठ 2',
+          syllabusTopics: ['कामतानाथ की प्रसिद्ध कहानी', 'बदलू मनिहार और पारंपरिक हस्तशिल्प', 'मशीनी युग के कारण कुटीर उद्योगों का उजड़ना और कारीगरों की लाचारी'],
+          learningObjectives: ['मशीनीकरण के सामाजिक व आर्थिक प्रभावों का विश्लेषण करना', 'हस्तशिल्पियों के प्रति सम्मानजनक दृष्टिकोण विकसित करना'],
+        },
+        {
+          id: 'ch-8-h-3',
+          name: 'बस की यात्रा',
+          textbookRef: 'NCERT वसंत भाग 3 — पाठ 3',
+          syllabusTopics: ['हरिशंकर परसाई का प्रसिद्ध व्यंग्य निबंध', 'खटारा बस में यात्रा और प्रांतीय परिवहन तंत्र की बदहाली पर कटाक्ष', 'गांधी जी के असहयोग व सविनय अवज्ञा आंदोलन के रूपक'],
+          learningObjectives: ['व्यंग्य विधा के माध्यम से सामाजिक व प्रशासनिक विसंगतियों की पहचान करना'],
+        },
+        {
+          id: 'ch-8-h-4',
+          name: 'दीवानों की हस्ती',
+          textbookRef: 'NCERT वसंत भाग 3 — पाठ 4',
+          syllabusTopics: ['भगवतीचरण वर्मा की कविता', 'मस्तमौला, बेपरवाह और बलिदानी देशभक्तों का स्वभाव', 'सुख-दुख को समान भाव से स्वीकार करना, प्यार लुटाना'],
+          learningObjectives: ['सच्चे देशभक्तों के निःस्वार्थ समर्पण और उल्लासपूर्ण मनोवृत्ति को समझना'],
+        },
+        {
+          id: 'ch-8-h-5',
+          name: 'चिट्ठियों की अनूठी दुनिया',
+          textbookRef: 'NCERT वसंत भाग 3 — पाठ 5',
+          syllabusTopics: ['अरविंद कुमार सिंह का निबंध', 'पत्रों का ऐतिहासिक, सांस्कृतिक और साहित्यिक महत्व', 'एसएमएस, ईमेल बनाम हस्तलिखित पत्रों की आत्मीयता व धरोहर'],
+          learningObjectives: ['पत्र संस्कृति के ऐतिहासिक विकास व पत्रों की कालजयी महत्ता को समझना'],
+        },
+        {
+          id: 'ch-8-h-6',
+          name: 'भगवान के डाकिए',
+          textbookRef: 'NCERT वसंत भाग 3 — पाठ 6',
+          syllabusTopics: ['रामधारी सिंह "दिनकर" की विश्वबंधुत्वपरक कविता', 'पक्षी और बादल — भगवान के डाकिए', 'एक देश से दूसरे देश बिना सीमाओं की परवाह किए सुगंध और वर्षा का संदेश ले जाना'],
+          learningObjectives: ['वसुधैव कुटुंबकम् और भौगोलिक सीमाओं से परे वैश्विक शांति की भावना अपनाना'],
+        },
+        {
+          id: 'ch-8-h-7',
+          name: 'क्या निराश हुआ जाए',
+          textbookRef: 'NCERT वसंत भाग 3 — पाठ 7',
+          syllabusTopics: ['आचार्य हजारीप्रसाद द्विवेदी का निबंध', 'समाचार पत्रों में चोरी, भ्रष्टाचार और निराशा का माहौल', 'सच्चाई, ईमानदारी और मानवीय मूल्यों की शाश्वत शक्ति'],
+          learningObjectives: ['निराशावादी माहौल में भी नैतिक मूल्यों में अडिग विश्वास बनाए रखना'],
+        },
+        {
+          id: 'ch-8-h-8',
+          name: 'कबीर की साखियाँ',
+          textbookRef: 'NCERT वसंत भाग 3 — पाठ 8',
+          syllabusTopics: ['कबीरदास की सधुक्कड़ी भाषा की साखियाँ', 'जाति न पूछो साध की पूछ लीजिए ज्ञान', 'माला तो कर में फिरै, जीभि फिरै मुख माँहि (ढोंग का खंडन)'],
+          learningObjectives: ['बाह्याडंबरों का त्याग कर अंतर्मन की शुद्धि और ज्ञान को प्राथमिकता देना'],
+        },
+        {
+          id: 'ch-8-h-9',
+          name: 'जहाँ पहिया है',
+          textbookRef: 'NCERT वसंत भाग 3 — पाठ 9',
+          syllabusTopics: ['पी. साईनाथ की रिपोर्ताज', 'तमिलनाडु के पुडुकोट्टई जिले में महिलाओं द्वारा साइकिल चलाना आंदोलन बनना', 'महिला सशक्तिकरण, गतिशीलता, आर्थिक आत्मनिर्भरता और स्वाभिमान'],
+          learningObjectives: ['रूढ़िवादी बंधनों को तोड़कर महिला सशक्तिकरण की प्रेरक वास्तविक गाथा का अध्ययन'],
+        },
+        {
+          id: 'ch-8-h-10',
+          name: 'बाज और साँप',
+          textbookRef: 'NCERT वसंत भाग 3 — पाठ 10',
+          syllabusTopics: ['निर्मल वर्मा की बोधकथा', 'गुफा के अंधेरे और सड़ांध में सुरक्षित रहने वाला कायर साँप', 'खून से लथपथ होने पर भी खुले आकाश में उड़ने को आतुर वीर बाज', 'साहस और संघर्ष'],
+          learningObjectives: ['कायरतापूर्ण सुरक्षित जीवन की तुलना में साहसी व संघर्षपूर्ण जीवन की श्रेष्ठता समझना'],
+        }
+      ]
+    },
+    {
+      id: 'cbse-8-marathi',
+      name: 'Marathi (सुलभभारती / अक्षरभारती इयत्ता ८ वी)',
+      category: 'Marathi',
+      curricula: ['Maharashtra State / NCERT Marathi Class 8', 'सुलभभारती इयत्ता आठवी'],
+      chapters: [
+        {
+          id: 'ch-8-mr-1',
+          name: 'भारत देश महान (गीत)',
+          textbookRef: 'सुलभभारती इयत्ता ८ वी — पाठ १',
+          syllabusTopics: ['माधव विचारे यांचे ओजस्वी राष्ट्रगीत', 'हिमालयाची शिखरे, गंगा-यमुनेचे पावन प्रवाह आणि भारताची अखंड एकात्मता'],
+          learningObjectives: ['राष्ट्रीय एकात्मता आणि मातृभूमीचा गौरव समजणे'],
+        },
+        {
+          id: 'ch-8-mr-2',
+          name: 'मी चित्रकार कसा झालो!',
+          textbookRef: 'सुलभभारती इयत्ता ८ वी — पाठ २',
+          syllabusTopics: ['ल. म. कडू यांचे आत्मचरित्रात्मक रेखाचित्र', 'साधने नसताना निसर्गातील दगड, माती, झाडांचे डिंक व वनस्पतींच्या रंगांतून चित्रकला शिकणे', 'प्रतिकूल परिस्थितीतही कलेची जोपासना'],
+          learningObjectives: ['निसर्गातून शिकण्याची व सर्जनशीलता फुलवण्याची दृष्टी मिळवणे'],
+        },
+        {
+          id: 'ch-8-mr-3',
+          name: 'प्रभात (कविता)',
+          textbookRef: 'सुलभभारती इयत्ता ८ वी — पाठ ३',
+          syllabusTopics: ['किशोर पाठक यांची कविता', 'विज्ञानाचे नवे युग आणि तंत्रज्ञानाची नवी क्षितिजे', 'ज्ञानाची नवीन पहाट, भेदाभेद मिटवून प्रगतीकडे वाटचाल'],
+          learningObjectives: ['वैज्ञानिक दृष्टिकोन व नवयुगातील बदलांचे स्वागत करणे'],
+        },
+        {
+          id: 'ch-8-mr-4',
+          name: 'आपण सारे एक!',
+          textbookRef: 'सुलभभारती इयत्ता ८ वी — पाठ ४',
+          syllabusTopics: ['मनीषा रेगे यांची एकांकिका', 'शरीराच्या अवयवांचा (हात, पाय, कान, डोळे, जीभ) पोटाविरुद्ध संप', 'पोटाला काम न करता खाणारा समजून अन्न न देणे आणि नंतर सर्वांचे दुर्बल होणे', 'सहकार्य व श्रमविभागणी'],
+          learningObjectives: ['शरीराप्रमाणे समाजातही सर्वांच्या एकजुटीचे व परस्परपूरकतेचे महत्त्व जाणणे'],
+        },
+        {
+          id: 'ch-8-mr-5',
+          name: 'चोच आणि चारा',
+          textbookRef: 'सुलभभारती इयत्ता ८ वी — पाठ ५',
+          syllabusTopics: ['मकरंद जोशी यांचा पर्यावरणपर पाठ', 'पक्षीजगतातील वैविध्य, चोचींची विविध कार्ये (शिकार, घरटे बांधणे, अन्न तोडणे)', 'उत्क्रांती व निसर्गाचे संतुलन'],
+          learningObjectives: ['जैवविविधता व पक्षी निरीक्षणाचे कौशल्य संपादन करणे'],
+        },
+        {
+          id: 'ch-8-mr-6',
+          name: 'आभाळाची आम्ही लेकरे',
+          textbookRef: 'सुलभभारती इयत्ता ८ वी — पाठ ६',
+          syllabusTopics: ['वसंत बापट यांचे समतावादी गीत', 'शेतकरी, कष्टकरी लोकांची समता आणि बंधुभाव', 'जात, धर्म न मानणारे श्रमिकांचे विशाल मन'],
+          learningObjectives: ['श्रमप्रतिष्ठा व सामाजिक समतेची मूल्ये अंगीकारणे'],
+        },
+        {
+          id: 'ch-8-mr-7',
+          name: 'नातवंडांस पत्र',
+          textbookRef: 'सुलभभारती इयत्ता ८ वी — पाठ ७',
+          syllabusTopics: ['नंदा खरे यांचे मार्गदर्शनपर पत्र', 'निसर्गाच्या सान्निध्यात राहणे, पुस्तके वाचणे, मैदानी खेळ खेळणे आणि मोबाईल-टीव्हीच्या आहारी न जाणे'],
+          learningObjectives: ['शारीरिक सुदृढता, वाचनसंस्कृती आणि संतुलित जीवनशैली आत्मसात करणे'],
+        },
+        {
+          id: 'ch-8-mr-8',
+          name: 'आम्ही हवे आहोत का?',
+          textbookRef: 'सुलभभारती इयत्ता ८ वी — पाठ ८',
+          syllabusTopics: ['शांता शेळके यांचा ललित पाठ', 'प्राण्यांच्या इस्पितळाची (Animal Hospital) भेट', 'आजारी, मुके कुत्रे-मांजरे यांची माणसाकडे असणारी प्रेमाची व काळजीची भुकेली नजर'],
+          learningObjectives: ['प्राणिमात्र आणि मुक्या जीवांप्रती भूतदया व संवेदनशीलता बाळगणे'],
+        }
+      ]
+    },
+    {
+      id: 'cbse-8-english',
+      name: 'English (Honeydew & It So Happened)',
+      category: 'English & Languages',
+      curricula: ['NCERT Honeydew Class 8', 'NCERT It So Happened Supplementary'],
+      textbookName: 'Honeydew & It So Happened (NCERT Class 8)',
+      edition: '2025–2026 NEP Edition',
+      chapters: [
+        {
+          id: 'ch-8-en-1',
+          name: 'The Best Christmas Present in the World',
+          textbookRef: 'NCERT Honeydew Class 8 — Unit 1',
+          syllabusTopics: ['Michael Morpurgo’s story of Christmas truce (1914 World War I)', 'Letter from Jim Macpherson to Connie found in roll-top desk', 'No Man’s Land: British and German soldiers playing football and sharing schnapps'],
+          learningObjectives: ['Analyze themes of brotherhood and the futility of war against human compassion']
+        },
+        {
+          id: 'ch-8-en-2',
+          name: 'The Tsunami',
+          textbookRef: 'NCERT Honeydew Class 8 — Unit 2',
+          syllabusTopics: ['Real survival accounts from 26 December 2004 Indian Ocean Tsunami', 'Ignesious in Andaman, Sanjeev the brave policeman, 10-year-old Tilly Smith saving tourists in Thailand', 'Animal sixth sense before natural calamities'],
+          learningObjectives: ['Understand natural disasters, alertness, presence of mind, and animal behavior']
+        },
+        {
+          id: 'ch-8-en-3',
+          name: 'Glimpses of the Past',
+          textbookRef: 'NCERT Honeydew Class 8 — Unit 3',
+          syllabusTopics: ['S.D. Sawant’s pictorial historical narrative (1757 to 1857)', 'East India Company trade expansion, social evils, Raja Ram Mohan Roy, British oppression (Regulation III)', 'Discontent among farmers and sepoys leading to the 1857 War of Independence'],
+          learningObjectives: ['Interpret historical events presented through visual and graphic narrative media']
+        },
+        {
+          id: 'ch-8-en-4',
+          name: 'Bepin Choudhury’s Lapse of Memory',
+          textbookRef: 'NCERT Honeydew Class 8 — Unit 4',
+          syllabusTopics: ['Satyajit Ray’s psychological suspense tale', 'Bepin Babu being tricked into believing he visited Ranchi in 1958', 'Chunilal’s clever, harmless revenge for being denied financial help in adversity'],
+          learningObjectives: ['Appreciate subtle irony, character psychology, and comedic narrative structure']
+        },
+        {
+          id: 'ch-8-en-5',
+          name: 'The Summit Within',
+          textbookRef: 'NCERT Honeydew Class 8 — Unit 5',
+          syllabusTopics: ['Major H.P.S. Ahluwalia’s expedition to Mount Everest (1965)', 'Climbing physical peaks vs scaling the internal mental summit within the human soul', 'Endurance, persistence, and willpower as spiritual forces'],
+          learningObjectives: ['Reflect on self-conquest, humility, and philosophical dimensions of human adventure']
+        },
+        {
+          id: 'ch-8-en-6',
+          name: 'This is Jody’s Fawn',
+          textbookRef: 'NCERT Honeydew Class 8 — Unit 6',
+          syllabusTopics: ['Marjorie Kinnan Rawlings’ emotional story', 'Jody’s father Penny bitten by rattlesnake; doe killed to use liver to draw poison', 'Jody’s moral responsibility to find, rescue, and nurse the motherless baby fawn'],
+          learningObjectives: ['Evaluate ethical responsibility, debt of gratitude, and empathy for wildlife']
+        },
+        {
+          id: 'ch-8-en-7',
+          name: 'A Short Monsoon Diary',
+          textbookRef: 'NCERT Honeydew Class 8 — Unit 7',
+          syllabusTopics: ['Ruskin Bond’s lyrical nature journal from Mussoorie', 'Silent white mist, singing whistling thrush, blooming wild balsams and dahlias', 'Seasonal transformation and intimacy with the Himalayan monsoon ecology'],
+          learningObjectives: ['Analyze descriptive personal nature diary writing and evocative sensory imagery']
+        },
+        {
+          id: 'ch-8-en-8',
+          name: 'The Ant and the Cricket & Geography Lesson (Poems)',
+          textbookRef: 'NCERT Honeydew Class 8 — Poetry',
+          syllabusTopics: ['Aesop’s fable: industrious ant versus carefree singing cricket ("folks call this a fable, I’ll warrant it true")', 'Zulfikar Ghose’s "Geography Lesson": jet aircraft climbing to 10,000 feet showing why cities developed by rivers and why humans hate each other across borders'],
+          learningObjectives: ['Appreciate didactic allegorical poetry and geographical perspective on human unity']
+        }
+      ]
+    },
+    {
+      id: 'cbse-8-sanskrit',
+      name: 'Sanskrit (रुचिरा तृतीयो भागः)',
+      category: 'Sanskrit',
+      curricula: ['NCERT Ruchira Class 8', 'CBSE Sanskrit Course'],
+      textbookName: 'रुचिरा तृतीयो भागः (NCERT Class 8)',
+      edition: '2025–2026 NEP Edition',
+      chapters: [
+        {
+          id: 'ch-8-sk-1',
+          name: 'सुभाषितानि',
+          textbookRef: 'NCERT रुचिरा भाग ३ — पाठ १',
+          syllabusTopics: ['गुणा गुणज्ञेषु गुणा भवन्ति', 'साहित्यसङ्गीतकलाविहीनः साक्षात्पशुः पुच्छविषाणहीनः', 'लुब्धस्य नश्यति यशः पिशुनस्य मैत्री'],
+          learningObjectives: ['संस्कृत सूक्तीनां कण्ठस्थीकरणम् चरित्रनिर्माणं च']
+        },
+        {
+          id: 'ch-8-sk-2',
+          name: 'बिलस्य वाणी न कदापि मे श्रुता',
+          textbookRef: 'NCERT रुचिरा भाग ३ — पाठ २',
+          syllabusTopics: ['पञ्चतन्त्रस्य कथा — खरनखरः सिंहः दधिपुच्छः शृगालश्च', 'गुहायाः पुरतः सिंहपदपद्धतिं दृष्ट्वा शृगालस्य समयसूचकता', 'अनागतं यः कुरुते स शोभते'],
+          learningObjectives: ['आपत्काले बुद्धेः प्रयोगः कथाकौशलं च']
+        },
+        {
+          id: 'ch-8-sk-3',
+          name: 'डिजीभारतम् (Digital India)',
+          textbookRef: 'NCERT रुचिरा भाग ३ — पाठ ३',
+          syllabusTopics: ['डिजिटल इण्डिया इत्याख्यायाः चर्चा', 'कागदस्य उद्योगे वृक्षाणां कर्तनं न्यूनीभवति', 'चलदूरभाषयन्त्रेण (Mobile) सर्वकार्याणां सिद्धिः'],
+          learningObjectives: ['आधुनिक प्रविधेः संवादे संस्कृतस्य समर्थताज्ञानम्']
+        },
+        {
+          id: 'ch-8-sk-4',
+          name: 'सदैव पुरतो निधेहि चरणम्',
+          textbookRef: 'NCERT रुचिरा भाग ३ — पाठ ४',
+          syllabusTopics: ['श्रीधर भास्कर वर्णेकरस्य प्रेरणागीतम्', 'चल चल पुरतो निधेहि चरणम् सदैव पुरतो निधेहि चरणम्', 'गिरिशिखरे ननु निजनिकेतनम्, बलं स्वकीयं भवति साधनम्'],
+          learningObjectives: ['राष्ट्रभक्तेः आत्मबलस्य च विकासः']
+        },
+        {
+          id: 'ch-8-sk-5',
+          name: 'कण्टकेनैव कण्टकम्',
+          textbookRef: 'NCERT रुचिरा भाग ३ — पाठ ५',
+          syllabusTopics: ['मध्यप्रदेशस्य डिण्डोरी-मण्डले लोककथा', 'चञ्चलो नाम व्याधः व्याघ्रश्च, लोमशिकायाः चतुराई', 'धूर्तेन सह धूर्तता एव फलवती भवति'],
+          learningObjectives: ['लोककथामाध्यमेन व्यवहारकुशलतायाः बोधः']
+        },
+        {
+          id: 'ch-8-sk-6',
+          name: 'गृहं शून्यं सुतां विना',
+          textbookRef: 'NCERT रुचिरा भाग ३ — पाठ ६',
+          syllabusTopics: ['कन्या भ्रूणहत्या निवारणम्, "बेटी बचाओ बेटी पढ़ाओ"', 'राकेशस्य मालायाश्च संवादः, भगिन्याः शालिन्याः प्रबोधनम्', 'यत्र नार्यस्तु पूज्यन्ते रमन्ते तत्र देवताः'],
+          learningObjectives: ['लैङ्गिकसमानतायाः सामाजिकचेतनायाः च संवर्धनम्']
+        },
+        {
+          id: 'ch-8-sk-7',
+          name: 'सावित्री बाई फुले',
+          textbookRef: 'NCERT रुचिरा भाग ३ — पाठ ७',
+          syllabusTopics: ['भारते महिलाशिक्षायाः प्रथमा शिक्षिका सावित्री बाई फुले', 'पुणे नगरे १८४८ तमे वर्षे कन्यानां कृते प्रथमविद्यालयः', 'सामाजिक कुरीतीनां प्रहाराणां च सहनम् दृढनिश्चयश्च'],
+          learningObjectives: ['ऐतिहासिक समाजसुधारकानां त्यागात् प्रेरणा ग्रहणम्']
+        },
+        {
+          id: 'ch-8-sk-8',
+          name: 'आर्यभटः',
+          textbookRef: 'NCERT रुचिरा भाग ३ — पाठ ८',
+          syllabusTopics: ['प्राचीन भारतस्य महान् गणितज्ञः खगोलशास्त्री च आर्यभटः', 'पृथ्वी स्थिरा नास्ति स्वकीये अक्षे घूर्णति इति प्रतिपादनम्', 'शून्यस्य आविष्कारः, सूर्यग्रहण-चन्द्रग्रहणयोः वैज्ञानिकं कारणम्'],
+          learningObjectives: ['प्राचीनभारतीय वैज्ञानिकपरम्परायाः गौरवबोधः']
+        }
+      ]
     }
   ]
 };
