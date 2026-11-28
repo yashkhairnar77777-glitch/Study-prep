@@ -814,9 +814,9 @@ Please tutor me step-by-step:
                             </div>
                           ) : (
                             <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                              {relatedTests.map(test => (
+                              {relatedTests.map((test, idx) => (
                                 <div
-                                  key={test.id}
+                                  key={`${test.id}-${idx}`}
                                   className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 text-xs space-y-1"
                                 >
                                   <div className="flex items-center justify-between gap-2">

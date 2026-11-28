@@ -127,6 +127,45 @@ export type EducationCategory = 'school' | 'college' | 'university' | 'competiti
 
 export type LearningGoal = 'exam_prep' | 'learn_anything' | 'both';
 
+export type LearningPathType = 'school' | 'competitive';
+export type CompetitiveExamType = 'UPSC' | 'JEE' | 'NEET';
+export type PreparationLevel = 'beginner' | 'intermediate' | 'advanced';
+export type ActiveGoalKind = 'school' | 'upsc' | 'jee' | 'neet';
+export type TopicStatus = 'not_started' | 'in_progress' | 'completed' | 'needs_revision';
+
+export interface GoalConfig {
+  id: string;
+  pathType: LearningPathType;
+  kind: ActiveGoalKind;
+  label: string;
+  board: EducationBoard;
+  selectedClass?: string;
+  academicYear: string;
+  medium: string;
+  selectedSubjects: string[];
+  primarySubject: SubjectCategory;
+  competitiveExam?: CompetitiveExamType;
+  targetExamYear?: string;
+  preparationLevel?: PreparationLevel;
+  upscOptionalSubject?: string;
+  upscFocusStage?: 'Prelims + Mains' | 'Prelims Focus' | 'Mains & Essay';
+  jeeStream?: 'JEE Main & Advanced' | 'JEE Main Only';
+  neetNcertFocus?: boolean;
+  dailyStudyTargetMinutes: number;
+}
+
+export interface GoalSnapshot {
+  config: GoalConfig;
+  topicProgress: Record<string, TopicStatus>;
+  notes: SavedNote[];
+  flashcards: Flashcard[];
+  mockTests: MockTestAttempt[];
+  tasks: StudyTask[];
+  conversations: Conversation[];
+  createdAt: number;
+  lastActiveAt: number;
+}
+
 export interface UserProfile {
   userId?: string;
   email?: string;
@@ -134,9 +173,20 @@ export interface UserProfile {
   educationCategory: EducationCategory;
   grade: GradeLevel;
   selectedClass?: string;
+  board?: EducationBoard;
+  academicYear?: string;
   collegeCourse?: string;
   competitiveExamCategory?: string;
+  competitiveExam?: CompetitiveExamType;
   targetExam?: string;
+  targetExamYear?: string;
+  preparationLevel?: PreparationLevel;
+  upscOptionalSubject?: string;
+  upscFocusStage?: 'Prelims + Mains' | 'Prelims Focus' | 'Mains & Essay';
+  jeeStream?: 'JEE Main & Advanced' | 'JEE Main Only';
+  neetNcertFocus?: boolean;
+  selectedSyllabusSubjects?: string[];
+  activeGoalId?: string;
   primaryGoal: LearningGoal;
   favoriteSubjects: SubjectCategory[];
   primarySubject: SubjectCategory;
@@ -187,6 +237,7 @@ export interface AppNotification {
 export type AppView =
   | 'landing'
   | 'dashboard'
+  | 'syllabus'
   | 'ncert_hub'
   | 'generator'
   | 'chat'

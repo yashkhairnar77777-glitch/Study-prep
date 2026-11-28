@@ -23,7 +23,7 @@ export class GeminiProvider {
     }
 
     const cleanModel = rawModel.replace(/^models\//, '');
-    let finalModel = 'gemini-3.5-flash';
+    let finalModel = 'gemini-3.1-flash-lite';
     if (
       cleanModel &&
       !cleanModel.startsWith('AIza') &&
@@ -33,6 +33,7 @@ export class GeminiProvider {
       !cleanModel.includes('2.0') &&
       !cleanModel.includes('1.5') &&
       !cleanModel.includes('1.0') &&
+      !cleanModel.includes('3.8-flash') &&
       cleanModel.length < 40
     ) {
       finalModel = cleanModel;
@@ -60,10 +61,10 @@ export class GeminiProvider {
   private getCandidateModels(): string[] {
     const { model } = this.getResolvedCredentials();
     const defaults = [
-      'gemini-3.5-flash',
       'gemini-3.1-flash-lite',
+      'gemini-3.5-flash',
+      'gemini-4-hydrogen',
       'gemini-flash-latest',
-      'gemini-3.8-flash',
     ];
     if (model && !defaults.includes(model)) {
       return [model, ...defaults];
@@ -155,14 +156,18 @@ export class GeminiProvider {
           }, 15000);
         });
 
+        const chatConfig: Record<string, unknown> = {
+          systemInstruction,
+          maxOutputTokens: options?.maxTokens ?? 3500,
+        };
+        if (!model.startsWith('gemini-4-')) {
+          chatConfig.temperature = options?.temperature ?? 0.4;
+        }
+
         const apiPromise = ai.models.generateContent({
           model,
           contents: normalizedContents,
-          config: {
-            systemInstruction,
-            temperature: options?.temperature ?? 0.4,
-            maxOutputTokens: options?.maxTokens ?? 3500,
-          },
+          config: chatConfig,
         });
 
         const response = await Promise.race([apiPromise, timeoutPromise]);
@@ -234,6 +239,13 @@ export class GeminiProvider {
           }, 15000);
         });
 
+        const visionConfig: Record<string, unknown> = {
+          maxOutputTokens: 3500,
+        };
+        if (!model.startsWith('gemini-4-')) {
+          visionConfig.temperature = 0.2;
+        }
+
         const apiPromise = ai.models.generateContent({
           model,
           contents: {
@@ -249,10 +261,7 @@ export class GeminiProvider {
               },
             ],
           },
-          config: {
-            temperature: 0.2,
-            maxOutputTokens: 3500,
-          },
+          config: visionConfig,
         });
 
         const response = await Promise.race([apiPromise, timeoutPromise]);

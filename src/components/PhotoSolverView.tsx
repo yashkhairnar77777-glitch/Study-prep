@@ -250,6 +250,7 @@ export const PhotoSolverView: React.FC<PhotoSolverViewProps> = ({
                   <option value="Sanskrit">Sanskrit</option>
                   <option value="Japanese">Japanese</option>
                   <option value="English & Languages">English & Languages</option>
+                  <option value="Economics & Commerce">Economics & Commerce</option>
                   <option value="Computer Science">Computer Science</option>
                   <option value="Foundation & Olympiads">Foundation & Olympiads</option>
                   <option value="UPSC General Studies">UPSC General Studies</option>

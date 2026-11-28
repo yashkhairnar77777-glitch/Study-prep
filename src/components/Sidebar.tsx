@@ -28,8 +28,10 @@ import {
   Crown,
   ArrowRight,
   Clock,
+  Target,
+  ArrowRightLeft,
 } from 'lucide-react';
-import { Conversation, UserProfile, AppView } from '../types';
+import { Conversation, UserProfile, AppView, GoalConfig } from '../types';
 import { OryqenLogo } from './OryqenLogo';
 
 interface SidebarProps {
@@ -42,6 +44,9 @@ interface SidebarProps {
   currentView: AppView;
   setCurrentView: (view: AppView) => void;
   profile: UserProfile;
+  goalConfig: GoalConfig;
+  savedGoalsCount: number;
+  onOpenGoalSwitcher: () => void;
   isOpenMobile: boolean;
   onCloseMobile: () => void;
   onOpenProfile: () => void;
@@ -61,11 +66,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentView,
   setCurrentView,
   profile,
+  goalConfig,
+  savedGoalsCount,
+  onOpenGoalSwitcher,
   isOpenMobile,
   onCloseMobile,
   onOpenProfile,
   onExportData,
-  isDark,
   onOpenLanding,
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -92,22 +99,64 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setEditingId(null);
   };
 
+  const showNcertHub = goalConfig.kind === 'school' || goalConfig.kind === 'neet';
+
   const mainNav = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'ncert_hub' as const, label: 'NCERT Hub (5–10)', icon: BookOpen },
-    { id: 'generator' as const, label: 'Study Generator', icon: Sparkles },
-    { id: 'chat' as const, label: 'AI Tutor', icon: MessageSquare },
+    { id: 'syllabus' as const, label: 'Syllabus Tracker', icon: Target },
+    ...(showNcertHub
+      ? [
+          {
+            id: 'ncert_hub' as const,
+            label: goalConfig.kind === 'neet' ? 'NCERT Revision Hub' : 'Subjects & Chapters',
+            icon: BookOpen,
+          },
+        ]
+      : []),
+    {
+      id: 'generator' as const,
+      label:
+        goalConfig.kind === 'upsc'
+          ? 'GS Study Generator'
+          : goalConfig.kind === 'jee'
+          ? 'Topic & Formula Gen'
+          : goalConfig.kind === 'neet'
+          ? 'NCERT & Bio Study Gen'
+          : 'Study Generator',
+      icon: Sparkles,
+    },
+    {
+      id: 'chat' as const,
+      label: goalConfig.kind === 'upsc' ? 'Answer Writing & Tutor' : 'AI Tutor',
+      icon: MessageSquare,
+    },
     { id: 'photo' as const, label: 'Photo Solver', icon: Camera },
-    { id: 'doc' as const, label: 'PDF Analysis', icon: FileText },
+    {
+      id: 'doc' as const,
+      label: goalConfig.kind === 'upsc' ? 'Current Affairs & PDFs' : 'PDF Analysis',
+      icon: FileText,
+    },
   ];
 
   const toolsNav = [
-    { id: 'exam' as const, label: 'Mock Tests & Exams', icon: Award, locked: profile.subscriptionTier === 'free' },
-    { id: 'timer' as const, label: 'Smart Study Timer', icon: Clock },
+    {
+      id: 'exam' as const,
+      label:
+        goalConfig.kind === 'upsc'
+          ? 'Prelims & Mains Mocks'
+          : goalConfig.kind === 'jee'
+          ? 'JEE Mock Tests'
+          : goalConfig.kind === 'neet'
+          ? 'NEET Mock Tests'
+          : 'MCQ & Mock Tests',
+      icon: Award,
+      locked: profile.subscriptionTier === 'free',
+    },
+    { id: 'timer' as const, label: 'Study Timer', icon: Clock },
     { id: 'revision' as const, label: 'Flashcards', icon: Layers },
     { id: 'planner' as const, label: 'Study Planner', icon: Calendar },
     { id: 'notes' as const, label: 'Study Notes', icon: BookMarked },
-    { id: 'progress' as const, label: 'Learning Diagnostics', icon: BarChart3 },
+    { id: 'progress' as const, label: 'Performance Analytics', icon: BarChart3 },
     { id: 'pricing' as const, label: 'Plans & UPI Payment', icon: CreditCard, highlight: true },
     { id: 'my_subscription' as const, label: 'My Subscription', icon: Sparkles },
     { id: 'admin_payments' as const, label: 'Admin Access', icon: ShieldAlert },
@@ -173,8 +222,46 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        {/* Primary Action: New AI Chat */}
-        <div className="p-3 border-b border-[#19233d]">
+        {/* Active Learning Goal Card + New AI Session */}
+        <div className="p-3 border-b border-[#19233d] space-y-2.5">
+          {!isCollapsedDesktop ? (
+            <button
+              type="button"
+              onClick={() => {
+                onOpenGoalSwitcher();
+                onCloseMobile();
+              }}
+              className="w-full rounded-xl bg-[#11192e] hover:bg-[#16203a] border border-[#1e2a47] p-2.5 text-left transition-colors group"
+              title="Switch active learning goal"
+            >
+              <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400">
+                <span>ACTIVE GOAL</span>
+                <span className="inline-flex items-center gap-1 text-violet-400 group-hover:text-violet-300">
+                  <span>Switch</span>
+                  <ArrowRightLeft className="w-3 h-3" />
+                </span>
+              </div>
+              <div className="text-xs font-bold text-white truncate mt-0.5">
+                {goalConfig.label}
+              </div>
+              <div className="text-[10px] text-slate-400 truncate mt-0.5">
+                {goalConfig.medium} Medium · {savedGoalsCount} saved
+              </div>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                onOpenGoalSwitcher();
+                onCloseMobile();
+              }}
+              className="w-full flex items-center justify-center p-2 rounded-xl bg-[#11192e] border border-[#1e2a47] text-violet-400 hover:text-white transition-colors"
+              title={`Active Goal: ${goalConfig.label} (Click to switch)`}
+            >
+              <ArrowRightLeft className="w-4 h-4" />
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => {
@@ -182,10 +269,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               setCurrentView('chat');
               onCloseMobile();
             }}
-            className={`w-full flex items-center justify-center gap-2 rounded-xl clay-btn-primary px-3 py-2.5 text-xs font-bold text-white shadow-sm transition-all ${
+            className={`w-full flex items-center justify-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-700 px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors ${
               isCollapsedDesktop ? 'p-2.5' : ''
             }`}
-            title="Start New Chat Session"
+            title="Start New AI Tutor Session"
           >
             <Plus className="h-4 w-4 shrink-0 stroke-[2.5]" />
             {!isCollapsedDesktop && <span>New AI Session</span>}

@@ -242,9 +242,9 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
               </div>
             ) : (
               <div className="space-y-2.5 max-h-64 overflow-y-auto">
-                {mockTests.slice(0, 5).map(test => (
+                {mockTests.slice(0, 5).map((test, idx) => (
                   <div
-                    key={test.id}
+                    key={`${test.id}-${idx}`}
                     className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-white/5 flex items-center justify-between text-xs"
                   >
                     <div className="truncate pr-2">

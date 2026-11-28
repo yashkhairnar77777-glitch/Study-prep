@@ -127,6 +127,8 @@ export class OpenRouterProvider {
     }
 
     const model = this.getModel();
+    const cleanBase64 = imageBase64.replace(/^data:[^;]+;base64,/, '');
+    const safeMime = mimeType || 'image/jpeg';
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000);
 
@@ -149,7 +151,7 @@ export class OpenRouterProvider {
                 {
                   type: 'image_url',
                   image_url: {
-                    url: `data:${mimeType};base64,${imageBase64}`,
+                    url: `data:${safeMime};base64,${cleanBase64}`,
                   },
                 },
               ],

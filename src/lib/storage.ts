@@ -9,6 +9,8 @@ import {
   StudyActivity,
   StudyStreak,
   GeneratedStudyPack,
+  TopicStatus,
+  GoalSnapshot,
 } from '../types';
 
 const STORAGE_KEYS = {
@@ -25,6 +27,8 @@ const STORAGE_KEYS = {
   STUDY_STREAK: 'oryqen_study_streak_v1',
   GENERATED_PACKS: 'oryqen_generated_packs_v1',
   CURRICULUM_PROGRESS: 'oryqen_curriculum_progress_v1',
+  TOPIC_PROGRESS: 'oryqen_topic_progress_v1',
+  SAVED_GOALS: 'oryqen_saved_goals_v1',
 };
 
 export const DEFAULT_PROFILE: UserProfile = {
@@ -513,7 +517,14 @@ export const storage = {
   getMockTests(): MockTestAttempt[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.MOCK_TESTS);
-      return data ? JSON.parse(data) : [];
+      const parsed: MockTestAttempt[] = data ? JSON.parse(data) : [];
+      if (!Array.isArray(parsed)) return [];
+      const seen = new Set<string>();
+      return parsed.filter(t => {
+        if (!t || !t.id || seen.has(t.id)) return false;
+        seen.add(t.id);
+        return true;
+      });
     } catch {
       return [];
     }
@@ -521,7 +532,7 @@ export const storage = {
 
   saveMockTest(test: MockTestAttempt): void {
     try {
-      const tests = this.getMockTests();
+      const tests = this.getMockTests().filter(t => t.id !== test.id);
       tests.unshift(test);
       localStorage.setItem(STORAGE_KEYS.MOCK_TESTS, JSON.stringify(tests));
     } catch (e) {
@@ -531,7 +542,13 @@ export const storage = {
 
   saveMockTests(tests: MockTestAttempt[]): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.MOCK_TESTS, JSON.stringify(tests));
+      const seen = new Set<string>();
+      const deduped = (Array.isArray(tests) ? tests : []).filter(t => {
+        if (!t || !t.id || seen.has(t.id)) return false;
+        seen.add(t.id);
+        return true;
+      });
+      localStorage.setItem(STORAGE_KEYS.MOCK_TESTS, JSON.stringify(deduped));
     } catch (e) {
       console.warn('Storage saveMockTests failed', e);
     }
@@ -737,6 +754,8 @@ export const storage = {
       focusSessions: this.getFocusSessions(),
       studyActivities: this.getStudyActivities(),
       streak: this.getStudyStreak(),
+      topicProgress: this.getTopicProgress(),
+      savedGoals: this.getSavedGoals(),
       exportedAt: new Date().toISOString(),
     };
     return JSON.stringify(backup, null, 2);
@@ -760,7 +779,13 @@ export const storage = {
         localStorage.setItem(STORAGE_KEYS.STUDY_STREAK, JSON.stringify(parsed.streak));
       }
       if (Array.isArray(parsed.mockTests)) {
-        localStorage.setItem(STORAGE_KEYS.MOCK_TESTS, JSON.stringify(parsed.mockTests));
+        this.saveMockTests(parsed.mockTests);
+      }
+      if (parsed.topicProgress && typeof parsed.topicProgress === 'object') {
+        this.saveTopicProgress(parsed.topicProgress);
+      }
+      if (parsed.savedGoals && typeof parsed.savedGoals === 'object') {
+        this.saveSavedGoals(parsed.savedGoals);
       }
       return true;
     } catch (e) {
@@ -842,6 +867,40 @@ export const storage = {
       localStorage.setItem(STORAGE_KEYS.CURRICULUM_PROGRESS, JSON.stringify(progress));
     } catch (e) {
       console.warn('Storage saveCurriculumProgress failed', e);
+    }
+  },
+
+  getTopicProgress(): Record<string, TopicStatus> {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.TOPIC_PROGRESS);
+      return data ? JSON.parse(data) : {};
+    } catch {
+      return {};
+    }
+  },
+
+  saveTopicProgress(progress: Record<string, TopicStatus>): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.TOPIC_PROGRESS, JSON.stringify(progress));
+    } catch (e) {
+      console.warn('Storage saveTopicProgress failed', e);
+    }
+  },
+
+  getSavedGoals(): Record<string, GoalSnapshot> {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.SAVED_GOALS);
+      return data ? JSON.parse(data) : {};
+    } catch {
+      return {};
+    }
+  },
+
+  saveSavedGoals(goals: Record<string, GoalSnapshot>): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.SAVED_GOALS, JSON.stringify(goals));
+    } catch (e) {
+      console.warn('Storage saveSavedGoals failed', e);
     }
   },
 

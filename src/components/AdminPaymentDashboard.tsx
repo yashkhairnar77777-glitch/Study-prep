@@ -80,6 +80,7 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
   const [adminNotes, setAdminNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
 
   // Coupons State
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -200,11 +201,13 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
     setApprovedDuration(req.duration);
     setAdminNotes(req.adminNotes || '');
     setRejectionReason(req.rejectionReason || '');
+    setReviewError(null);
   };
 
   const handleExecuteReview = async () => {
     if (!selectedPayment) return;
     setSubmittingReview(true);
+    setReviewError(null);
     try {
       await subscriptionService.reviewPayment(adminEmail, selectedPayment.id, {
         action: reviewAction,
@@ -218,7 +221,7 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
       loadAllData();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Review action failed';
-      alert(msg);
+      setReviewError(msg);
     } finally {
       setSubmittingReview(false);
     }
@@ -1261,9 +1264,19 @@ export const AdminPaymentDashboard: React.FC<AdminPaymentDashboardProps> = ({
                 </div>
               </div>
 
+              {reviewError && (
+                <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300">
+                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                  <span>{reviewError}</span>
+                </div>
+              )}
+
               <div className="flex gap-2 pt-2">
                 <button
-                  onClick={() => setSelectedPayment(null)}
+                  onClick={() => {
+                    setReviewError(null);
+                    setSelectedPayment(null);
+                  }}
                   className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
                 >
                   Cancel

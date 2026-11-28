@@ -2,36 +2,40 @@ import React from 'react';
 import {
   LayoutDashboard,
   BookOpen,
-  Sparkles,
   MessageSquare,
-  Layers,
   Award,
   Clock,
+  Target,
 } from 'lucide-react';
-import { AppView } from '../types';
+import { AppView, GoalConfig } from '../types';
 import { usePomodoro } from '../contexts/PomodoroContext';
 
 interface MobileBottomNavProps {
   currentView: AppView;
   setCurrentView: (view: AppView) => void;
+  goalConfig: GoalConfig;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   currentView,
   setCurrentView,
+  goalConfig,
 }) => {
-  const { isRunning, timeLeft, setIsOpenModal, mode } = usePomodoro();
+  const { isRunning, timeLeft, setIsOpenModal } = usePomodoro();
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
   const timerStr = `${minutes}:${String(seconds).padStart(2, '0')}`;
 
+  const showNcertHub = goalConfig.kind === 'school' || goalConfig.kind === 'neet';
+
   const navItems = [
     { id: 'dashboard' as const, label: 'Home', icon: LayoutDashboard },
-    { id: 'ncert_hub' as const, label: 'NCERT', icon: BookOpen },
-    { id: 'generator' as const, label: 'Generator', icon: Sparkles },
+    { id: 'syllabus' as const, label: 'Syllabus', icon: Target },
+    showNcertHub
+      ? { id: 'ncert_hub' as const, label: 'NCERT', icon: BookOpen }
+      : { id: 'exam' as const, label: 'Mocks', icon: Award },
     { id: 'chat' as const, label: 'Tutor', icon: MessageSquare },
-    { id: 'revision' as const, label: 'Cards', icon: Layers },
   ];
 
   return (
@@ -39,7 +43,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       className="md:hidden shrink-0 z-30 bg-white/95 dark:bg-[#0b101f]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-[#19233d] pb-safe transition-colors"
       aria-label="Mobile Navigation"
     >
-      <div className="flex items-center justify-around h-15 px-2">
+      <div className="flex items-center justify-around h-15 px-1.5">
         {navItems.map(item => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
@@ -54,8 +58,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
-              <Icon className="w-5 h-5 mb-0.5" />
-              <span className="text-[10px] tracking-tight">{item.label}</span>
+              <Icon className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] tracking-tight truncate">{item.label}</span>
               {isActive && (
                 <span className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-violet-600 dark:bg-violet-400" />
               )}
@@ -81,12 +85,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           aria-label="Study Focus Timer"
         >
           <div className="relative">
-            <Clock className={`w-5 h-5 mb-0.5 ${isRunning ? 'animate-pulse text-violet-500' : ''}`} />
+            <Clock className={`w-5 h-5 mb-0.5 ${isRunning ? 'text-violet-500' : ''}`} />
             {isRunning && (
               <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
             )}
           </div>
-          <span className="text-[10px] tracking-tight font-mono">
+          <span className="text-[10px] tracking-tight font-mono tabular-nums">
             {isRunning ? timerStr : 'Timer'}
           </span>
           {currentView === 'timer' && (

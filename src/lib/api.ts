@@ -177,11 +177,27 @@ export const api = {
     expectedKeywords: string[];
     grade?: string;
     subject?: string;
+    studentEmail?: string;
   }): Promise<OralTestEvaluation> {
+    let resolvedEmail = params.studentEmail;
+    if (!resolvedEmail) {
+      try {
+        const stored = localStorage.getItem('oryqen_profile_v1');
+        if (stored) {
+          resolvedEmail = JSON.parse(stored)?.email;
+        }
+      } catch {}
+    }
+
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (resolvedEmail) {
+      headers['x-student-email'] = resolvedEmail;
+    }
+
     const res = await fetch('/api/evaluate-oral-answer', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
+      headers,
+      body: JSON.stringify({ ...params, studentEmail: resolvedEmail }),
     });
 
     const json = await res.json();

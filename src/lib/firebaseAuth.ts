@@ -26,6 +26,8 @@ import {
   SavedNote,
   MockTestAttempt,
   StudyTask,
+  TopicStatus,
+  GoalSnapshot,
 } from '../types';
 
 // Initialize Firebase App
@@ -179,6 +181,8 @@ export interface UserCloudData {
   notes?: SavedNote[];
   mockTests?: MockTestAttempt[];
   tasks?: StudyTask[];
+  topicProgress?: Record<string, TopicStatus>;
+  goalSnapshots?: Record<string, GoalSnapshot>;
   updatedAt?: number;
 }
 

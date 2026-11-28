@@ -230,11 +230,17 @@ export const SmartRevisionView: React.FC<SmartRevisionViewProps> = ({
               <option value="Physics">Physics</option>
               <option value="Chemistry">Chemistry</option>
               <option value="Biology">Biology</option>
-              <option value="Computer Science">Computer Science</option>
-              <option value="English & Languages">English & Languages</option>
-              <option value="History & Social Studies">History & Social Studies</option>
-              <option value="Economics & Commerce">Economics & Commerce</option>
               <option value="General Science">General Science</option>
+              <option value="History & Social Studies">History & Social Studies</option>
+              <option value="Hindi">Hindi</option>
+              <option value="Marathi">Marathi</option>
+              <option value="Sanskrit">Sanskrit</option>
+              <option value="Japanese">Japanese</option>
+              <option value="English & Languages">English & Languages</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Economics & Commerce">Economics & Commerce</option>
+              <option value="Foundation & Olympiads">Foundation & Olympiads</option>
+              <option value="UPSC General Studies">UPSC General Studies</option>
             </select>
           </div>
 
@@ -461,11 +467,17 @@ export const SmartRevisionView: React.FC<SmartRevisionViewProps> = ({
                     <option value="Physics">Physics</option>
                     <option value="Chemistry">Chemistry</option>
                     <option value="Biology">Biology</option>
-                    <option value="Computer Science">Computer Science</option>
-                    <option value="English & Languages">English & Languages</option>
-                    <option value="History & Social Studies">History & Social Studies</option>
-                    <option value="Economics & Commerce">Economics & Commerce</option>
                     <option value="General Science">General Science</option>
+                    <option value="History & Social Studies">History & Social Studies</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Marathi">Marathi</option>
+                    <option value="Sanskrit">Sanskrit</option>
+                    <option value="Japanese">Japanese</option>
+                    <option value="English & Languages">English & Languages</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Economics & Commerce">Economics & Commerce</option>
+                    <option value="Foundation & Olympiads">Foundation & Olympiads</option>
+                    <option value="UPSC General Studies">UPSC General Studies</option>
                   </select>
                 </div>
 

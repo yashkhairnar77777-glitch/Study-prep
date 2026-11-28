@@ -87,17 +87,44 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
 
   const [showFullQrCard, setShowFullQrCard] = useState<boolean>(false);
 
-  // Update when props change
+  // Update and reset transient state when props or modal open state change
   useEffect(() => {
+    if (!isOpen) return;
     if (initialPlan) setSelectedPlan(initialPlan);
     if (initialDuration) setSelectedDuration(initialDuration);
     if (userProfile.email) setStudentEmail(userProfile.email);
     if (userProfile.name) setStudentName(userProfile.name);
+    setSubmissionSuccess(null);
+    setSubmitError(null);
+    setCouponError(null);
+    setShowFullQrCard(false);
+    setPayerUpiId('');
+    setUtrNumber('');
+    setScreenshotBase64(undefined);
+    setScreenshotName(undefined);
     if (initialCouponCode) {
       setCouponCode(initialCouponCode);
       handleApplyCoupon(initialCouponCode);
+    } else {
+      setCouponCode('');
+      setAppliedCoupon(null);
     }
   }, [initialPlan, initialDuration, userProfile, isOpen, initialCouponCode]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (showFullQrCard) {
+          setShowFullQrCard(false);
+        } else {
+          onClose();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, showFullQrCard, onClose]);
 
   if (!isOpen) return null;
 
@@ -307,6 +334,8 @@ export const UpiPaymentModal: React.FC<UpiPaymentModalProps> = ({
           </div>
 
           <button
+            type="button"
+            aria-label="Close modal"
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 transition-colors cursor-pointer"
           >

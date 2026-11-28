@@ -689,6 +689,7 @@ export const StudyGeneratorView: React.FC<StudyGeneratorViewProps> = ({
         expectedKeywords: currentQ.expectedKeywords,
         grade: currentClass.name,
         subject: currentSubject.name,
+        studentEmail: profile.email,
       });
 
       setOralEvaluation(evalResult);

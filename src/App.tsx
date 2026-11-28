@@ -26,6 +26,9 @@ import { NcertLearningHubView } from './components/NcertLearningHubView';
 import { LandingPage } from './components/LandingPage';
 import { ProfileModal } from './components/ProfileModal';
 import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
+import { PersonalizedIntro } from './components/PersonalizedIntro';
+import { GoalSwitcherModal } from './components/GoalSwitcherModal';
+import { SyllabusTrackerView } from './components/SyllabusTrackerView';
 import { PomodoroProvider } from './contexts/PomodoroContext';
 import { PomodoroGlobalModal } from './components/PomodoroGlobalModal';
 import { NotificationProvider } from './contexts/NotificationContext';
@@ -35,6 +38,12 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { NcertQuickGeneratorModal, QuickGeneratorMode } from './components/NcertQuickGeneratorModal';
 import { storage } from './lib/storage';
 import { api } from './lib/api';
+import {
+  buildGoalConfigFromProfile,
+  createGoalWelcomeConversation,
+  saveGoalIntoRegistry,
+  switchGoalWithPreservation,
+} from './lib/goalManager';
 import {
   subscribeToAuth,
   loadFromFirestore,
@@ -53,6 +62,9 @@ import {
   StudyTask,
   AppView,
   SubscriptionTier,
+  TopicStatus,
+  GoalSnapshot,
+  GoalConfig,
 } from './types';
 import { subscriptionService } from './lib/subscriptionService';
 
@@ -64,6 +76,29 @@ export default function App() {
   const [notes, setNotes] = useState<SavedNote[]>(storage.getNotes());
   const [mockTests, setMockTests] = useState<MockTestAttempt[]>(storage.getMockTests());
   const [tasks, setTasks] = useState<StudyTask[]>(storage.getTasks());
+  const [topicProgress, setTopicProgress] = useState<Record<string, TopicStatus>>(
+    storage.getTopicProgress()
+  );
+  const [savedGoals, setSavedGoals] = useState<Record<string, GoalSnapshot>>(() => {
+    const existing = storage.getSavedGoals();
+    const initialProfile = storage.getProfile();
+    if (initialProfile.isOnboarded) {
+      const cfg = buildGoalConfigFromProfile(initialProfile);
+      if (!existing[cfg.id]) {
+        const seeded = saveGoalIntoRegistry(existing, initialProfile, {
+          topicProgress: storage.getTopicProgress(),
+          notes: storage.getNotes(),
+          flashcards: storage.getFlashcards(),
+          mockTests: storage.getMockTests(),
+          tasks: storage.getTasks(),
+          conversations: storage.getConversations(),
+        });
+        storage.saveSavedGoals(seeded);
+        return seeded;
+      }
+    }
+    return existing;
+  });
   const [providerStatus, setProviderStatus] = useState<ProviderStatus | null>(null);
 
   const [currentView, setCurrentView] = useState<AppView>('dashboard');
@@ -75,8 +110,16 @@ export default function App() {
   const [activeExamPaper, setActiveExamPaper] = useState<ExamPaper | null>(null);
   const [isOpenMobileMenu, setIsOpenMobileMenu] = useState(false);
   const [isOpenProfileModal, setIsOpenProfileModal] = useState(false);
+  const [isOpenGoalSwitcher, setIsOpenGoalSwitcher] = useState(false);
+  const [introGoalConfig, setIntroGoalConfig] = useState<GoalConfig | null>(null);
+  const [pendingChatPrompt, setPendingChatPrompt] = useState<string | null>(null);
   const [isOpenNcertModal, setIsOpenNcertModal] = useState<boolean>(false);
   const [ncertModalMode, setNcertModalMode] = useState<QuickGeneratorMode>('flashcards');
+
+  const activeGoalConfig = React.useMemo(
+    () => buildGoalConfigFromProfile(profile),
+    [profile]
+  );
 
   const handleOpenNcertGenerator = (mode: QuickGeneratorMode = 'flashcards') => {
     setNcertModalMode(mode);
@@ -107,62 +150,122 @@ export default function App() {
     storage.saveProfile(updatedProfile);
   };
 
-  const handleOnboardingComplete = (completedProfile: UserProfile) => {
+  const handleOnboardingComplete = (completedProfile: UserProfile, goalCfg?: GoalConfig) => {
+    const resolvedConfig = goalCfg || buildGoalConfigFromProfile(completedProfile);
+    const welcomeConvo = createGoalWelcomeConversation(completedProfile, resolvedConfig);
+    const updatedConvos = [welcomeConvo, ...conversations];
+
     storage.saveProfile(completedProfile);
     setProfile(completedProfile);
     setIsDark(completedProfile.theme === 'dark');
 
-    // Create tailored introductory conversation
-    const greetingText = `Hello ${completedProfile.name}! I am **ORYQEN STUDY AI**, your personal learning companion.
+    setConversations(updatedConvos);
+    setActiveConvoId(welcomeConvo.id);
+    storage.saveConversations(updatedConvos);
+    storage.setActiveConvoId(welcomeConvo.id);
 
-I have configured your study space for **${completedProfile.selectedClass || completedProfile.grade}**${
-      completedProfile.collegeCourse ? ` (${completedProfile.collegeCourse})` : ''
-    }${
-      completedProfile.competitiveExamCategory ? ` (${completedProfile.competitiveExamCategory})` : ''
-    } with a focus on **${completedProfile.primarySubject}**.
+    const updatedRegistry = saveGoalIntoRegistry(savedGoals, completedProfile, {
+      topicProgress,
+      notes,
+      flashcards,
+      mockTests,
+      tasks,
+      conversations: updatedConvos,
+    });
+    setSavedGoals(updatedRegistry);
+    storage.saveSavedGoals(updatedRegistry);
 
-**Your Personalized Study Plan:**
-- **Goal Mode**: ${
-      completedProfile.primaryGoal === 'exam_prep'
-        ? 'Exam Preparation (Focus on high-scoring answers, mock test timers, and formula recall)'
-        : completedProfile.primaryGoal === 'learn_anything'
-        ? 'Conceptual Understanding (Focus on first principles, step-by-step proofs, and intuitive analogies)'
-        : 'Comprehensive Dual Mode (Full access to exam generators and conceptual learning tools)'
-    }
-- **Explanation Depth**: ${completedProfile.defaultStyle}
-- **Language**: ${completedProfile.preferredLanguage}
+    setCurrentView('dashboard');
+    setIntroGoalConfig(resolvedConfig);
+  };
 
-What question, topic, or problem would you like to explore today?`;
+  const handleConfirmSwitchGoal = (targetConfig: GoalConfig) => {
+    const { updatedSavedGoals, nextProfile, nextData } = switchGoalWithPreservation(
+      savedGoals,
+      profile,
+      {
+        topicProgress,
+        notes,
+        flashcards,
+        mockTests,
+        tasks,
+        conversations,
+      },
+      targetConfig
+    );
 
+    setSavedGoals(updatedSavedGoals);
+    storage.saveSavedGoals(updatedSavedGoals);
+
+    setProfile(nextProfile);
+    storage.saveProfile(nextProfile);
+
+    setTopicProgress(nextData.topicProgress);
+    storage.saveTopicProgress(nextData.topicProgress);
+
+    setNotes(nextData.notes);
+    storage.saveNotes(nextData.notes);
+
+    setFlashcards(nextData.flashcards);
+    storage.saveFlashcards(nextData.flashcards);
+
+    setMockTests(nextData.mockTests);
+    storage.saveMockTests(nextData.mockTests);
+
+    setTasks(nextData.tasks);
+    storage.saveTasks(nextData.tasks);
+
+    setConversations(nextData.conversations);
+    storage.saveConversations(nextData.conversations);
+
+    const nextConvoId = nextData.conversations[0]?.id || null;
+    setActiveConvoId(nextConvoId);
+    storage.setActiveConvoId(nextConvoId);
+
+    setIsOpenGoalSwitcher(false);
+    setCurrentView('dashboard');
+    setIntroGoalConfig(targetConfig);
+  };
+
+  const handleUpdateTopicStatus = (topicId: string, status: TopicStatus) => {
+    setTopicProgress(prev => {
+      const next = { ...prev, [topicId]: status };
+      storage.saveTopicProgress(next);
+      setSavedGoals(prevGoals => {
+        const updatedGoals = saveGoalIntoRegistry(prevGoals, profile, {
+          topicProgress: next,
+          notes,
+          flashcards,
+          mockTests,
+          tasks,
+          conversations,
+        });
+        storage.saveSavedGoals(updatedGoals);
+        return updatedGoals;
+      });
+      return next;
+    });
+  };
+
+  const handleLaunchTutorPrompt = (prompt: string, subject?: SubjectCategory) => {
     const newConvo: Conversation = {
       id: `convo-${Date.now()}`,
-      title: `${completedProfile.primarySubject} Study Session`,
-      messages: [
-        {
-          id: 'welcome-msg',
-          role: 'assistant',
-          content: greetingText,
-          timestamp: Date.now(),
-          providerUsed: 'groq',
-          modelUsed: 'llama-3.3-70b-versatile',
-        },
-      ],
-      grade: completedProfile.grade,
-      subject: completedProfile.primarySubject,
-      language: completedProfile.preferredLanguage,
-      style: completedProfile.defaultStyle,
+      title: prompt.slice(0, 36) + (prompt.length > 36 ? '...' : ''),
+      messages: [],
+      grade: profile.grade,
+      subject: subject || activeGoalConfig.primarySubject || profile.primarySubject,
+      language: activeGoalConfig.medium || profile.preferredLanguage,
+      style: profile.defaultStyle,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
-
     const updatedConvos = [newConvo, ...conversations];
     setConversations(updatedConvos);
     setActiveConvoId(newConvo.id);
     storage.saveConversations(updatedConvos);
     storage.setActiveConvoId(newConvo.id);
-
-    // Send student directly to personalized Dashboard
-    setCurrentView('dashboard');
+    setPendingChatPrompt(prompt);
+    setCurrentView('chat');
   };
 
   // Listen to Firebase Auth state changes and load cloud data
@@ -196,8 +299,8 @@ What question, topic, or problem would you like to explore today?`;
               storage.saveFlashcards(cloudData.flashcards);
             }
             if (Array.isArray(cloudData.mockTests) && cloudData.mockTests.length > 0) {
-              setMockTests(cloudData.mockTests);
               storage.saveMockTests(cloudData.mockTests);
+              setMockTests(storage.getMockTests());
             }
             if (Array.isArray(cloudData.tasks) && cloudData.tasks.length > 0) {
               setTasks(cloudData.tasks);
@@ -206,6 +309,14 @@ What question, topic, or problem would you like to explore today?`;
             if (Array.isArray(cloudData.conversations) && cloudData.conversations.length > 0) {
               setConversations(cloudData.conversations);
               storage.saveConversations(cloudData.conversations);
+            }
+            if (cloudData.topicProgress && typeof cloudData.topicProgress === 'object') {
+              setTopicProgress(cloudData.topicProgress);
+              storage.saveTopicProgress(cloudData.topicProgress);
+            }
+            if (cloudData.goalSnapshots && typeof cloudData.goalSnapshots === 'object') {
+              setSavedGoals(cloudData.goalSnapshots);
+              storage.saveSavedGoals(cloudData.goalSnapshots);
             }
           }
         } catch (err) {
@@ -228,11 +339,13 @@ What question, topic, or problem would you like to explore today?`;
         mockTests,
         tasks,
         conversations,
+        topicProgress,
+        goalSnapshots: savedGoals,
       }).catch(err => console.warn('[Firestore] Auto-sync warning:', err));
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [profile, notes, flashcards, mockTests, tasks, conversations]);
+  }, [profile, notes, flashcards, mockTests, tasks, conversations, topicProgress, savedGoals]);
 
   // Real-time synchronization of subscription tier from coupons and admin approvals
   useEffect(() => {
@@ -252,26 +365,61 @@ What question, topic, or problem would you like to explore today?`;
     return () => window.removeEventListener('oryqen:subscription_updated', handleSubUpdate);
   }, []);
 
-  // Sync active subscription tier with server on mount or when email changes
+  // Sync subscription tier with server on mount or when email changes (with exponential backoff retry)
   useEffect(() => {
+    let isCancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
     const email = profile.email || 'student@oryqen.ai';
-    subscriptionService
-      .getStatus(email)
-      .then(res => {
-        if (
-          res.subscription &&
-          res.subscription.status === 'active' &&
-          res.subscription.plan &&
-          res.subscription.plan !== profile.subscriptionTier
-        ) {
-          setProfile(prev => {
-            const updated: UserProfile = { ...prev, subscriptionTier: res.subscription.plan };
-            storage.saveProfile(updated);
-            return updated;
-          });
+
+    const MAX_RETRIES = 4;
+    const BASE_DELAY_MS = 1000;
+
+    const syncSubscriptionStatus = async (attempt: number): Promise<void> => {
+      if (isCancelled) return;
+
+      try {
+        const res = await subscriptionService.getStatus(email);
+        if (isCancelled || !res?.subscription) return;
+
+        const serverPlan: SubscriptionTier =
+          res.subscription.status === 'active' && res.subscription.plan
+            ? res.subscription.plan
+            : 'free';
+
+        setProfile(prev => {
+          if (prev.subscriptionTier === serverPlan) {
+            return prev;
+          }
+          const updated: UserProfile = { ...prev, subscriptionTier: serverPlan };
+          storage.saveProfile(updated);
+          return updated;
+        });
+      } catch (err) {
+        if (isCancelled) return;
+
+        if (attempt < MAX_RETRIES) {
+          const jitterMs = Math.floor(Math.random() * 300);
+          const delayMs = BASE_DELAY_MS * Math.pow(2, attempt) + jitterMs;
+          retryTimer = setTimeout(() => {
+            void syncSubscriptionStatus(attempt + 1);
+          }, delayMs);
+        } else {
+          console.warn(
+            `[Subscription Sync] Failed to synchronize subscription status after ${MAX_RETRIES + 1} attempts:`,
+            err
+          );
         }
-      })
-      .catch(() => {});
+      }
+    };
+
+    void syncSubscriptionStatus(0);
+
+    return () => {
+      isCancelled = true;
+      if (retryTimer !== null) {
+        clearTimeout(retryTimer);
+      }
+    };
   }, [profile.email]);
 
   const handleLogout = async () => {
@@ -402,9 +550,11 @@ What question, topic, or problem would you like to explore today?`;
     setNotes(storage.getNotes());
     setMockTests(storage.getMockTests());
     setTasks(storage.getTasks());
+    setTopicProgress(storage.getTopicProgress());
+    setSavedGoals(storage.getSavedGoals());
   };
 
-  // IF NOT ONBOARDED: SHOW BEAUTIFUL ONBOARDING & AUTH FLOW
+  // IF NOT ONBOARDED: SHOW PATH-FIRST ONBOARDING & AUTH FLOW
   if (!profile.isOnboarded) {
     return <OnboardingFlow onComplete={handleOnboardingComplete} />;
   }
@@ -444,6 +594,9 @@ What question, topic, or problem would you like to explore today?`;
         currentView={currentView}
         setCurrentView={setCurrentView}
         profile={profile}
+        goalConfig={activeGoalConfig}
+        savedGoalsCount={Object.keys(savedGoals).length}
+        onOpenGoalSwitcher={() => setIsOpenGoalSwitcher(true)}
         isOpenMobile={isOpenMobileMenu}
         onCloseMobile={() => setIsOpenMobileMenu(false)}
         onOpenProfile={() => setIsOpenProfileModal(true)}
@@ -470,6 +623,8 @@ What question, topic, or problem would you like to explore today?`;
           onOpenMobileMenu={() => setIsOpenMobileMenu(true)}
           onOpenProfile={() => setIsOpenProfileModal(true)}
           profile={profile}
+          goalConfig={activeGoalConfig}
+          onOpenGoalSwitcher={() => setIsOpenGoalSwitcher(true)}
           isDark={isDark}
           onToggleTheme={handleToggleTheme}
           onOpenLanding={() => setCurrentView('landing')}
@@ -511,6 +666,8 @@ What question, topic, or problem would you like to explore today?`;
                   onSaveAsNote={handleSaveAsNote}
                   onCreateFlashcard={handleCreateFlashcard}
                   onOpenNcertGenerator={() => handleOpenNcertGenerator('both')}
+                  pendingPrompt={pendingChatPrompt}
+                  onConsumePendingPrompt={() => setPendingChatPrompt(null)}
                 />
               )}
 
@@ -540,7 +697,7 @@ What question, topic, or problem would you like to explore today?`;
                   profile={profile}
                   onExitTest={() => setCurrentView('exam')}
                   onSavedAttempt={attempt => {
-                    setMockTests(prev => [attempt, ...prev]);
+                    setMockTests(prev => [attempt, ...prev.filter(t => t.id !== attempt.id)]);
                     storage.saveMockTest(attempt);
                   }}
                 />
@@ -563,6 +720,8 @@ What question, topic, or problem would you like to explore today?`;
               {currentView === 'dashboard' && (
                 <DashboardView
                   profile={profile}
+                  goalConfig={activeGoalConfig}
+                  topicProgress={topicProgress}
                   conversations={conversations}
                   flashcards={flashcards}
                   notes={notes}
@@ -575,8 +734,26 @@ What question, topic, or problem would you like to explore today?`;
                     setActiveConvoId(id);
                     storage.setActiveConvoId(id);
                   }}
+                  onOpenGoalSwitcher={() => setIsOpenGoalSwitcher(true)}
+                  onLaunchTutorPrompt={handleLaunchTutorPrompt}
                   onOpenNcertGenerator={handleOpenNcertGenerator}
                   onUpdateNotes={handleUpdateNotes}
+                />
+              )}
+
+              {currentView === 'syllabus' && (
+                <SyllabusTrackerView
+                  goalConfig={activeGoalConfig}
+                  topicProgress={topicProgress}
+                  onUpdateTopicStatus={handleUpdateTopicStatus}
+                  notes={notes}
+                  flashcards={flashcards}
+                  mockTests={mockTests}
+                  onStudyTopicWithAi={(prompt, subjectName) =>
+                    handleLaunchTutorPrompt(prompt, subjectName as SubjectCategory)
+                  }
+                  onNavigate={setCurrentView}
+                  onOpenGoalSwitcher={() => setIsOpenGoalSwitcher(true)}
                 />
               )}
 
@@ -656,6 +833,7 @@ What question, topic, or problem would you like to explore today?`;
         <MobileBottomNav
           currentView={currentView}
           setCurrentView={setCurrentView}
+          goalConfig={activeGoalConfig}
         />
       </div>
 
@@ -690,6 +868,8 @@ What question, topic, or problem would you like to explore today?`;
         <ProfileModal
           profile={profile}
           providerStatus={providerStatus}
+          goalConfig={activeGoalConfig}
+          onOpenGoalSwitcher={() => setIsOpenGoalSwitcher(true)}
           onSaveProfile={p => {
             setProfile(p);
             storage.saveProfile(p);
@@ -698,6 +878,25 @@ What question, topic, or problem would you like to explore today?`;
           onClose={() => setIsOpenProfileModal(false)}
           onDataImported={handleReloadAllData}
           onLogout={handleLogout}
+        />
+      )}
+
+      {/* Goal Switcher Modal (One active goal at a time + preserved progress) */}
+      <GoalSwitcherModal
+        isOpen={isOpenGoalSwitcher}
+        onClose={() => setIsOpenGoalSwitcher(false)}
+        profile={profile}
+        activeGoalConfig={activeGoalConfig}
+        savedGoals={savedGoals}
+        onConfirmSwitchGoal={handleConfirmSwitchGoal}
+      />
+
+      {/* Personalized Cinematic Intro Overlay */}
+      {introGoalConfig && (
+        <PersonalizedIntro
+          goalConfig={introGoalConfig}
+          studentName={profile.name}
+          onComplete={() => setIntroGoalConfig(null)}
         />
       )}
     </div>

@@ -49,6 +49,7 @@ import {
   SyllabusChapter,
 } from '../lib/curriculum/types';
 import { SYLLABUS_REGISTRY } from '../lib/syllabusData';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface NcertLearningHubViewProps {
   profile: UserProfile;
@@ -206,9 +207,16 @@ ${activeChapter.syllabusTopics.map(t => `- ${t}`).join('\n')}
 
 Format with clear Markdown headers, bullet points, intuitive explanations, key definitions, formulas (using LaTeX), and 3 essential exam takeaways.`;
 
+      const resolvedGrade =
+        currentClassConfig.classNum <= 5
+          ? 'Class 1-5 (Primary)'
+          : currentClassConfig.classNum <= 8
+          ? 'Class 6-8 (Middle School)'
+          : 'Class 9-10 (Secondary)';
+
       const res = await api.sendChatMessage({
         messages: [{ role: 'user', content: prompt }],
-        grade: (currentClassConfig.classNum <= 8 ? 'Middle School (6-8)' : 'High School (9-10)') as any,
+        grade: resolvedGrade,
         subject: currentSubjectInfo.category,
         language: 'English',
         explanationDepth: 'step_by_step',
@@ -290,19 +298,58 @@ Format with clear Markdown headers, bullet points, intuitive explanations, key d
     return cards;
   }, [activeChapter]);
 
-  // Reset card index when chapter changes
-  useEffect(() => {
-    setCardIndex(0);
-    setIsCardFlipped(false);
-    setReviewedCards({});
-    setGeneratedNotes('');
-  }, [activeChapter]);
-
   // ----------------------------------------------------
   // CHAPTER LEARNING ENGINE: Quiz State
   // ----------------------------------------------------
   const [selectedQuizAnswers, setSelectedQuizAnswers] = useState<Record<number, number>>({});
   const [revealedSolutions, setRevealedSolutions] = useState<Record<number, boolean>>({});
+  const [isGeneratingMock, setIsGeneratingMock] = useState(false);
+
+  // Reset all chapter-scoped interactive states when switching chapters
+  useEffect(() => {
+    setCardIndex(0);
+    setIsCardFlipped(false);
+    setReviewedCards({});
+    setGeneratedNotes('');
+    setSelectedQuizAnswers({});
+    setRevealedSolutions({});
+    setTutorInput('');
+    setIsTutorThinking(false);
+  }, [activeChapter]);
+
+  const handleLaunchChapterMockTest = async () => {
+    if (!activeChapter || !currentSubjectInfo || !currentClassConfig) return;
+    if (!onStartMockTest) {
+      onNavigate('exam');
+      return;
+    }
+    setIsGeneratingMock(true);
+    try {
+      const resolvedGrade =
+        currentClassConfig.classNum <= 5
+          ? 'Class 1-5 (Primary)'
+          : currentClassConfig.classNum <= 8
+          ? 'Class 6-8 (Middle School)'
+          : 'Class 9-10 (Secondary)';
+      const paper = await api.generateExam({
+        grade: resolvedGrade,
+        subject: currentSubjectInfo.category,
+        topics: [activeChapter.name, ...activeChapter.syllabusTopics.slice(0, 3)],
+        difficulty: currentClassConfig.mode === 'foundation' ? 'Medium' : 'Hard',
+        numQuestions: 8,
+        questionTypes: ['mcq', 'short'],
+        totalMarks: 20,
+        durationMinutes: 20,
+        specialInstructions: `Tailored strictly to NCERT ${currentClassConfig.label} ${currentSubjectInfo.name} chapter "${activeChapter.name}".`,
+      });
+      onStartMockTest(paper);
+    } catch (err: any) {
+      showToast(`Could not generate mock test: ${err.message || 'Opening Exam Generator instead.'}`);
+      onNavigate('exam');
+    } finally {
+      setIsGeneratingMock(false);
+    }
+  };
 
   // Synthesize quiz questions
   const chapterQuiz = useMemo(() => {
@@ -414,12 +461,19 @@ Target audience: ${currentClassConfig.label} student (${currentClassConfig.nepSt
 Style: ${currentClassConfig.mode === 'foundation' ? 'Warm, intuitive, step-by-step, age-appropriate, encouraging, visual examples' : 'Rigorous, clear, highlighting keywords needed for CBSE board examinations'}.
 Do not introduce unnecessary complex college jargon. Directly answer the student's question clearly.`;
 
+      const resolvedGrade =
+        currentClassConfig.classNum <= 5
+          ? 'Class 1-5 (Primary)'
+          : currentClassConfig.classNum <= 8
+          ? 'Class 6-8 (Middle School)'
+          : 'Class 9-10 (Secondary)';
+
       const res = await api.sendChatMessage({
         messages: [
           { role: 'user', content: systemInstruction },
           ...newHistory.map(m => ({ role: m.role, content: m.content })),
         ],
-        grade: (currentClassConfig.classNum <= 8 ? 'Middle School (6-8)' : 'High School (9-10)') as any,
+        grade: resolvedGrade,
         subject: currentSubjectInfo.category,
         language: 'English',
         explanationDepth: 'step_by_step',
@@ -1090,8 +1144,8 @@ Do not introduce unnecessary complex college jargon. Directly answer the student
 
                   {/* Notes Content */}
                   {generatedNotes ? (
-                    <div className="rounded-2xl p-6 bg-white dark:bg-[#0e162b] border border-slate-200 dark:border-[#1a2542] text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap font-sans">
-                      {generatedNotes}
+                    <div className="rounded-2xl p-6 bg-white dark:bg-[#0e162b] border border-slate-200 dark:border-[#1a2542] text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
+                      <MarkdownRenderer content={generatedNotes} />
                     </div>
                   ) : (
                     <div className="rounded-2xl p-8 bg-white dark:bg-[#0e162b] border border-slate-200 dark:border-[#1a2542] text-center space-y-3">
@@ -1251,11 +1305,21 @@ Do not introduce unnecessary complex college jargon. Directly answer the student
                     </div>
                     <button
                       type="button"
-                      onClick={() => onNavigate('exam')}
-                      className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer shadow-xs"
+                      onClick={handleLaunchChapterMockTest}
+                      disabled={isGeneratingMock}
+                      className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer shadow-xs"
                     >
-                      <Award className="w-3.5 h-3.5" />
-                      <span>Generate Full Timed Mock</span>
+                      {isGeneratingMock ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Preparing Chapter Mock...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Award className="w-3.5 h-3.5" />
+                          <span>Generate Full Timed Mock</span>
+                        </>
+                      )}
                     </button>
                   </div>
 
@@ -1385,13 +1449,13 @@ Do not introduce unnecessary complex college jargon. Directly answer the student
                           </div>
                         )}
                         <div
-                          className={`max-w-[82%] rounded-2xl p-3.5 text-xs leading-relaxed whitespace-pre-wrap ${
+                          className={`max-w-[82%] rounded-2xl p-3.5 text-xs leading-relaxed ${
                             msg.role === 'user'
-                              ? 'bg-violet-600 text-white font-medium'
+                              ? 'bg-violet-600 text-white font-medium whitespace-pre-wrap'
                               : 'bg-slate-100 dark:bg-[#131b32] text-slate-800 dark:text-slate-200 border border-slate-200/60 dark:border-[#1e2a4a]'
                           }`}
                         >
-                          {msg.content}
+                          {msg.role === 'user' ? msg.content : <MarkdownRenderer content={msg.content} />}
                         </div>
                       </div>
                     ))}

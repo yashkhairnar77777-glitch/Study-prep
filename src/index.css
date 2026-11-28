@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {
@@ -14,11 +15,36 @@
 
   h1, h2, h3, h4, h5, h6, .font-display {
     font-family: var(--font-display);
+    text-wrap: balance;
   }
 
   code, pre, .font-mono {
     font-family: var(--font-mono);
   }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.surface-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  transition: border-color 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .surface-card {
+  background-color: #0f172a;
+  border-color: #1e293b;
+}
+
+.surface-card-interactive:hover {
+  border-color: #cbd5e1;
+}
+
+.dark .surface-card-interactive:hover {
+  border-color: #334155;
 }
 
 /* Safe area support for mobile devices */

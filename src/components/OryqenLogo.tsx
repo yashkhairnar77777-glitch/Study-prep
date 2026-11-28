@@ -19,44 +19,31 @@ export const OryqenLogo: React.FC<OryqenLogoProps> = ({
 
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      {/* Subtle Geometric Prism Symbol */}
+      {/* Geometric Prism Mark */}
       <div
-        className={`${iconSizes[size]} relative rounded-xl bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 p-[1px] shadow-sm shrink-0 flex items-center justify-center overflow-hidden`}
+        className={`${iconSizes[size]} relative rounded-xl bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center shrink-0`}
       >
-        <div className="w-full h-full rounded-[11px] bg-slate-950/20 backdrop-blur-xs flex items-center justify-center">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            className="w-5 h-5 text-white"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            {/* Geometric faceted prism hexagon */}
-            <polygon points="12 2 20 6.5 20 17.5 12 22 4 17.5 4 6.5" className="opacity-90 stroke-white" />
-            <line x1="12" y1="2" x2="12" y2="22" className="stroke-white/60" />
-            <polyline points="4 6.5 12 12 20 6.5" className="stroke-white/80" />
-            <circle cx="12" cy="12" r="2.5" className="fill-violet-300 stroke-none animate-pulse" />
-          </svg>
-        </div>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          className="w-4.5 h-4.5 text-white"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polygon points="12 2 20 6.5 20 17.5 12 22 4 17.5 4 6.5" className="stroke-white" />
+          <line x1="12" y1="2" x2="12" y2="22" className="stroke-white/70" />
+          <polyline points="4 6.5 12 12 20 6.5" className="stroke-white/85" />
+          <circle cx="12" cy="12" r="2" className="fill-white stroke-none" />
+        </svg>
       </div>
 
-      {/* Distinctive ORYQEN Wordmark */}
+      {/* Clean Single-Line Wordmark */}
       {showWordmark && (
-        <div className="flex flex-col leading-none">
-          <div className="flex items-center gap-1.5">
-            <span className="font-display font-black text-sm tracking-tight text-slate-900 dark:text-white">
-              ORYQEN
-            </span>
-            <span className="text-[10px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-md bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300 border border-violet-500/20">
-              STUDY AI
-            </span>
-          </div>
-          <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-400 tracking-wider uppercase mt-0.5">
-            Intelligent Learning System
-          </span>
-        </div>
+        <span className="font-display font-bold text-sm tracking-tight text-slate-900 dark:text-white whitespace-nowrap shrink-0">
+          ORYQEN Study AI
+        </span>
       )}
     </div>
   );

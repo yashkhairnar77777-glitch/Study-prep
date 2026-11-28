@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   UserPlus,
   LogIn,
+  ArrowRightLeft,
 } from 'lucide-react';
 import {
   UserProfile,
@@ -25,6 +26,7 @@ import {
   EducationCategory,
   LearningGoal,
   ProviderStatus,
+  GoalConfig,
 } from '../types';
 import { storage } from '../lib/storage';
 import {
@@ -61,6 +63,8 @@ const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'w-5 h-5' })
 interface ProfileModalProps {
   profile: UserProfile;
   providerStatus: ProviderStatus | null;
+  goalConfig?: GoalConfig;
+  onOpenGoalSwitcher?: () => void;
   onSaveProfile: (updated: UserProfile) => void;
   onClose: () => void;
   onDataImported: () => void;
@@ -70,6 +74,8 @@ interface ProfileModalProps {
 export const ProfileModal: React.FC<ProfileModalProps> = ({
   profile,
   providerStatus,
+  goalConfig,
+  onOpenGoalSwitcher,
   onSaveProfile,
   onClose,
   onDataImported,
@@ -383,6 +389,34 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           </div>
         )}
 
+        {/* Active Learning Goal Summary & Switcher */}
+        {goalConfig && onOpenGoalSwitcher && (
+          <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-slate-900/60 p-4 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Active Learning Goal
+              </div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white truncate mt-0.5">
+                {goalConfig.label}
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {goalConfig.medium} Medium · Switching preserves progress
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenGoalSwitcher();
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold shrink-0 transition-colors"
+            >
+              <ArrowRightLeft className="w-3.5 h-3.5" />
+              <span>Switch Goal</span>
+            </button>
+          </div>
+        )}
+
         {/* Real Authentication & Firestore Card */}
         <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-slate-900/60 p-4 space-y-3">
           <div className="flex items-center justify-between">
@@ -627,7 +661,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 <option value="school">School (Classes 1 - 12 / NCERT / CBSE / ICSE)</option>
                 <option value="college">College / University Degree</option>
                 <option value="competitive">Competitive Exams (JEE / NEET / UPSC / etc.)</option>
-                <option value="independent">Independent Learner / Professional</option>
+                <option value="other">Independent Learner / Professional</option>
               </select>
             </div>
           </div>
@@ -752,10 +786,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 onChange={e => setDefaultStyle(e.target.value as ExplanationStyle)}
                 className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-violet-500/20"
               >
-                <option value="intuitive">Intuitive (Analogies & Simple terms)</option>
-                <option value="rigorous">Rigorous (Formal proofs & Definitions)</option>
-                <option value="bullet_points">High-Yield Bullet Points</option>
-                <option value="formula_first">Formula & Derivation First</option>
+                <option value="basics">Basics & First Principles (Analogies & Simple terms)</option>
+                <option value="step_by_step">Step-by-Step (Guided Explanations & Derivations)</option>
+                <option value="quick">Quick Summary (Concise Direct Answers)</option>
+                <option value="exam_ready">Exam Ready (High-Yield Definitions & Scoring Points)</option>
               </select>
             </div>
           </div>

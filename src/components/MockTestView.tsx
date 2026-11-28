@@ -160,7 +160,7 @@ export const MockTestView: React.FC<MockTestViewProps> = ({
       paper.totalMarks > 0 ? Math.round((obtainedTotal / paper.totalMarks) * 100) : 0;
 
     const attempt: MockTestAttempt = {
-      id: `attempt-${Date.now()}`,
+      id: `attempt-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       examTitle: paper.title,
       grade: paper.grade,
       subject: paper.subject,
@@ -173,7 +173,6 @@ export const MockTestView: React.FC<MockTestViewProps> = ({
     };
 
     setTestResult(attempt);
-    storage.saveMockTest(attempt);
     storage.recordStudyEngagement(Math.max(5, Math.round(paper.durationMinutes)));
     storage.addStudyActivity({
       type: 'mock_test',

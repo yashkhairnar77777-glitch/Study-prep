@@ -75,6 +75,8 @@ interface ChatViewProps {
   onSaveAsNote: (title: string, content: string, subject: SubjectCategory) => void;
   onCreateFlashcard: (front: string, back: string, subject: SubjectCategory) => void;
   onOpenNcertGenerator?: () => void;
+  pendingPrompt?: string | null;
+  onConsumePendingPrompt?: () => void;
 }
 
 export const ChatView: React.FC<ChatViewProps> = ({
@@ -85,6 +87,8 @@ export const ChatView: React.FC<ChatViewProps> = ({
   onSaveAsNote,
   onCreateFlashcard,
   onOpenNcertGenerator,
+  pendingPrompt,
+  onConsumePendingPrompt,
 }) => {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -103,6 +107,13 @@ export const ChatView: React.FC<ChatViewProps> = ({
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (pendingPrompt && pendingPrompt.trim()) {
+      setInputText(pendingPrompt);
+      onConsumePendingPrompt?.();
+    }
+  }, [pendingPrompt, onConsumePendingPrompt]);
 
   // Check browser speech recognition support on mount
   useEffect(() => {
@@ -643,11 +654,17 @@ Please tutor me on this chapter:
               <option value="Physics">Physics</option>
               <option value="Chemistry">Chemistry</option>
               <option value="Biology">Biology</option>
-              <option value="Computer Science">Computer Science</option>
-              <option value="English & Languages">English & Languages</option>
-              <option value="History & Social Studies">History & Social Studies</option>
-              <option value="Economics & Commerce">Economics & Commerce</option>
               <option value="General Science">General Science</option>
+              <option value="History & Social Studies">History & Social Studies</option>
+              <option value="Hindi">Hindi</option>
+              <option value="Marathi">Marathi</option>
+              <option value="Sanskrit">Sanskrit</option>
+              <option value="Japanese">Japanese</option>
+              <option value="English & Languages">English & Languages</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Economics & Commerce">Economics & Commerce</option>
+              <option value="Foundation & Olympiads">Foundation & Olympiads</option>
+              <option value="UPSC General Studies">UPSC General Studies</option>
             </select>
           </div>
 

@@ -41,30 +41,15 @@ export const AdminPasswordOverlay: React.FC<AdminPasswordOverlayProps> = ({
     setError(null);
 
     try {
-      // Direct verification for y@ash2013 and server authentication
-      if (trimmed === 'y@ash2013') {
-        // Also authenticate with backend to retrieve session token
-        try {
-          const res = await subscriptionService.verifyAdminPassword(trimmed, adminEmail);
-          if (res.token) {
-            subscriptionService.setAdminAuthToken(res.token);
-          }
-        } catch {
-          // Fallback session token if offline or network hiccup
-          subscriptionService.setAdminAuthToken(`adm_local_${Date.now()}`);
-        }
-        onAuthenticated();
+      const res = await subscriptionService.verifyAdminPassword(trimmed, adminEmail);
+      if (res.success && res.token) {
+        subscriptionService.setAdminAuthToken(res.token);
+        onAuthenticated(res.token);
       } else {
-        // Try backend verification in case configured differently
-        const res = await subscriptionService.verifyAdminPassword(trimmed, adminEmail);
-        if (res.success) {
-          onAuthenticated(res.token);
-        } else {
-          triggerError(res.error || 'Incorrect admin password. Access denied.');
-        }
+        triggerError(res.error || 'Incorrect admin password. Access denied.');
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Authentication failed';
+      const msg = err instanceof Error ? err.message : 'Authentication failed. Please check connection and try again.';
       triggerError(msg);
     } finally {
       setIsVerifying(false);
